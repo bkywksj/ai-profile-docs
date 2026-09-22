@@ -120,12 +120,28 @@ export interface Vendor {
   isLocal: boolean;
 }
 
+/** 限额数字的来源 —— 决定界面是直接用还是让用户能改 */
+export type LimitSource = "endpoint" | "preset";
+
+export interface TokenLimits {
+  /** 上下文窗口（输入 + 输出总量）；null = 未知，让用户手填 */
+  contextWindow: number | null;
+  /** 单次输出上限；null = 未知 */
+  maxOutput: number | null;
+  /** 🔴 endpoint = 端点保证的事实；preset = 本库的估计值，应允许用户修改 */
+  source: LimitSource;
+}
+
 export interface VerifyOk {
   latencyMs: number;
   models: string[];
   /** 滤掉的非对话模型条数 —— 用于「已滤掉 N 个」提示 */
   dropped: number;
   modelInList: boolean;
+  /** 当前填的那个模型的限额；null = 端点没报，回落到预置静态值 */
+  limits: TokenLimits | null;
+  /** 端点报了限额的全部模型，[id, 限额]。用于「换个模型立刻显示新窗口」 */
+  modelLimits: [string, TokenLimits][];
 }
 ```
 

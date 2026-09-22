@@ -114,6 +114,8 @@ pub struct VerifyOk {
     pub models: Vec<String>,  // 端点返回的可对话模型清单（已去重 + 清洗）
     pub dropped: usize,       // 滤掉的条数 —— 用于「已滤掉 N 个向量 / 重排 / 语音等」
     pub model_in_list: bool,  // 当前填的 model 在不在清单里
+    pub limits: Option<TokenLimits>,                  // 当前模型的限额（端点上报）
+    pub model_limits: Vec<(String, TokenLimits)>,     // 全部报了限额的模型
 }
 ```
 
@@ -127,6 +129,86 @@ pub struct VerifyOk {
 
 `model_in_list` 为 `false` 时给一个提示而不是报错：端点清单未必完整，
 用户也可能刻意用一个未公开的模型名。
+
+## token 限额：三层回退
+
+`limits` 与 `model_limits` 带的是**端点自己报的**上下文窗口与输出上限。
+
+### 为什么不做一张全量能力表
+
+调研过 models.dev（一万多次提交在维护）与 LiteLLM 的
+`model_prices_and_context_window.json`。那类数据周级变动，且**同一个模型在
+不同中转站的实际限额并不相同** —— 本库既没有那个维护量，也无从知道某家中转站
+到底给用户开了多大窗口。真要全量表，应用自己去拉 `models.dev/api.json`。
+
+本库只回答一个具体问题：**发这次请求前，该按多大的窗口裁历史。**
+
+### 静态兜底不是可选项
+
+实测各家 `/models` 到底报不报：
+
+| 端点 | 带上下文？ |
+|---|---|
+| OpenRouter | ✅ `context_length` 100% 覆盖（442 条实测） |
+| DeepSeek | ❌ 只有 `{id, object, owned_by}` |
+| LM Studio / Ollama 兼容层 | ❌ 同上（原生 `/api/v1/models` 才有） |
+
+根因是 **OpenAI 的 `/v1/models` 规范里就没有 context 字段**。只靠端点的话，
+这个能力在多数端点上等于不存在。所以有三层：
+
+```
+1. 端点实时上报        ← VerifyOk.limits，source: Endpoint
+2. 预置静态兜底        ← ModelOption::preset_limits()，source: Preset
+3. 都没有 → None       ← 让用户手填，别猜
+```
+
+### 🔴 来源必须能分辨
+
+```rust
+pub struct TokenLimits {
+    pub context_window: Option<u32>,
+    pub max_output: Option<u32>,
+    pub source: LimitSource,   // Endpoint | Preset
+}
+```
+
+`source` 不是装饰。调研到的真实故障几乎每条都源于「把猜的数字当成真的」：
+
+- 某网关丢元数据 → 客户端回落硬编码表 → 512K 被当成 131K，提前触发压缩
+- 某应用钉死 65536，而实测请求中位数 153395、p90 达 433535
+- 某扩展硬编码 288K，同时无视服务器上报值**和**用户设置
+
+共同点不是「数字错了」，而是**错了也看不出来**。有了 `source`，界面才能区分
+「端点上报 128K」与「预估 128K，可修改」。
+
+::: warning top_provider 优先级更高
+OpenRouter 的顶层 `context_length` 是**模型本体**标称值，
+`top_provider.context_length` 是**这家实际提供**的 —— 实测两者会不一致。
+取错了会按一个用不到的大数字裁历史，表现为「明明裁过还是超限」。
+本库优先取嵌套那份。
+:::
+
+### 算裁剪预算
+
+```rust
+use ai_profile::TokenLimits;
+
+// reserve_output 传本次请求实际要用的 max_tokens，不是模型的输出上限 ——
+// 用上限会把预算压得过小
+let budget = limits.input_budget(4096);   // Some(123_904) 当窗口是 128K
+
+// 🔴 窗口未知时返回 None：不猜。
+//    调用方应当据此**不裁**，而不是自己兜一个默认值 ——
+//    那正是上面那些故障的成因。
+```
+
+### 静态值只填文档明确的
+
+预置里的 `ModelOption` 可带 `context_window` / `max_output`，但**只填官方文档
+写明的**，查不到一律留空。
+
+顺带一个数据：DeepSeek V3 时代是 128K/8K，V4 已经 **1M/384K** —— 半年翻八倍。
+这正是「端点报了就用端点的」的理由，静态值只是端点沉默时的下限保证。
 
 ## 并发验证
 
