@@ -1,0 +1,22 @@
+{
+  "name": "ai-profile-docs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs",
+    "check-links": "python scripts/check-links.py docs",
+    "sync-providers": "python scripts/sync-providers.py ../ai-profile docs/reference/providers.md"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "packageManager": "pnpm@10.12.2"
+}
