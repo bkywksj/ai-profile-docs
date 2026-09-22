@@ -133,16 +133,28 @@ impl ModelService {
 
 这样做等于把本库最有价值的部分丢掉了：`suggested_url` 没了，「一键改用」按钮就做不出来。
 
-正确做法是**让 `VerifyError` 原样序列化到前端**。它自带 `code` 判别字段：
+有两种做法能保住结构，选哪个取决于你的应用有没有统一的 `CommandError` 约定。
+
+### 做法 A：让验证结果成为返回值（推荐）
+
+「端点连不上」是**验证的结果**，不是 Command 执行失败 —— Command 成功地完成了
+验证工作。真正的 `Err` 留给读库失败、解密失败这类调用方无能为力的情况。
+
+这样做还有个实际好处：应用里那套 `Result<T, CommandError>` 的约定一条不破。
 
 ```rust
-// src-tauri/src/commands/model_service.rs
-use crate::state::AppState;
-use ai_profile::VerifyError;
+/// 成功与失败都是正常返回值
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct VerifyOutcome {
+    pub ok: bool,
+    pub result: Option<ai_profile::client::VerifyOk>,
+    /// 带 `code` 判别字段，前端据此给动作
+    pub error: Option<ai_profile::VerifyError>,
+    /// 失败是否可能通过「改配置」解决；false = 只能重试
+    pub actionable: bool,
+}
 
-/// 🔴 错误类型直接用 VerifyError，不转成应用的 CommandError ——
-///    它自身就是结构化的，转换只会丢掉 suggested_url / available 这些
-///    「让界面能给出动作」的字段。
 #[tauri::command]
 pub async fn verify_model_service(
     state: tauri::State<'_, AppState>,
@@ -150,18 +162,37 @@ pub async fn verify_model_service(
     base_url: String,
     api_key: String,
     model: String,
-) -> Result<ai_profile::client::VerifyOk, VerifyError> {
-    ModelService::verify(
-        &state.verifier,
-        preset_key.as_deref(),
-        &base_url,
-        &api_key,
-        &model,
-        &[],
-    )
-    .await
+) -> Result<VerifyOutcome, CommandError> {
+    let cfg = /* … 见上一节 … */;
+    Ok(match state.verifier.verify(cfg).await {
+        Ok(ok) => VerifyOutcome { ok: true, result: Some(ok), error: None, actionable: true },
+        Err(e) => VerifyOutcome {
+            ok: false,
+            result: None,
+            actionable: e.is_actionable(),
+            error: Some(e),
+        },
+    })
 }
+```
 
+sigil 就是这么接的。
+
+### 做法 B：直接返回 VerifyError
+
+应用没有统一错误类型时更简单 —— `VerifyError` 自身就是结构化的：
+
+```rust
+#[tauri::command]
+pub async fn verify_model_service(/* … */) -> Result<ai_profile::client::VerifyOk, VerifyError> {
+    state.verifier.verify(cfg).await
+}
+```
+
+代价是这个 Command 的错误形状与应用里其它 Command 不一致 ——
+前端那套 `getErrorMessage` / `getErrorCode` 辅助函数对它不适用。
+
+```rust
 #[tauri::command]
 pub fn list_model_vendors() -> Vec<ai_profile::Vendor> {
     ModelService::vendor_catalog()

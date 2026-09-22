@@ -123,6 +123,8 @@ export interface Vendor {
 export interface VerifyOk {
   latencyMs: number;
   models: string[];
+  /** 滤掉的非对话模型条数 —— 用于「已滤掉 N 个」提示 */
+  dropped: number;
   modelInList: boolean;
 }
 ```

@@ -112,11 +112,15 @@ let cfg = ServiceConfig::new(Protocol::OpenAiCompatible, "https://api.deepseek.c
 pub struct VerifyOk {
     pub latency_ms: u32,      // 往返耗时 —— 界面显示「正常 · 320ms」，中转站慢不慢一眼看出
     pub models: Vec<String>,  // 端点返回的可对话模型清单（已去重 + 清洗）
+    pub dropped: usize,       // 滤掉的条数 —— 用于「已滤掉 N 个向量 / 重排 / 语音等」
     pub model_in_list: bool,  // 当前填的 model 在不在清单里
 }
 ```
 
 序列化为 camelCase（`latencyMs` / `modelInList`），可直接从 Tauri Command 返回。
+
+`dropped` 别忽略：聚合平台一次能返回几百条，滤掉的往往比留下的多。
+不告诉用户清单被处理过，他会以为这个端点就这么几个模型。
 
 `models` 的正确用法是**把它填进模型下拉** —— 用户不必再去翻文档抄模型名。
 这是验证顺带产生的价值，别浪费。
