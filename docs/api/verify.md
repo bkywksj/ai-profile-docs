@@ -130,7 +130,7 @@ pub struct VerifyOk {
 `model_in_list` 为 `false` 时给一个提示而不是报错：端点清单未必完整，
 用户也可能刻意用一个未公开的模型名。
 
-## token 限额：三层回退
+## token 限额：分层回退
 
 `limits` 与 `model_limits` 带的是**端点自己报的**上下文窗口与输出上限。
 
@@ -154,13 +154,32 @@ pub struct VerifyOk {
 | LM Studio / Ollama 兼容层 | ❌ 只有 `{id, object, owned_by}`（原生 `/api/v1/models` 才有） |
 
 根因是 **OpenAI 的 `/v1/models` 规范里就没有 context 字段**。只靠端点的话，
-这个能力在多数端点上等于不存在。所以有三层：
+这个能力在多数端点上等于不存在。所以分层回退：
 
 ```
+0. 用户手填            ← TokenLimits::from_user()，source: User
 1. 端点实时上报        ← VerifyOk.limits，source: Endpoint
-2. 预置静态兜底        ← ModelOption::preset_limits()，source: Preset
+2. 预置静态兜底        ← preset::model_limits()，source: Preset
 3. 都没有 → None       ← 让用户手填，别猜
 ```
+
+端点值只在验证时拿得到，**调用方要自己存下来**，对话时再叠：
+
+```rust
+use ai_profile::{preset, TokenLimits};
+
+let stored = TokenLimits::with_source(saved.context_window, saved.max_output, saved.source);
+let preset = preset::model_limits(protocol, base_url, model);
+let limits = match preset {
+    Some(p) => stored.or(p),   // 逐字段回退：用户只填了窗口，输出上限照样从预置补
+    None => stored,
+};
+```
+
+::: tip 为什么逐字段
+用户常常只知道窗口（文档写了）不知道输出上限。整条替换的话，
+填了窗口反而丢掉预置里的输出上限 —— 填了比不填还差。
+:::
 
 ### 🔴 来源必须能分辨
 
@@ -168,7 +187,7 @@ pub struct VerifyOk {
 pub struct TokenLimits {
     pub context_window: Option<u32>,
     pub max_output: Option<u32>,
-    pub source: LimitSource,   // Endpoint | Preset
+    pub source: LimitSource,   // User | Endpoint | Preset
 }
 ```
 

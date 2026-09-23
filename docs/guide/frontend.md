@@ -38,7 +38,7 @@
     { "value": "deepseek-flash", "label": "deepseek-flash" },
     { "value": "deepseek-v4-pro", "label": "deepseek-v4-pro" }
   ],
-  "protocol": "open_ai_compatible",
+  "protocol": "openai_compatible",
   "matchHosts": ["api.deepseek.com"],
   "extraFields": [],
   "applyUrl": "https://platform.deepseek.com/api_keys",
@@ -47,7 +47,8 @@
 }
 ```
 
-注意 `protocol` 的取值是 **snake_case 的枚举值**：`"open_ai_compatible"` 或 `"anthropic"`。
+`protocol` 取值为 `"openai_compatible"` 或 `"anthropic"`，与 Rust 侧 `Protocol::as_str()` 同一套拼写 ——
+前端可以直接拿它和后端存的值比较，不需要转换层。
 
 `Vendor`（服务商目录卡片）：
 
@@ -70,7 +71,7 @@
 ```typescript
 // src/types/model-service.ts
 export type Kind = "chat" | "image" | "video" | "tts";
-export type Protocol = "anthropic" | "open_ai_compatible";
+export type Protocol = "anthropic" | "openai_compatible";
 
 export interface ModelOption {
   value: string;
