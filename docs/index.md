@@ -20,7 +20,7 @@ hero:
       link: https://github.com/bkywksj/ai-profile
 
 features:
-  - title: 19 家服务商预置
+  - title: 25 家服务商预置
     details: base_url、模型 id、协议类型、专有字段、密钥申请页，全部作为静态数据内置。按厂商聚合成目录 —— 同一家的多种能力共用一个密钥，配一次就能全开。
     link: /reference/providers
     linkText: 看完整清单

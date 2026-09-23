@@ -244,7 +244,7 @@ let results = join_all(rows.iter().map(|r| {
 
 共用一个 `Verifier` 就是共用连接池 —— 同一家的多条配置只握手一次。
 
-本库自己的 `cargo xtask probe` 就是这么做的：19 家串行最坏要 6 分钟，
+本库自己的 `cargo xtask probe` 就是这么做的：25 家串行最坏要 8 分钟，
 并发后实测 12 家 4.5 秒跑完。
 
 ## 不发请求也能判的事

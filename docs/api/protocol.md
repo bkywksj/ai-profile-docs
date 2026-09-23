@@ -115,6 +115,51 @@ if profile.model_fallback {
 `toolId: "claude-code"`。不看 `toolId` 会误判成 OpenAI 兼容，然后请求错端点 ——
 用户得到的是一个 404，完全看不出是协议判错了。
 
+## 多条打包
+
+一次分享多条配置用独立的 `kind`：
+
+```json
+{ "kind": "ai.profile.bundle", "v": 1, "data": { "profiles": [ { …单条的 data… } ] } }
+```
+
+用独立 `kind` 而不是往单条里塞数组：只认单条的旧实现遇到它会报「不是 ai.profile」，
+而不是把第一条误读成一条配置、悄悄丢掉其余的。
+
+### 解析：`parse_profiles`
+
+单条与打包统一返回列表，调用方不必先判断是哪种：
+
+```rust
+use ai_profile::parse_profiles;
+
+let r = parse_profiles(pasted_text, "")?;
+// r.profiles：Vec<ParsedProfile>，顺序与来源一致；单条信封时恰好一条
+// r.skipped：跳过的条数（见下）—— 界面要告诉用户，否则会以为漏导了
+// r.bundle：来源是不是打包
+```
+
+`parse_profile`（单条）签名不变，遇到打包仍报 `not_ai_profile`。
+
+### 兼容已经发出去的写法
+
+智码（tauri-cc）的打包在本协议定稿前就已经在用，形状是它同步载荷里的档案：
+
+| 智码写法 | 处理 |
+|---|---|
+| `data.api_profiles` | 与规范的 `data.profiles` 同等对待 |
+| snake_case 字段（`base_url` / `api_key`） | 同单条，三种拼写都认 |
+| 条目顶层的 `tool_id` | 作用同 `hints.toolId`，参与协议推断 |
+| `auth_type: "oauth"` | **跳过并计入 `skipped`** —— OAuth 凭据与签发它的设备绑定，换一台机器不可用 |
+| `manifest` 及其它多余字段 | 忽略 |
+
+不是对象的条目静默丢弃；一条可导入的都没有时返回 `EmptyBundle`。
+
+::: tip 为什么不另起一套
+生态里已经有软件在发这个格式。另起一套的结果是两种打包并存、互相解析不了 ——
+宽进严出：解析时照收别家已发出去的写法，将来生成打包时只产出规范的 `profiles`。
+:::
+
 ## 生成
 
 ```rust
@@ -164,6 +209,7 @@ if env.v > AI_PROFILE_VERSION { return Err(UnsupportedVersion { .. }) }
 | `NotAiProfile { found }` | `not_ai_profile` | `kind` 不是 `ai.profile` |
 | `UnsupportedVersion { found, supported }` | `unsupported_version` | 版本高于本实现 |
 | `MissingData` | `missing_data` | `data` 缺失或不是对象 |
+| `EmptyBundle { skipped }` | `empty_bundle` | 打包里没有一条可导入的配置（`skipped` 为跳过的 OAuth 档案数） |
 
 界面上这两类错误的表现应当不同：`ParseError` 说明"你粘错东西了"，
 `VerifyError` 说明"配置本身有问题"。
@@ -176,7 +222,8 @@ if env.v > AI_PROFILE_VERSION { return Err(UnsupportedVersion { .. }) }
 2. **生成只产出规范写法**
 3. **只拒绝更高版本**
 4. `model` 缺失是合法的，别当成错误
-5. 字段**只增不改** —— 改已有字段名是生态分裂
+5. 多条打包用 `ai.profile.bundle`，并照收 `api_profiles` 这个既有写法
+6. 字段**只增不改** —— 改已有字段名是生态分裂
 
 ## 相关
 
