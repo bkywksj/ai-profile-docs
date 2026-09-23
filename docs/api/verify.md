@@ -150,8 +150,8 @@ pub struct VerifyOk {
 | 端点 | 带上下文？ |
 |---|---|
 | OpenRouter | ✅ `context_length` 100% 覆盖（442 条实测） |
-| DeepSeek | ❌ 只有 `{id, object, owned_by}` |
-| LM Studio / Ollama 兼容层 | ❌ 同上（原生 `/api/v1/models` 才有） |
+| DeepSeek | ✅ `context_window` + `max_output_tokens`（真实密钥实测） |
+| LM Studio / Ollama 兼容层 | ❌ 只有 `{id, object, owned_by}`（原生 `/api/v1/models` 才有） |
 
 根因是 **OpenAI 的 `/v1/models` 规范里就没有 context 字段**。只靠端点的话，
 这个能力在多数端点上等于不存在。所以有三层：
