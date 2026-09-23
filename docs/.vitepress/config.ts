@@ -102,6 +102,7 @@ export default defineConfig({
             { text: '连通性验证', link: '/api/verify' },
             { text: 'ai.profile 协议', link: '/api/protocol' },
             { text: '端点与模型清单', link: '/api/endpoint' },
+            { text: '历史裁剪与超长重试', link: '/api/history' },
           ],
         },
       ],
