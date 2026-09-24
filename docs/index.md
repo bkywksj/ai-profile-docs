@@ -20,7 +20,7 @@ hero:
       link: https://github.com/bkywksj/ai-profile
 
 features:
-  - title: 25 家服务商预置
+  - title: 对话 25 家 + 生图 / 视频 / 配音 17 条预置
     details: base_url、模型 id、协议类型、专有字段、密钥申请页，全部作为静态数据内置。按厂商聚合成目录 —— 同一家的多种能力共用一个密钥，配一次就能全开。
     link: /reference/providers
     linkText: 看完整清单
@@ -36,6 +36,14 @@ features:
     details: 只打端点的模型列表接口，不产生任何生成费用。顺带把真实模型清单拉回来 —— 用户不必去翻文档抄模型名。
     link: /api/verify
     linkText: 验证 API
+  - title: 生图 / 视频 / 配音调用
+    details: 六套视频提交与轮询协议、两套生图、两套配音，按地址自动识别。来自生产环境的实现：错误翻成可操作的中文，出图不会被超时误杀却照样扣费。
+    link: /api/media
+    linkText: 多模态调用
+  - title: 应用可以定制目录
+    details: 公共服务商放在库里，只属于某个应用的条目由它自己加；也能删掉、筛掉自己用不上的几家。私有条目自动插进对应分组。
+    link: /api/catalog
+    linkText: 定制目录
   - title: 默认零重依赖
     details: 默认只有 serde 与 thiserror，纯数据 + 纯函数，能编到移动端。需要真发 HTTP 时才开 client feature 拉 reqwest；不用的能力不编进二进制。
     link: /guide/installation

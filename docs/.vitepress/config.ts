@@ -7,8 +7,8 @@ const SITE = 'https://ai-profile.ruoyi.plus'
 const REPO = 'https://github.com/bkywksj/ai-profile'
 
 const DESC =
-  'ai-profile 是给桌面应用用的 AI 模型服务配置层：19 家服务商预置、ai.profile 跨应用互通协议、' +
-  '端点拼接与连通性验证。纯 Rust，默认零重依赖，按 feature 裁剪。'
+  'ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、' +
+  'ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。'
 
 export default defineConfig({
   lang: 'zh-CN',
@@ -21,7 +21,7 @@ export default defineConfig({
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }],
     ['meta', {
       name: 'keywords',
-      content: 'ai-profile,Rust crate,模型服务,LLM 配置,provider 预置,ai.profile,OpenAI 兼容,Anthropic 协议,Tauri,DeepSeek,智谱,火山方舟,xAI',
+      content: 'ai-profile,Rust crate,模型服务,LLM 配置,provider 预置,ai.profile,OpenAI 兼容,Anthropic 协议,Tauri,生图,视频生成,语音合成,DeepSeek,智谱,火山方舟,xAI',
     }],
 
     ['meta', { property: 'og:type', content: 'website' }],
@@ -90,6 +90,7 @@ export default defineConfig({
           items: [
             { text: 'Tauri 应用接入', link: '/guide/tauri-integration' },
             { text: '前端对接', link: '/guide/frontend' },
+            { text: '已发布应用的接入迁移', link: '/guide/migration' },
           ],
         },
       ],
@@ -99,10 +100,13 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '预置与服务商目录', link: '/api/preset' },
+            { text: '定制服务商目录', link: '/api/catalog' },
             { text: '连通性验证', link: '/api/verify' },
             { text: 'ai.profile 协议', link: '/api/protocol' },
             { text: '端点与模型清单', link: '/api/endpoint' },
+            { text: '限额：窗口与输出上限', link: '/api/limits' },
             { text: '历史裁剪与超长重试', link: '/api/history' },
+            { text: '生图、视频与配音', link: '/api/media' },
           ],
         },
       ],

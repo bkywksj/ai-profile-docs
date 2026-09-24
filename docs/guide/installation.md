@@ -16,9 +16,9 @@ ai-profile = { git = "https://github.com/bkywksj/ai-profile", features = ["chat"
 ai-profile = { git = "https://github.com/bkywksj/ai-profile", rev = "aa4eea4", features = ["chat", "client"] }
 ```
 
-::: tip 为什么先不发 crates.io
-crates.io 的版本**永久不可撤回**，`0.1.0` 一旦发出去就占住了这个名字。
-在第一个真实接入方（sigil）跑通之前，API 形状还可能调整 —— 现在发布只会制造需要长期背负的兼容包袱。
+::: tip 为什么还没发 crates.io
+crates.io 的版本**永久不可撤回**。目前已有五个应用接入（Sigil、Reeve、知识库、一站通、StoryLoom），
+接口已经稳定下来；发布前还在补齐文档，完成后会发 `0.1.0`。
 :::
 
 ## feature 矩阵
@@ -26,10 +26,19 @@ crates.io 的版本**永久不可撤回**，`0.1.0` 一旦发出去就占住了�
 | feature | 默认 | 作用 | 带来的依赖 |
 |---|---|---|---|
 | `chat` | ✅ | 对话能力的预置与类型 | 无 |
-| `image` | ❌ | 生图能力（规划中） | 无 |
-| `video` | ❌ | 视频能力（规划中） | 无 |
-| `tts` | ❌ | 语音合成（规划中） | 无 |
-| `client` | ❌ | 真实 HTTP 调用（`Verifier` / `verify`） | `reqwest`、`tokio` |
+| `image` | ❌ | 生图预置；与 `client` 同开时加上生图调用 | 无 |
+| `video` | ❌ | 视频预置；与 `client` 同开时加上视频调用 | 图像解码库（大首帧压缩用） |
+| `tts` | ❌ | 配音预置；与 `client` 同开时加上配音调用 | 无 |
+| `client` | ❌ | 真实 HTTP 调用（`Verifier` / `verify`，以及开了能力后的 `media`） | `reqwest`、`tokio`、`base64`、`log` |
+
+### 组合出什么
+
+| 开的 feature | 得到 |
+|---|---|
+| `chat` | 预置、服务商目录、`ai.profile`、端点拼接、模型清洗、限额、历史裁剪 —— 全是纯数据与纯函数 |
+| `chat` + `client` | 再加「获取模型」零成本验证 |
+| + `image` / `video` / `tts` | 再加对应能力的预置 |
+| + `client` 且开了某个能力 | 再加该能力的真实调用（[生图、视频与配音](/api/media)） |
 
 默认只开 `chat`：
 
@@ -98,7 +107,7 @@ fn main() {
 ```
 
 ```text
-内置 19 条预置
+内置 25 条预置
   anthropic_official — Anthropic 官方
   claude_code — Claude Code 客户端（自定义接口地址）
   codex — Codex 客户端（自定义接口地址）
@@ -108,3 +117,4 @@ fn main() {
 
 - [快速开始](/guide/quick-start) —— 跑通一次真实验证
 - [Tauri 应用接入](/guide/tauri-integration) —— 存进 `AppState`、包成 Command
+- [已发布应用的接入迁移](/guide/migration) —— 用户手里已有配置时先读这篇

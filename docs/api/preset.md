@@ -140,6 +140,7 @@ for f in p.extra_fields {
 
 ## 相关
 
-- [服务商清单](/reference/providers) —— 当前全部 19 条预置的实际数据
+- [服务商清单](/reference/providers) —— 当前全部预置的实际数据
+- [定制服务商目录](/api/catalog) —— 应用自己增删改筛、加私有条目
 - [加一家服务商](/reference/add-provider) —— 提 PR 的完整流程
 - [前端对接](/guide/frontend) —— 这些类型序列化后的确切 JSON
