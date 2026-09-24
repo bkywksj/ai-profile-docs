@@ -16,6 +16,7 @@ assert_eq!(
 ```
 
 **写什么就是什么，版本段由用户自己填。** 预置清单里各家都已带上完整版本段。
+唯一的例外是 Anthropic 协议，见下方[「Anthropic 协议自动补 /v1」](#anthropic-协议自动补-v1)。
 
 ### 为什么不自动补 /v1
 
@@ -71,6 +72,42 @@ join_chat_endpoint("https://relay.example/v1/chat/completions", "chat/completion
 用户填了完整的 `/chat/completions` 会让它拿这个地址去 GET，必然失败。
 
 表现是「能聊天却拉不到模型列表」—— 一个很难联想到根因的故障。
+:::
+
+### Anthropic 协议自动补 /v1
+
+「不推断版本段」的理由只对 OpenAI 兼容一侧成立 —— 那边各家确实不统一。Anthropic 协议没有这个问题：
+它**只有 v1**，而且整个生态都约定 base 填到版本段之前、由客户端补 `/v1/messages`
+（官方 SDK、Claude Code 的 `ANTHROPIC_BASE_URL`、各家的 Anthropic 兼容入口）。
+所以 Anthropic 协议按这个约定补，是确定的协议翻译，不是猜。
+
+```rust
+use ai_profile::endpoint::{anthropic_base_url, join_chat_endpoint};
+
+// 只填到主机名（Claude Code 的习惯）→ 补 /v1
+join_chat_endpoint("https://relay.example:8443", "messages")
+//  → "https://relay.example:8443/v1/messages"
+
+// 自己填了 /v1 → 原样用，不会补成 /v1/v1
+join_chat_endpoint("https://api.anthropic.com/v1", "messages")
+//  → "https://api.anthropic.com/v1/messages"
+
+// Anthropic 兼容入口
+anthropic_base_url("https://api.deepseek.com/anthropic")
+//  → "https://api.deepseek.com/anthropic/v1"
+
+// 末尾 # = 别替我补（留给路径特殊的网关）
+anthropic_base_url("https://odd.gateway/raw#")
+//  → "https://odd.gateway/raw"
+```
+
+两种写法用户都能用，填不填 `/v1` 结果一样。「获取模型」（`Verifier`）对 Anthropic 协议走同一规则，
+两边口径一致，不会出现「获取通过、对话 404」。
+
+::: warning 不补时踩过的坑
+从别的工具粘来 `https://x.com:8443` 这种地址，对话打到 `/messages`，
+中转网关（如 Sub2API）对不认识的路径回 **200 + 前端网页**，报出来是「解析失败」，完全看不出是少了 `/v1`。
+而它的 `/models` 不带 `/v1` 也能用 —— 于是「获取模型」是绿的，只有对话挂。
 :::
 
 ### ends_with_version_segment

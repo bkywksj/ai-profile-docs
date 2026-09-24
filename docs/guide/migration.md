@@ -12,12 +12,18 @@
 | Reeve | 末段不是版本号就补 `/v1`，末尾 `#` 可禁止 | `https://api.deepseek.com` |
 | 知识库 | 同上，但把 `v1.5` 也算版本段 | 同上 |
 | 一站通 | 只有主机名时补 `/v1`，带路径就直接拼 | `https://api.anthropic.com` |
-| StoryLoom | OpenAI 兼容从不补；**Anthropic** 不以 `/v1` 结尾就补 | `https://api.anthropic.com`、`…/proxy/anthropic` |
+| StoryLoom | OpenAI 兼容从不补；**Anthropic** 不以 `/v1` 结尾就补 | —— Anthropic 一侧本库现在也会补，见下方提示 |
 
 这些地址在老版本里一直能用，因为库在背后补了 `/v1`。直接换成本库，它们会全部 404，而用户看不出原因。
 
 ::: tip 四家的规则各不相同
 上表就是证据：**不能共用一份修正逻辑**。每个应用冻结自己的旧规则，这正是修正逻辑留在应用、不进本库的理由。
+:::
+
+::: info Anthropic 协议的地址不再需要迁移
+本库对 Anthropic 协议会自动补 `/v1`（见[端点拼接](/api/endpoint#anthropic-协议自动补-v1)），
+所以只有主机名的 Anthropic 地址换成本库后照样能用。迁移只需要处理 **OpenAI 兼容**一侧。
+已经写好的 Anthropic 迁移（补过 `/v1` 的）也没问题：带 `/v1` 的地址原样使用。
 :::
 
 ## 做法：冻结旧规则 + 对照测试
@@ -97,7 +103,7 @@ fn fix_is_idempotent() {
 | 整库恢复（备份文件、同步盘） | ✅ 按备份的 schema 版本判断是不是旧数据 |
 | 应用自己的旧版导出格式 | ✅ 按信封里的版本 / 标记判断 |
 | 新建、编辑 | ❌ |
-| `ai.profile` 导入 | ❌ 跨应用协议，来源导出的就是完整地址，按本库语义原样用 |
+| `ai.profile` 导入 | ❌ 按本库语义原样用。Anthropic 协议只填主机名的（Claude Code 习惯）由拼接时自动补 `/v1` 兜住 |
 
 迁移放进事务：要么全改、要么全不改。
 
