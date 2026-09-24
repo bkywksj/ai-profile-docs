@@ -18,7 +18,13 @@ export default defineConfig({
   lastUpdated: true,
 
   head: [
+    // SVG 给现代浏览器；ICO / PNG 兜底旧浏览器与不认 SVG favicon 的 Safari
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }],
+    ['link', { rel: 'manifest', href: '/site.webmanifest' }],
+    ['meta', { name: 'theme-color', content: '#4f46e5' }],
     ['meta', {
       name: 'keywords',
       content: 'ai-profile,Rust crate,模型服务,LLM 配置,provider 预置,ai.profile,OpenAI 兼容,Anthropic 协议,Tauri,生图,视频生成,语音合成,DeepSeek,智谱,火山方舟,xAI',
