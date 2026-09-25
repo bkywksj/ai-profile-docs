@@ -205,7 +205,7 @@ description: 抓蛙师出品的开发者工具矩阵：覆盖智能编程、凭�
 
 <div class="products-footer">
   <p>以上产品均由 <strong>抓蛙师</strong> 独立开发维护，如有合作意向或技术咨询，欢迎联系</p>
-  <p>微信/QQ：<strong>770492966</strong> | 官网：<a href="https://ruoyi.plus" target="_blank">ruoyi.plus</a></p>
+  <p>微信/QQ：<strong>770492966</strong></p>
 </div>
 
 <style>
