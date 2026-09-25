@@ -191,7 +191,11 @@ export default defineConfig({
     },
 
     footer: {
-      message: 'MIT 协议开源 · 文档同样欢迎 PR',
+      // footer 的 message 支持 HTML；视频与交流群放这里，首页等无侧栏页面都能看到
+      message:
+        'MIT 协议开源 · 文档同样欢迎 PR · ' +
+        '<a href="https://www.bilibili.com/video/BV1dhh16qEvE" target="_blank" rel="noopener">B 站视频介绍</a> · ' +
+        'QQ 交流群 1087715758',
       copyright: '© 2026 若依科技工作室',
     },
   },

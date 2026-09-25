@@ -97,6 +97,10 @@ ai-profile 把**变动最频繁、跨应用差异为零**的那部分抽出来�
 
 在其中任何一个应用里配好的模型服务，复制一段 `ai.profile` 就能粘进另一个。
 
+## 视频介绍与交流
+
+- **B 站视频介绍**：<a href="https://www.bilibili.com/video/BV1dhh16qEvE" target="_blank" rel="noopener">BV1dhh16qEvE</a>- **QQ 交流群**：**1087715758** —— 接入问题、新服务商需求、Bug 反馈都可以在群里提
+
 ## 产品矩阵
 
 抓蛙师出品，覆盖智能编程、凭据安全、服务器运维、知识管理、桌面框架、全栈开发等场景 —— [看完整介绍](/products)
