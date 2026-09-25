@@ -31,6 +31,23 @@ if not wanted:
 version = json.loads((src / "presets.json").read_text(encoding="utf-8"))["crateVersion"]
 VERSION_DIR = re.compile(r"^v\d+\.\d+\.\d+")
 
+# 🔴 已发布版本的存档是冻结的：其他语言的实现锁的就是这些地址。
+# crate 仓库改了规则但还没升版本号时，spec 头里仍写着旧版本 —— 这时同步会把旧版本的存档
+# 悄悄改成新行为，锁定旧版本的实现随之莫名变红。所以存档已存在且内容不同，一律拒绝。
+archive = dst / f"v{version}"
+if archive.exists():
+    changed = [
+        rel.as_posix()
+        for rel in sorted(wanted)
+        if not (archive / rel).exists() or (archive / rel).read_bytes() != (src / rel).read_bytes()
+    ]
+    if changed:
+        sys.exit(
+            f"🔴 v{version} 已发布并冻结，但 crate 仓库的 spec 与它不同：{', '.join(changed)}\n"
+            f"   说明 crate 改了规则还没发版。发版流程里先升版本号、重新 gen-spec，再来同步；\n"
+            f"   不要删存档目录绕过 —— 那等于改写已发布的规范。"
+        )
+
 
 def copy_all(to: Path):
     for rel in sorted(wanted):
