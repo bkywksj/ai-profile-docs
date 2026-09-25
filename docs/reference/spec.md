@@ -30,6 +30,8 @@ ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预
 | <a href="/spec/conformance/diagnose.json" target="_blank" rel="noopener"><code>conformance/diagnose.json</code></a> | 验证失败的错误判定、必填字段检查 |
 | <a href="/spec/conformance/ai_profile.json" target="_blank" rel="noopener"><code>conformance/ai_profile.json</code></a> | `ai.profile` 解析与生成 |
 | <a href="/spec/conformance/limits.json" target="_blank" rel="noopener"><code>conformance/limits.json</code></a> | token 限额三层合并 |
+| <a href="/spec/conformance/preset_lookup.json" target="_blank" rel="noopener"><code>conformance/preset_lookup.json</code></a> | 从已存配置反推预置、查预置登记的限额 |
+| <a href="/spec/conformance/history.json" target="_blank" rel="noopener"><code>conformance/history.json</code></a> | 超长报错识别 |
 
 ### 最新版与固定版本
 
@@ -49,14 +51,16 @@ ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预
 | 功能 | 要实现的函数（Rust 名） | 用例 | 什么时候需要 |
 |------|----------------------|------|-------------|
 | 预置数据 | `presets` / `preset_by_key` / `vendors` | 无，直接读 `presets.json` | 所有场景 |
-| 端点拼接 | `join_api_path` / `join_chat_endpoint` / `anthropic_base_url` | `endpoint.json` | 发任何请求 |
+| 端点拼接 | `join_api_path` / `join_chat_endpoint` / `anthropic_base_url` / `ends_with_version_segment` | `endpoint.json` | 发任何请求 |
+| 反推预置 | `infer_preset_key` / `model_limits` | `preset_lookup.json` | 打开老配置时认出是哪家、取预置限额 |
 | 模型清洗 | `is_chat_model_id` / `clean_fetched_models` | `model_filter.json` | 做「获取模型」下拉 |
 | `/models` 解析 | `parse_model_ids` / `parse_model_limits` | `models_response.json` | 同上 |
 | 错误判定 | `diagnose` / `suggest_url` / `check_required_fields` | `diagnose.json` | 做「测试连接」 |
 | 测试连接 | `verify` | 无，按[下面的流程](#测试连接的网络层)把上面几个串起来 | 做「测试连接」 |
 | 导入导出 | `parse_profiles` / `to_profile` | `ai_profile.json` | 做粘贴导入、分享 |
 | 限额 | `TokenLimits::or` | `limits.json` | 显示上下文窗口 / 输出上限 |
-| 历史裁剪、生图 / 视频 / 配音调用 | `history` / `media` 模块 | **暂无** | 见[未覆盖的部分](#未覆盖的部分) |
+| 超长识别 | `is_context_overflow` | `history.json` | 对话报错后决定要不要裁历史重试 |
+| 历史裁剪、生图 / 视频 / 配音调用 | `trim_history` / `media` 模块 | **暂无** | 见[未覆盖的部分](#未覆盖的部分) |
 
 函数名、参数名在你的语言里按惯例改（`join_api_path` → `joinApiPath`），行为一致即可。
 
@@ -122,7 +126,7 @@ for p in chat:                       # 保持原数组顺序 = 分组顺序
 
 ### 未覆盖的部分
 
-- **历史裁剪**（`history`）：规则见[历史裁剪与超长重试](/api/history)，目前没有用例，
+- **历史裁剪**（`trim_history`）：规则见[历史裁剪与超长重试](/api/history)，目前没有用例（超长识别有），
   请对照 Rust 源码的测试实现。这部分最容易出错的是「tool 调用与结果必须成对保留」。
 - **生图 / 视频 / 配音**（`media`）：本质是对各家 HTTP 协议的封装，每家请求格式不同，写成用例意义不大。
   协议细节见[生图、视频与配音](/api/media)与 crate 源码 `src/media/`。
