@@ -132,6 +132,9 @@ export default defineConfig({
         domain: SITE,
         // 产品矩阵是推广内容，对「怎么接入本库」没有帮助，不给 AI 读
         ignoreFiles: ['products.md'],
+        // 🔴 显式给一份：主题配置里同一个 SIDEBAR 挂在三个路径前缀下，
+        //    插件照读会把 llms.txt 的目录每页列三遍
+        sidebar: SIDEBAR,
       }),
     ],
   },
