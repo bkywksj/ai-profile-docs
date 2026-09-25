@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "ai-profile"
   text: "AI 模型服务配置层"
-  tagline: 一份预置、一个协议、一套验证 —— 多个桌面应用共用。模型 id 变了只改一处，所有应用同时生效。
+  tagline: 一份预置、一个协议、一套验证 —— 多个桌面应用共用。模型 id 变了只改一处，各应用升级依赖即可拿到。
   image:
     src: /logo.svg
     alt: ai-profile
@@ -29,7 +29,7 @@ features:
     link: /api/protocol
     linkText: 协议详情
   - title: 零成本验证，结构化错误
-    details: 「获取模型」只打模型列表接口，不产生生成费用。失败时七种错误各对应一个界面动作 —— 404 带上推断出的正确地址，界面能给「一键改用」。
+    details: 「获取模型」只打模型列表接口，不产生生成费用。失败返回结构化错误，每种对应一个界面动作（五种会实际返回，另两种为以后预留）—— 地址不对时（404，或 200 却返回网页）附上请求的地址，缺版本段时再给一个建议地址，界面能做「一键改用」。
     link: /api/verify
     linkText: 验证 API
   - title: 地址规则确定、不猜
@@ -37,7 +37,7 @@ features:
     link: /api/endpoint
     linkText: 端点拼接
   - title: 限额与历史裁剪
-    details: 上下文窗口、输出上限按「用户 > 端点上报 > 预置 > 未知」逐字段取值，来源可见。历史按窗口裁剪，服务端报超长时自动裁一半重试。
+    details: 上下文窗口、输出上限按「用户 > 端点上报 > 预置 > 未知」逐字段取值，来源可见。历史按窗口裁剪；窗口未知时，提供超长报错识别与「裁一半」的重试预算，由应用发起重试。
     link: /api/limits
     linkText: 限额
   - title: 生图 / 视频 / 配音调用
@@ -52,6 +52,10 @@ features:
     details: 默认只有 serde、serde_json 与 thiserror，纯数据 + 纯函数，能编到移动端。真要发 HTTP 才开 client；不用的能力不编进二进制。
     link: /guide/installation
     linkText: feature 矩阵
+  - title: 其他语言也能用
+    details: 预置数据（presets.json）与一致性用例（输入 → 期望输出）按版本发布，与语言无关。Python / TypeScript / Java 等照着实现，用例跑通即与本库行为一致。
+    link: /reference/spec
+    linkText: 其他语言实现
 ---
 
 ## 30 秒上手
@@ -76,6 +80,8 @@ println!("{:?} / {}", p.base_url, p.model);
 
 验证、粘贴导入、限额、多模态见[快速开始](/guide/quick-start)；不知道从哪看起，按[你要做的事](/guide/cookbook)找。
 
+用 Claude Code / Codex / Cursor 接入？本库较新，AI 的训练数据里没有它 —— 先让它读 <a href="/llms-full.txt" target="_blank">llms-full.txt</a>（全文文档），做法见[用 AI 接入](/guide/ai-assisted)。
+
 ## 为什么要有这个库
 
 多个桌面应用都要做同一件事：让用户配置 AI 模型服务。这套逻辑此前在每个应用里各写一遍，
@@ -90,10 +96,10 @@ ai-profile 把**变动最频繁、跨应用差异为零**的那部分抽出来�
 | 应用 | 用到的部分 |
 |---|---|
 | [Sigil 掌玺](https://sigil.ruoyi.plus) | 对话：预置、验证、限额、历史裁剪、`ai.profile` |
-| [Reeve](https://reeve.ruoyi.plus) | 对话（桌面 + 移动端） |
+| [Reeve](https://reeve.ruoyi.plus) | 对话：预置、验证、限额、历史裁剪、`ai.profile`（桌面）；预置、端点、模型清洗（移动端） |
 | [本地知识库](https://kb.ruoyi.plus/) | 对话：预置、验证、限额、超长识别、`ai.profile` |
-| 一站通 | 对话 + 生图 / 视频 / 配音预置 |
-| StoryLoom | 四种能力全用 —— 生图 / 视频 / 配音的调用实现就来自它 |
+| 一站通 | 对话：预置、验证、限额、超长识别、`ai.profile`；生图 / 视频 / 配音预置 |
+| StoryLoom | 四种能力全用，含 `ai.profile` —— 生图 / 视频 / 配音的调用实现就来自它 |
 
 在其中任何一个应用里配好的模型服务，复制一段 `ai.profile` 就能粘进另一个。
 
