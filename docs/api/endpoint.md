@@ -67,6 +67,9 @@ join_chat_endpoint("https://relay.example/v1/chat/completions", "chat/completion
 
 `path` 传 `"chat/completions"`（OpenAI 兼容）或 `"messages"`（Anthropic）。
 
+「原样使用」只在粘进来的端点**与这次请求的 `path` 一致**时成立（按路径段比较，`…/mymessages` 不算）；
+粘的是 `/messages` 却请求 `chat/completions` 时，会先剥掉 `/messages` 再按正常规则拼。
+
 ::: warning 为什么它和 join_api_path 是两个函数
 「获取模型」走的是 `<base>/models`。如果共用一套判断，
 用户填了完整的 `/chat/completions` 会让它拿这个地址去 GET，必然失败。

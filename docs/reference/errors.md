@@ -10,8 +10,8 @@
 | `auth_failed` | `AuthFailed { detail }` | 401 / 403 | 把错误挂到**密钥输入框**上；若该预置有 `apply_url`，给「去申请密钥」 |
 | `not_found` | `NotFound { requested_url, suggested_url }` | 404 | `suggested_url` 非空 → **「一键改用」按钮**；为空 → 显示实际请求的地址 |
 | `unreachable` | `Unreachable { proxy_hint }` | 超时 / DNS / TLS | **「重试」**；`proxy_hint` 为真时提示去配代理 |
-| `model_not_found` | `ModelNotFound { available }` | 端点不认这个模型 | 把 `available` **展开成下拉**让用户改选 |
-| `protocol_mismatch` | `ProtocolMismatch { expect }` | 密钥只接受另一种协议 | 提示切到对应的服务商模板 |
+| `model_not_found` | `ModelNotFound { available }` | ⏸ 预留，当前版本不产生 | 把 `available` **展开成下拉**让用户改选 |
+| `protocol_mismatch` | `ProtocolMismatch { expect }` | ⏸ 预留，当前版本不产生 | 提示切到对应的服务商模板 |
 | `missing_extra_field` | `MissingExtraField { key }` | 专有字段没填 | **定位到那个输入框**并标红 |
 | `malformed` | `Malformed { detail }` | 端点返回了预期外内容 | 兜底：显示摘要 |
 
@@ -84,6 +84,12 @@ if e.is_actionable() {
 后者会让用户去反复检查自己的密钥。
 
 ### model_not_found
+
+::: info 预留变体
+`model_not_found` 与 `protocol_mismatch` 已在格式里定好，但当前版本的 `verify` 不会返回它们：
+「模型不在清单里」用成功结果里的 `model_in_list: false` 表示，不算失败。
+变体带 `#[non_exhaustive]`，调用方现在就写好分支，以后启用时不用改代码。
+:::
 
 ```json
 { "code": "model_not_found", "available": ["deepseek-flash", "deepseek-v4-pro"] }

@@ -115,8 +115,9 @@ let key = infer_preset_key(Protocol::OpenAiCompatible, Some("https://api.deepsee
 assert_eq!(key, "deepseek");   // 即使存的地址不带 /v1
 ```
 
-它按 **host 而非完整字符串**匹配（`match_hosts`），所以带不带版本段、
-带不带结尾斜杠都认得回来。认不出时返回 `CUSTOM_PRESET_KEY`（`"openai_compatible_custom"`）。
+它不做整串比较，而是看地址（小写后）是否**包含** `match_hosts` 里的某一项（可以带端口，
+如 `localhost:11434`），所以带不带版本段、带不带结尾斜杠都认得回来。
+只在 OpenAI 兼容的对话预置里找。认不出时返回 `CUSTOM_PRESET_KEY`（`"openai_compatible_custom"`）。
 
 `match_hosts` 为空的预置（自定义端点档）靠 `protocol` 反推 —— 协议是 Anthropic
 但 host 不是 `api.anthropic.com` 的，多半是中转站，归到 Claude Code 那一档。
