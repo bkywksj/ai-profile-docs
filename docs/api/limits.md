@@ -11,7 +11,9 @@
 pub struct TokenLimits {
     pub context_window: Option<u32>,   // 上下文窗口（输入 + 输出总量），用来裁历史
     pub max_output: Option<u32>,       // 单次输出上限，用来给 max_tokens 封顶
-    pub source: LimitSource,           // 这两个数字是谁给的
+    pub source: LimitSource,           // 整条的来源：优先级最高、真正起作用的那一层
+    pub context_window_source: Option<LimitSource>,  // 窗口这个值来自哪一层（值为 None 时也为 None）
+    pub max_output_source: Option<LimitSource>,      // 输出上限这个值来自哪一层
 }
 ```
 
@@ -57,6 +59,17 @@ assert_eq!(l.max_output, Some(8192));         // 预置补的
 
 `or` 是**逐字段**回退：用户常常只知道窗口大小（文档写了），不知道输出上限。
 整条替换的话，填了窗口反而丢了预置里的输出上限。`source` 取优先级最高、真正起作用的那一层。
+
+合并后两个值可能来自不同的层，**界面标注来源时用逐字段的那两个**：
+
+```rust
+assert_eq!(l.context_window_source, Some(LimitSource::User));    // 窗口：你填的
+assert_eq!(l.max_output_source, Some(LimitSource::Preset));      // 输出上限：预估，可修改
+assert_eq!(l.source, LimitSource::User);                          // 整条：用户那一层
+```
+
+只看整条的 `source` 会把两个值都标成「你填的」—— 而输出上限其实是预估值，用户该知道可以改。
+（线格式：`contextWindowSource` / `maxOutputSource`，0.1.3 起提供。）
 
 典型的三层叠法：
 

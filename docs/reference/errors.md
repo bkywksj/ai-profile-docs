@@ -8,7 +8,7 @@
 | `code` | Rust 变体 | 触发 | 界面应当给的动作 |
 |---|---|---|---|
 | `auth_failed` | `AuthFailed { detail }` | 401 / 403 | 把错误挂到**密钥输入框**上；若该预置有 `apply_url`，给「去申请密钥」 |
-| `not_found` | `NotFound { requested_url, suggested_url }` | 404 | `suggested_url` 非空 → **「一键改用」按钮**；为空 → 显示实际请求的地址 |
+| `not_found` | `NotFound { requested_url, suggested_url }` | 404；或 2xx 但返回的是网页（不是 JSON） | `suggested_url` 非空 → **「一键改用」按钮**；为空 → 显示实际请求的地址 |
 | `unreachable` | `Unreachable { proxy_hint }` | 超时 / DNS / TLS | **「重试」**；`proxy_hint` 为真时提示去配代理 |
 | `model_not_found` | `ModelNotFound { available }` | ⏸ 预留，当前版本不产生 | 把 `available` **展开成下拉**让用户改选 |
 | `protocol_mismatch` | `ProtocolMismatch { expect }` | ⏸ 预留，当前版本不产生 | 提示切到对应的服务商模板 |
@@ -55,6 +55,9 @@ if e.is_actionable() {
   "suggested_url": "https://api.deepseek.com/v1"
 }
 ```
+
+除了 404，**状态码 2xx 但响应体不是 JSON** 也报这个：地址指到了网站根目录时，网站常把任何未知路径
+回成首页、状态码 200。此前这被当成「验证成功、模型清单为空」，用户看到对勾却什么也用不了。（0.1.3 起）
 
 `requested_url` **直接展示给用户** —— 省去他猜"到底打了哪个地址"。
 这是排查地址问题时最有用的一条信息，而多数客户端不给。

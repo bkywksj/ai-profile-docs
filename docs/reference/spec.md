@@ -52,10 +52,10 @@ ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预
 |------|----------------------|------|-------------|
 | 预置数据 | `presets` / `preset_by_key` / `vendors` | 无，直接读 `presets.json` | 所有场景 |
 | 端点拼接 | `join_api_path` / `join_chat_endpoint` / `anthropic_base_url` / `ends_with_version_segment` | `endpoint.json` | 发任何请求 |
-| 反推预置 | `infer_preset_key` / `model_limits` | `preset_lookup.json` | 打开老配置时认出是哪家、取预置限额 |
+| 反推预置 | `infer_preset_key` / `model_limits` / `preset_endpoint` | `preset_lookup.json` | 打开老配置时认出是哪家、取预置限额；用户没填地址时该请求哪 |
 | 模型清洗 | `is_chat_model_id` / `clean_fetched_models` | `model_filter.json` | 做「获取模型」下拉 |
 | `/models` 解析 | `parse_models_response`（= Rust 的 `parse_model_ids` + `parse_model_limits`，结果合成 `{ids, limits}`） | `models_response.json` | 同上 |
-| 错误判定 | `diagnose` / `suggest_url` / `check_required_fields` | `diagnose.json` | 做「测试连接」 |
+| 错误判定 | `diagnose` / `diagnose_success` / `suggest_url` / `check_required_fields` | `diagnose.json` | 做「测试连接」 |
 | 测试连接 | `verify` | 无，按[下面的流程](#测试连接的网络层)把上面几个串起来 | 做「测试连接」 |
 | 导入导出 | `parse_profiles` / `to_profile` | `ai_profile.json` | 做粘贴导入、分享 |
 | 限额 | `merge_limits`（= 从左往右折叠 Rust 的 `TokenLimits::or`） | `limits.json` | 显示上下文窗口 / 输出上限 |
@@ -92,7 +92,8 @@ for p in chat:                       # 保持原数组顺序 = 分组顺序
 
 1. **发请求前**：`check_required_fields(presetKey, extra)`，缺字段直接返回 `missing_extra_field`
    —— 更好的做法是用它禁用「测试」按钮。
-2. **定地址**：表单填了 `base_url` 用表单的，没填用预置的；都为空返回
+2. **定地址**：表单填了 `base_url` 用表单的，没填用 `preset_endpoint(presetKey)`（预置的地址；
+   「Anthropic 官方」这类地址留空的官方档回落到协议官方端点）；都为空返回
    `{"code": "missing_extra_field", "key": "base_url"}`。
    Anthropic 协议先过 `anthropic_base_url`，然后 `url = join_api_path(base, "models")`。
 3. **发 GET**，超时 20 秒（连接 10 秒），**禁止跟随重定向**：
@@ -110,7 +111,8 @@ for p in chat:                       # 保持原数组顺序 = 分组顺序
    Rust 版对 `api.openai.com`、`api.anthropic.com`、`generativelanguage.googleapis.com`、`openrouter.ai`、
    `api.groq.com`、`api.x.ai` 置为 `true`。
 5. **非 2xx** → `diagnose(status, body, url, base)`，其中 `base` 用第 2 步补过 `/v1` 的那个。
-6. **2xx** → 组装成功结果：
+6. **2xx** → 先过 `diagnose_success(body, url, base)`：响应体不是 JSON（多半是地址指到了网站根目录，
+   网站把未知路径回成首页、状态码 200）→ 返回它给出的 `not_found`，**不能当成成功**。是 JSON 才组装成功结果：
 
    ```json
    {
@@ -272,7 +274,7 @@ test.each(spec.cases)('$fn $input', (c) => {
 | 端点拼接 | OpenAI 兼容地址**原样使用**，不补 `/v1`；只剥掉误填的对话端点后缀与末尾 `#`。Anthropic 协议是唯一例外：末段不是 `v<数字>` 就补 `/v1`，末尾 `#` 表示别补 | [端点与模型清单](/api/endpoint) |
 | 模型清洗 | 排除法：只滤掉带明确非对话特征的（向量、重排、语音、生图、OCR、审核…），**未知名称一律放行**；去空白、去重、保持顺序；全被滤光时原样返回 | [端点与模型清单](/api/endpoint) |
 | `/models` 解析 | `{"data":[…]}` 与裸数组都接受；限额只收录报了的模型，OpenRouter 优先取 `top_provider` | [限额](/api/limits) |
-| 错误判定 | 401/403 → `auth_failed`；404 → `not_found`（看不出版本段时带 `suggested_url`）；其余 → `malformed`。必填专有字段缺失 → `missing_extra_field` | [连通性验证](/api/verify) |
+| 错误判定 | 401/403 → `auth_failed`；404 → `not_found`（看不出版本段时带 `suggested_url`）；其余 → `malformed`。2xx 但响应体不是 JSON → 同样 `not_found`。必填专有字段缺失 → `missing_extra_field` | [连通性验证](/api/verify) |
 | `ai.profile` | 解析**宽进**（多种字段拼写、单条与打包统一成列表、OAuth 条目跳过计数）；生成**严出**（只产出规范写法） | [ai.profile 协议](/api/protocol) |
 | 限额合并 | 用户 > 端点 > 预置，两两合并：高层全空时整条换成低层；否则逐字段补空，来源保留高层 | [限额](/api/limits) |
 
