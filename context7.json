@@ -1,0 +1,20 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "ai-profile",
+  "description": "AI 模型服务配置层（Rust crate）：服务商预置、ai.profile 跨应用配置互通、端点拼接、零成本验证、token 限额与历史裁剪、生图 / 视频 / 配音调用。crates.io: ai-profile",
+  "folders": ["docs"],
+  "excludeFolders": ["docs/.vitepress", "docs/public/products", "node_modules", "scripts"],
+  "excludeFiles": ["products.md"],
+  "rules": [
+    "依赖写 ai-profile = { version = \"0.1\", features = [...] }；只要预置与纯函数用默认 feature，「获取模型」验证加 client，生图 / 视频 / 配音再加 image / video / tts。最低 Rust 1.88",
+    "不要在应用里再写服务商清单、模型列表、协议映射或地址拼接 —— 一律用本库的 preset_by_key / vendors / endpoint；只属于本应用的私有服务商用 PresetCatalog::new().extend(&LOCAL)",
+    "OpenAI 兼容地址原样使用，不要替用户补 /v1（智谱是 /v4、Gemini 是 /v1beta/openai）；Anthropic 协议也不要手动补 /v1，用 endpoint::join_chat_endpoint(base, \"messages\")，本库会按约定补",
+    "match 本库的公开枚举（VerifyError、ParseError、Kind、Protocol 等）必须带 `_` 分支：它们都是 #[non_exhaustive]",
+    "ServiceConfig 只能用 builder 构造：ServiceConfig::new(protocol, base_url).with_api_key(..).with_model(..)；不能写结构体字面量",
+    "Verifier 建一次、存进全局状态反复用；需要代理用 Verifier::from_builder(ai_profile::reqwest::Client::builder().proxy(..))，用本库重导出的 reqwest 保证版本一致",
+    "验证失败按 VerifyError 的变体给界面动作（404 带 suggested_url 可做一键改用、缺专有字段在发请求前就能判出），不要只显示一行错误文字",
+    "粘贴导入用 parse_profiles（单条与多条打包统一返回列表），分享用 to_profile；ParsedProfiles.skipped > 0 时要告诉用户",
+    "限额按「用户手填 > 端点上报 > preset::model_limits」逐字段用 TokenLimits::or 叠加；预置来源不要存进数据库",
+    "已经发布过的应用换成本库前，要先写存量地址修正：冻结旧拼接规则做对照测试，只对数据库迁移等旧来源修正，见 guide/migration"
+  ]
+}
