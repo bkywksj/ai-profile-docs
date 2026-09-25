@@ -3,6 +3,25 @@
 面向使用者的版本说明：每个版本带来了什么、升级时要不要改代码。
 开发过程的完整记录见仓库里的 [CHANGELOG.md](https://github.com/bkywksj/ai-profile/blob/master/CHANGELOG.md)。
 
+## 0.1.3 · 2026-09-25
+
+**升级只需 `cargo update -p ai-profile`，不用改代码。** 这三处问题来自一个外部实现者（C++）照[规范](/reference/spec)实现时的反馈。
+
+### 修复
+
+- **「Anthropic 官方」不填地址时，「获取模型」直接报缺 `base_url`**：这一档刻意不写地址（界面据此隐藏地址框），
+  验证却只认 `base_url`。新增 `ProviderPreset::endpoint()`：预置没写地址、但该协议的官方端点属于它自己的域名时，
+  回落到官方端点；自定义端点类预置不受影响，照旧要求用户填写
+- **端点返回 2xx 但内容是网页时，被判为「验证成功、模型清单为空」**：地址指到网站根目录时，
+  网站常把未知路径回成首页、状态码 200。现在报 [`not_found`](/reference/errors#not-found)，并附一键改用的建议地址；
+  判定逻辑是公开纯函数 `client::diagnose_success`，自己发请求的调用方也能直接用
+
+### 新增
+
+- `TokenLimits` 增加逐字段来源 `context_window_source` / `max_output_source`（JSON 为 `contextWindowSource` /
+  `maxOutputSource`）：用户只填了上下文窗口、输出上限由预置补上时，界面可以分别标注来源。原有的整条 `source` 含义不变
+- [多语言规范](/reference/spec)新增 `preset_endpoint`、`diagnose_success` 两组用例，共 259 条
+
 ## 0.1.2 · 2026-09-25
 
 **升级只需 `cargo update -p ai-profile`，不用改代码。**
