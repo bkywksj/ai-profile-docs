@@ -99,7 +99,8 @@ ai-profile 把**变动最频繁、跨应用差异为零**的那部分抽出来�
 
 ## 视频介绍与交流
 
-- **B 站视频介绍**：<a href="https://www.bilibili.com/video/BV1dhh16qEvE" target="_blank" rel="noopener">BV1dhh16qEvE</a>- **QQ 交流群**：**1087715758** —— 接入问题、新服务商需求、Bug 反馈都可以在群里提
+- **B 站视频介绍**：<a href="https://www.bilibili.com/video/BV1dhh16qEvE" target="_blank" rel="noopener">BV1dhh16qEvE</a>
+- **QQ 交流群**：**1087715758** —— 接入问题、新服务商需求、Bug 反馈都可以在群里提
 
 ## 产品矩阵
 
