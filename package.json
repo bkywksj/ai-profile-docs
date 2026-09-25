@@ -12,7 +12,8 @@
   },
   "devDependencies": {
     "@iconify-icons/lucide": "^1.2.136",
-    "vitepress": "^1.6.3"
+    "vitepress": "^1.6.3",
+    "vitepress-plugin-llms": "^1.14.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

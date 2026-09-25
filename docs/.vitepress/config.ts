@@ -1,4 +1,7 @@
 import { defineConfig } from 'vitepress'
+// 构建时按 md 源文件生成 /llms.txt（索引）与 /llms-full.txt（全文）：给 AI 编程助手读。
+// 用插件而不是手写 —— 手写的会随文档改动过时（sigil 站的就是手写的）
+import llmstxt from 'vitepress-plugin-llms'
 
 // 站点规范域名 —— canonical / og:url / sitemap 统一引用它。
 // 🔴 尚未绑定域名时改这一个常量即可，其余引用都从它派生。
@@ -19,6 +22,7 @@ const SIDEBAR = [
       { text: '安装与 feature', link: '/guide/installation' },
       { text: '快速开始', link: '/guide/quick-start' },
       { text: '按场景查找', link: '/guide/cookbook' },
+      { text: '用 AI 接入', link: '/guide/ai-assisted' },
     ],
   },
   {
@@ -116,6 +120,20 @@ export default defineConfig({
   },
 
   sitemap: { hostname: SITE },
+
+  // llms*.txt 不是页面，由插件在构建时生成；死链检查会误报，只精确豁免这两个，其余死链照样报错。
+  // （/ai/*.md 静态文件在页面里用原生 <a> 链接，不走 markdown 链接改写，所以不需要豁免）
+  ignoreDeadLinks: [/^\/llms(-full)?\.txt$/],
+
+  vite: {
+    plugins: [
+      llmstxt({
+        domain: SITE,
+        // 产品矩阵是推广内容，对「怎么接入本库」没有帮助，不给 AI 读
+        ignoreFiles: ['products.md'],
+      }),
+    ],
+  },
 
   themeConfig: {
     logo: '/logo.svg',
