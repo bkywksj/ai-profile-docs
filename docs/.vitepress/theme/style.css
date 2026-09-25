@@ -78,3 +78,24 @@
 .product-card.theme-orange .highlight-dot {
   background: #f59e0b;
 }
+
+/* ── 右上角不折叠（用户要求）──
+   VitePress 默认在 768–1279px 把「深色模式」开关与 GitHub 图标收进「…」弹出菜单。
+   这里从 768px 起就直接显示，隐藏「…」；手机宽度（<768px）导航本就收进汉堡菜单，保持默认。
+   默认样式是组件作用域样式（带 data-v 属性），特异性相同，需要 !important 才能盖过 */
+@media (min-width: 768px) {
+  .VPNavBar .VPNavBarAppearance,
+  .VPNavBar .VPNavBarSocialLinks {
+    display: flex !important;
+  }
+  .VPNavBar .VPNavBarExtra {
+    display: none !important;
+  }
+}
+
+/* 中等宽度下收紧导航项间距，7 个入口 + 搜索框 + 两个图标放得下，不挤出屏 */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .VPNavBarMenuLink {
+    padding: 0 8px !important;
+  }
+}

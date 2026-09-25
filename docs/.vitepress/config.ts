@@ -125,15 +125,11 @@ export default defineConfig({
       { text: '指南', link: '/guide/introduction', activeMatch: '^/guide/' },
       { text: 'API', link: '/api/preset', activeMatch: '^/api/' },
       { text: '参考', link: '/reference/providers', activeMatch: '^/reference/' },
+      { text: '更新日志', link: '/reference/changelog' },
       { text: '产品矩阵', link: '/products' },
-      {
-        text: 'v0.1.1',
-        items: [
-          { text: '更新日志', link: '/reference/changelog' },
-          { text: 'crates.io', link: 'https://crates.io/crates/ai-profile' },
-          { text: 'docs.rs（Rust API 文档）', link: 'https://docs.rs/ai-profile' },
-        ],
-      },
+      // 外链直接平铺，不收进下拉：常用入口一眼可见（用户要求右上角尽量不折叠）
+      { text: 'crates.io', link: 'https://crates.io/crates/ai-profile' },
+      { text: 'docs.rs', link: 'https://docs.rs/ai-profile' },
     ],
 
     // 🔴 一棵统一的侧边栏：指南 / API / 参考之间互相跳是常态
