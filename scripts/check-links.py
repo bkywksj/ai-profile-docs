@@ -12,7 +12,11 @@ import re
 from pathlib import Path
 
 docs = Path(sys.argv[1])
-md_files = sorted(docs.rglob("*.md"))
+# 跳过 .vitepress/：dist 里有 llms 插件导出的逐页 .md 副本，会把每条问题报两遍
+md_files = sorted(f for f in docs.rglob("*.md") if ".vitepress" not in f.relative_to(docs).parts)
+
+# 构建时才生成、源码里不存在的文件（vitepress-plugin-llms 产出）
+BUILD_GENERATED = {"/llms.txt", "/llms-full.txt"}
 
 # 站内所有可用路径（VitePress cleanUrls：/guide/foo.md → /guide/foo）
 pages = set()
@@ -25,13 +29,17 @@ pages.add("/")
 
 problems = []
 
-# 1. markdown 正文里的站内链接
-link_re = re.compile(r"\[[^\]]*\]\((/[^)#\s]*)(#[^)\s]*)?\)")
+# 1. 正文里的站内链接：markdown 链接 + 原生 <a href>
+#    （下载静态文件必须用原生 <a>，否则 cleanUrls 会改写路径，所以这类链接不能漏检）
+link_res = [
+    re.compile(r"\[[^\]]*\]\((/[^)#\s]*)(#[^)\s]*)?\)"),
+    re.compile(r"<a\s[^>]*href=\"(/[^\"#]*)(#[^\"]*)?\""),
+]
 for f in md_files:
     text = io.open(f, encoding="utf-8", newline="").read()
-    for m in link_re.finditer(text):
+    for m in (m for r in link_res for m in r.finditer(text)):
         target = m.group(1).rstrip("/") or "/"
-        if target in pages:
+        if target in pages or target in BUILD_GENERATED:
             continue
         # public/ 下的静态资源也算数
         if (docs / "public" / target.lstrip("/")).exists():

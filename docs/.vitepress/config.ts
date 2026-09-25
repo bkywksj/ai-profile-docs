@@ -67,6 +67,7 @@ const SIDEBAR = [
       { text: '更新日志', link: '/reference/changelog' },
       { text: '版本策略', link: '/reference/versioning' },
       { text: '加一家服务商', link: '/reference/add-provider' },
+      { text: '其他语言实现', link: '/reference/spec' },
     ],
   },
 ]

@@ -225,6 +225,8 @@ if env.v > AI_PROFILE_VERSION { return Err(UnsupportedVersion { .. }) }
 5. 多条打包用 `ai.profile.bundle`，并照收 `api_profiles` 这个既有写法
 6. 字段**只增不改** —— 改已有字段名是生态分裂
 
+以上约定都有对应的一致性用例，跑通即与 Rust 版行为一致，见[其他语言实现](/reference/spec)。
+
 ## 相关
 
 - [前端对接](/guide/frontend) —— 粘贴导入表单的实现

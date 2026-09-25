@@ -8,7 +8,8 @@
     "build": "vitepress build docs",
     "preview": "vitepress preview docs",
     "check-links": "python scripts/check-links.py docs",
-    "sync-providers": "python scripts/sync-providers.py ../ai-profile docs/reference/providers.md"
+    "sync-providers": "python scripts/sync-providers.py ../ai-profile docs/reference/providers.md",
+    "sync-spec": "python scripts/sync-spec.py ../ai-profile docs/public/spec"
   },
   "devDependencies": {
     "@iconify-icons/lucide": "^1.2.136",
