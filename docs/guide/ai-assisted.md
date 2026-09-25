@@ -72,3 +72,4 @@ AI 工具支持读取网址时，直接给它 [`https://ai-profile.ruoyi.plus/ll
 - [快速开始](/guide/quick-start) —— 人读的入门
 - [按场景查找](/guide/cookbook) —— 按要做的事查 API
 - [已发布应用的接入迁移](/guide/migration) —— 用户手里已有配置时必读
+- [其他语言实现](/reference/spec#用-ai-实现) —— 不是 Rust 项目？让 AI 照一致性用例写一份

@@ -15,6 +15,7 @@
     "验证失败按 VerifyError 的变体给界面动作（404 带 suggested_url 可做一键改用、缺专有字段在发请求前就能判出），不要只显示一行错误文字",
     "粘贴导入用 parse_profiles（单条与多条打包统一返回列表），分享用 to_profile；ParsedProfiles.skipped > 0 时要告诉用户",
     "限额按「用户手填 > 端点上报 > preset::model_limits」逐字段用 TokenLimits::or 叠加；预置来源不要存进数据库",
-    "已经发布过的应用换成本库前，要先写存量地址修正：冻结旧拼接规则做对照测试，只对数据库迁移等旧来源修正，见 guide/migration"
+    "已经发布过的应用换成本库前，要先写存量地址修正：冻结旧拼接规则做对照测试，只对数据库迁移等旧来源修正，见 guide/migration",
+    "非 Rust 项目（Python / TypeScript / Java…）不要照着 Rust 源码手抄：预置数据读 https://ai-profile.ruoyi.plus/spec/v<版本>/presets.json，规则按同目录 conformance/*.json 的用例实现并全部跑通，不许改用例迁就实现，见 reference/spec"
   ]
 }
