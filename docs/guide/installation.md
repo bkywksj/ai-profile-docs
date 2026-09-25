@@ -1,25 +1,30 @@
 # 安装与 feature
 
-ai-profile 尚未发布到 crates.io，目前通过 git 依赖接入。
+ai-profile 已发布到 [crates.io](https://crates.io/crates/ai-profile)，API 文档见 [docs.rs](https://docs.rs/ai-profile)（按全部 feature 构建）。
 
 ## 加依赖
 
 ```toml
 # Cargo.toml
 [dependencies]
-ai-profile = { git = "https://github.com/bkywksj/ai-profile", features = ["chat", "client"] }
+ai-profile = { version = "0.1", features = ["chat", "client"] }
 ```
 
-生产项目建议锁到具体提交，避免上游改动在你毫无察觉时进来：
+按场景选一行就够：
 
-```toml
-ai-profile = { git = "https://github.com/bkywksj/ai-profile", rev = "aa4eea4", features = ["chat", "client"] }
-```
+| 你要做的 | 写法 |
+|---|---|
+| 只要预置数据与纯函数（HTTP 自己发 / 移动端） | `ai-profile = "0.1"` |
+| 再加「获取模型」零成本验证 | `ai-profile = { version = "0.1", features = ["client"] }` |
+| 再加生图 / 视频 / 配音调用 | `ai-profile = { version = "0.1", features = ["client", "image", "video", "tts"] }` |
 
-::: tip 为什么还没发 crates.io
-crates.io 的版本**永久不可撤回**。目前已有五个应用接入（Sigil、Reeve、知识库、一站通、StoryLoom），
-接口已经稳定下来；发布前还在补齐文档，完成后会发 `0.1.0`。
+::: tip 版本号怎么升
+`0.1` 表示接受 `0.1.x` 的所有补丁版本（新模型、新服务商、修 bug），`cargo update -p ai-profile` 即可拿到；
+升到 `0.2` 意味着有破坏性变更，要读[更新日志](/reference/changelog)再动手。判定规则见[版本策略](/reference/versioning)。
 :::
+
+**最低 Rust 版本：1.88**（由开启多模态时的图像解码依赖决定；只开 `chat` 的形态实际能在更老的编译器上编，
+但 `rust-version` 只能写一个值，按最严的写）。
 
 ## feature 矩阵
 
@@ -43,7 +48,7 @@ crates.io 的版本**永久不可撤回**。目前已有五个应用接入（Sig
 默认只开 `chat`：
 
 ```toml
-ai-profile = { git = "..." }              # = features = ["chat"]
+ai-profile = "0.1"                      # = features = ["chat"]
 ```
 
 ### 不开 client 时你得到什么
@@ -55,7 +60,7 @@ ai-profile = { git = "..." }              # = features = ["chat"]
 
 ```toml
 # 只要数据层，HTTP 我自己发
-ai-profile = { git = "https://github.com/bkywksj/ai-profile", default-features = false, features = ["chat"] }
+ai-profile = { version = "0.1", default-features = false, features = ["chat"] }
 ```
 
 ### 开 client 时多了什么
@@ -69,7 +74,7 @@ ai-profile = { git = "https://github.com/bkywksj/ai-profile", default-features =
 `Verifier::from_builder` 接收 `reqwest::ClientBuilder`，所以 **reqwest 的大版本进入了本 crate 的公开 API**。
 reqwest `0.12 → 0.13` 会是本 crate 的 major 变更。
 
-这是刻意付的代价，理由见[版本策略](/reference/versioning#reqwest-的大版本在公开-api-里)。
+这是刻意付的代价，理由见[版本策略](/reference/versioning#_3-reqwest-的大版本在公开-api-里)。
 :::
 
 ## 多能力应用
@@ -78,12 +83,12 @@ reqwest `0.12 → 0.13` 会是本 crate 的 major 变更。
 
 ```toml
 # StoryLoom：对话 + 生图 + 视频 + 语音全都要
-ai-profile = { git = "...", features = ["chat", "image", "video", "tts", "client"] }
+ai-profile = { version = "0.1", features = ["chat", "image", "video", "tts", "client"] }
 ```
 
 ```toml
 # sigil：只做对话
-ai-profile = { git = "...", features = ["chat", "client"] }
+ai-profile = { version = "0.1", features = ["chat", "client"] }
 ```
 
 `Kind` 枚举的成员是按 feature 编译的 —— 没开 `video` 时 `Kind::Video` 根本不存在，

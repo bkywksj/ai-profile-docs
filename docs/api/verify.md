@@ -104,6 +104,11 @@ let cfg = ServiceConfig::new(Protocol::OpenAiCompatible, "https://api.deepseek.c
 | `with_model(model)` | 给了就校验它在不在端点清单里 |
 | `with_extra(&[(k, v)])` | 专有字段的实际值 |
 
+::: tip Anthropic 协议的地址
+协议是 Anthropic 时，`Verifier` 先按 [Anthropic 约定](/api/endpoint#anthropic-协议自动补-v1)补 `/v1` 再打 `/models`，
+与对话端点同一口径 —— 不会出现「获取通过、对话 404」。404 诊断也用补过的地址，不会再建议「补 /v1」。
+:::
+
 ::: warning 只能用 builder
 `ServiceConfig` 带 `#[non_exhaustive]`，外部 crate 写不了 `ServiceConfig { .. }` 字面量（E0639）。
 
@@ -118,6 +123,7 @@ pub struct VerifyOk {
     pub latency_ms: u32,      // 往返耗时 —— 界面显示「正常 · 320ms」，中转站慢不慢一眼看出
     pub models: Vec<String>,  // 端点返回的可对话模型清单（已去重 + 清洗）
     pub dropped: usize,       // 滤掉的条数 —— 用于「已滤掉 N 个向量 / 重排 / 语音等」
+    pub dropped_models: Vec<String>, // 滤掉的模型 id（端点顺序），配置同时挂生图 / 配音模型时用
     pub model_in_list: bool,  // 当前填的 model 在不在清单里
     pub limits: Option<TokenLimits>,                  // 当前模型的限额（端点上报）
     pub model_limits: Vec<(String, TokenLimits)>,     // 全部报了限额的模型
@@ -301,5 +307,5 @@ assert_eq!(suggest_url("https://generativelanguage.googleapis.com/v1beta/openai"
 
 ## 相关
 
-- [错误码对照](/reference/errors) —— 六个变体各自对应的界面动作
+- [错误码对照](/reference/errors) —— 七个变体各自对应的界面动作
 - [Tauri 应用接入](/guide/tauri-integration) —— 存进 AppState 的完整示例

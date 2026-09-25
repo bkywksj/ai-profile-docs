@@ -165,8 +165,8 @@ let http = MediaHttp::from_fn(move || {
     }
 });
 
-let img = AnyImageProvider::from_config_with(config, &http);
-let video = AnyVideoProvider::from_config_with(config, &extra, &http);
+let img = AnyImageProvider::from_config_with(image_cfg, &http);
+let video = AnyVideoProvider::from_config_with(video_cfg, &extra, &http);
 let audio = synthesize_with(endpoint, model, extra, key, &params, &http).await?;
 ```
 

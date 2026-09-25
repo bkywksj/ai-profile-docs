@@ -30,17 +30,18 @@
   "groupLabel": "国内",
   "labelKey": "providerTemplate.deepseek.label",
   "label": "DeepSeek",
-  "hintKey": null,
-  "hint": null,
+  "hintKey": "providerTemplate.deepseek.hint",
+  "hint": "deepseek-flash / v4-pro；国内直连，不需要代理",
   "baseUrl": "https://api.deepseek.com/v1",
   "model": "deepseek-flash",
   "models": [
-    { "value": "deepseek-flash", "label": "deepseek-flash" },
-    { "value": "deepseek-v4-pro", "label": "deepseek-v4-pro" }
+    { "value": "deepseek-flash", "label": "deepseek-flash", "contextWindow": 1000000, "maxOutput": 384000 },
+    { "value": "deepseek-v4-pro", "label": "deepseek-v4-pro", "contextWindow": 1000000, "maxOutput": 384000 }
   ],
   "protocol": "openai_compatible",
   "matchHosts": ["api.deepseek.com"],
   "extraFields": [],
+  "defaultExtra": [],
   "applyUrl": "https://platform.deepseek.com/api_keys",
   "isLocal": false,
   "verifiedAt": "2026-09-17"
@@ -76,6 +77,9 @@ export type Protocol = "anthropic" | "openai_compatible";
 export interface ModelOption {
   value: string;
   label: string;
+  /** 预置的静态兜底限额；null = 文档没写，让用户手填 */
+  contextWindow: number | null;
+  maxOutput: number | null;
 }
 
 export interface ExtraField {
@@ -103,6 +107,8 @@ export interface ProviderPreset {
   protocol: Protocol;
   matchHosts: string[];
   extraFields: ExtraField[];
+  /** 预置定死的 extra 键值，新建配置时写进 extra（如视频 New API 的 video_api=newapi） */
+  defaultExtra: [string, string][];
   applyUrl: string | null;
   isLocal: boolean;
   /** null = 未实际核实过，可给一个淡色提示 */
@@ -122,14 +128,14 @@ export interface Vendor {
 }
 
 /** 限额数字的来源 —— 决定界面是直接用还是让用户能改 */
-export type LimitSource = "endpoint" | "preset";
+export type LimitSource = "user" | "endpoint" | "preset";
 
 export interface TokenLimits {
   /** 上下文窗口（输入 + 输出总量）；null = 未知，让用户手填 */
   contextWindow: number | null;
   /** 单次输出上限；null = 未知 */
   maxOutput: number | null;
-  /** 🔴 endpoint = 端点保证的事实；preset = 本库的估计值，应允许用户修改 */
+  /** 🔴 user = 用户手填；endpoint = 端点上报的事实；preset = 本库的估计值，应允许用户修改 */
   source: LimitSource;
 }
 
@@ -138,6 +144,8 @@ export interface VerifyOk {
   models: string[];
   /** 滤掉的非对话模型条数 —— 用于「已滤掉 N 个」提示 */
   dropped: number;
+  /** 被滤掉的模型 id（端点顺序）—— 一条配置同时挂生图 / 配音模型时接在 models 后面 */
+  droppedModels: string[];
   modelInList: boolean;
   /** 当前填的那个模型的限额；null = 端点没报，回落到预置静态值 */
   limits: TokenLimits | null;
@@ -148,7 +156,7 @@ export interface VerifyOk {
 
 ## 错误的真实形状
 
-`VerifyError` 带 `code` 判别字段。六个变体：
+`VerifyError` 带 `code` 判别字段。七个变体（最后一个是兜底）：
 
 ```json
 { "code": "auth_failed", "detail": "Invalid API key" }

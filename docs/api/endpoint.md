@@ -37,7 +37,7 @@ Gemini 那条只能靠末尾 `#` 开后门。**「需要一个转义符才能表
 根本不会想到是库擅自改了地址。
 
 ::: tip 这条契约有守卫测试
-`endpoint_never_infers_version` 盯着，防止有人日后"好心"把推断加回来。
+`join_api_path_never_infers_version_segment` 与 `openai_side_still_never_infers` 盯着，防止有人日后"好心"把 OpenAI 兼容一侧的推断加回来。
 :::
 
 ### 仅有的两处容错
@@ -165,6 +165,7 @@ println!("{} 个可用，滤掉 {} 个", cleaned.models.len(), cleaned.dropped);
 |---|---|
 | `models` | 可用于对话的清单（已去重） |
 | `dropped` | 被滤掉的条数 |
+| `dropped_models` | 被滤掉的模型 id（端点顺序），`len() == dropped` |
 
 `is_chat_model_id(id)` 是单条判断，可以单独使用。
 

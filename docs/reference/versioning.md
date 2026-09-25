@@ -120,8 +120,9 @@ xtask 依赖 `client` feature，workspace 级命令会触发 **feature unificati
 
 ## 当前状态
 
-尚未发布到 crates.io。crates.io 的版本**永久不可撤回**，
-`0.1.0` 一旦发出就占住了这个名字 —— 在第一个真实接入方跑通之前，
-API 形状还可能调整，现在发布只会制造需要长期背负的兼容包袱。
+已发布到 [crates.io](https://crates.io/crates/ai-profile)，当前 `0.1.1`（2026-09-24）。
+发布前五个应用（Sigil、Reeve、知识库、一站通、StoryLoom）已按提交号接入跑通，API 形状经过真实使用检验；
+发布后下游统一改按版本号 `0.1` 引用。
 
-接入方式见[安装与 feature](/guide/installation)。
+crates.io 的版本**永久不可撤回**（只能 yank，不能删除或覆盖），所以发版前的检查清单一条都不能省。
+每个版本改了什么见[更新日志](/reference/changelog)，接入方式见[安装与 feature](/guide/installation)。

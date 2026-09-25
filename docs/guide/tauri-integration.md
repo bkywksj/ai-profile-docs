@@ -8,7 +8,7 @@
 ```toml
 # src-tauri/Cargo.toml
 [dependencies]
-ai-profile = { git = "https://github.com/bkywksj/ai-profile", features = ["chat", "client"] }
+ai-profile = { version = "0.1", features = ["chat", "client"] }
 ```
 
 如果你的应用还要生图 / 语音，在 `features` 里一并开启 —— 见 [feature 矩阵](/guide/installation#feature-矩阵)。

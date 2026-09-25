@@ -20,12 +20,13 @@ for v in vendors(&[Kind::Chat]) {
 
 ```text
 Anthropic 官方 [Anthropic / 协议档] 云端
+…
 DeepSeek [国内] 云端
-智谱 GLM [国内] 云端
-火山方舟（豆包） [国内] 云端
 …
 Ollama [本地 / 自建] 本地服务
 ```
+
+（节选。实际按预置数组顺序输出，同一分组连续排列。）
 
 `is_local` 是必须区分的：云端服务要引导用户「去申请密钥」，
 本地服务要引导他「先把服务跑起来」。不区分的话，用户会按云服务的思路去配，配好却连不上。
@@ -62,6 +63,7 @@ use ai_profile::client::{ServiceConfig, Verifier};
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 应用启动时建一次
     let verifier = Verifier::new()?;
+    let p = ai_profile::preset_by_key("deepseek").expect("预置存在");
 
     let cfg = ServiceConfig::new(p.protocol, "https://api.deepseek.com/v1")
         .with_preset("deepseek")
@@ -93,7 +95,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## 4. 处理错误：给动作，不只给文字
 
-六个错误变体各自对应一个界面动作。**这是本库存在的重点之一** ——
+七个错误变体各自对应一个界面动作（最后一个 `malformed` 是兜底）。**这是本库存在的重点之一** ——
 只显示一行红字的话，用户不知道下一步该做什么。
 
 ```rust

@@ -41,6 +41,7 @@ ProviderPreset {
     protocol: Protocol::OpenAiCompatible,
     match_hosts: &["api.acme.com"],
     extra_fields: NO_EXTRA,
+    default_extra: &[],
     apply_url: Some("https://console.acme.com/keys"),
     is_local: false,
     verified_at: None,
@@ -56,7 +57,8 @@ ProviderPreset {
 | `https://api.acme.com/v1` | `https://api.acme.com`（缺版本段） |
 | `https://open.bigmodel.cn/api/paas/v4` | `https://api.acme.com/v1/chat/completions`（带了端点后缀） |
 
-本库不做任何版本段推断 —— 你写什么，用户的请求就打到哪里。
+OpenAI 兼容一侧不做任何版本段推断 —— 你写什么，用户的请求就打到哪里。
+Anthropic 协议例外（末段不是版本号时自动补 `/v1`），但预置里照样写全，守卫测试要求每条都看得到版本段。
 
 ### 3. 默认 model 选「够用档」
 
@@ -122,7 +124,7 @@ cargo test -p ai-profile --features client
 | `preset_keys_are_unique` | key 重复会让回填逻辑静默错乱 |
 | `vendor_ids_consistent` | 同 vendor_id 的 host 必须一致 |
 | `default_model_is_in_its_own_list` | 默认值在下拉里选不中 |
-| `endpoint_never_infers_version` | 防止有人把版本段推断加回来 |
+| `join_api_path_never_infers_version_segment` | 防止有人把 OpenAI 兼容一侧的版本段推断加回来 |
 | `protocol_roundtrip` | ai.profile 解析→生成→解析 不丢字段 |
 | `providers_md_in_sync` | 防止文档变成又一份会漂移的副本 |
 | `service_config_builder_is_usable_from_outside` | `non_exhaustive` 入参类型缺 builder 时下游报 E0639 |
