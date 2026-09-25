@@ -146,7 +146,7 @@ ai-profile 把**变动最频繁、跨应用差异为零**的那部分抽出来�
   <img src="/products/tauri-desktop.svg" alt="灵动桌面框架" style="width: 48px; height: 48px; object-fit: contain; margin-bottom: 12px;" />
   <h4 style="margin: 0 0 8px; font-size: 18px; color: var(--vp-c-text-1);">灵动桌面框架</h4>
   <p style="margin: 0 0 8px; font-size: 13px; color: #10B981; font-weight: 500;">React 19 + Rust + TypeScript · AI驱动跨平台</p>
-  <p style="margin: 0; font-size: 13px; color: var(--vp-c-text-2); line-height: 1.6;">Tauri 2.x | 33个AI技能 | 三引擎协同</p>
+  <p style="margin: 0; font-size: 13px; color: var(--vp-c-text-2); line-height: 1.6;">Tauri 2.x | 44个AI技能 | 三引擎协同</p>
 </a>
 
 <a href="https://reeve.ruoyi.plus" target="_blank" rel="noopener noreferrer" class="product-preview-card">

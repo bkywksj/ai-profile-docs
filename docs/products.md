@@ -101,11 +101,11 @@ description: 抓蛙师出品的开发者工具矩阵：覆盖智能编程、凭�
   logo="/products/tauri-desktop.svg"
   name="灵动桌面框架"
   slogan="React 19 + Rust + TypeScript · AI驱动 · 轻量安全 · 高性能跨平台"
-  description="基于Tauri 2.x的企业级桌面应用开发框架，内置33个AI专业技能，Claude + Codex + Gemini三引擎协同。双进程架构，WebView前端与Rust后端通过IPC高效通信。"
+  description="基于Tauri 2.x的企业级桌面应用开发框架，内置44个AI专业技能，Claude + Codex + Gemini三引擎协同。双进程架构，WebView前端与Rust后端通过IPC高效通信。"
   theme="green"
   :highlights="[
     '双进程架构：WebView前端 + Rust后端，IPC高效通信',
-    'AI驱动开发：内置33个AI专业技能，三引擎协同',
+    'AI驱动开发：内置44个AI专业技能，三引擎协同',
     '现代技术栈：React 19 + TypeScript 5.8 + Ant Design 6 + TailwindCSS 4',
     '安全权限控制：Capabilities权限声明机制，细粒度API访问控制',
     '多平台打包：Windows (NSIS/MSI)、macOS (DMG)、Linux (DEB/AppImage)'
