@@ -6,7 +6,7 @@
   --vp-c-brand-soft: rgba(79, 70, 229, 0.14);
 
   --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: linear-gradient(120deg, #6366f1, #22d3ee);
+  --vp-home-hero-name-background: linear-gradient(120deg, #4f46e5, #818cf8);
 }
 
 .dark {
@@ -25,4 +25,56 @@
 
 .vp-doc div[class*='language-'] {
   border-radius: 8px;
+}
+
+/* ── 首页「产品矩阵」小卡片（与 sigil 文档站同款）── */
+.product-preview-card {
+  display: block;
+  padding: 24px;
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.product-preview-card,
+.product-preview-card:hover,
+.product-preview-card h4,
+.product-preview-card p {
+  text-decoration: none !important;
+}
+
+.product-preview-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: var(--vp-c-brand-1);
+}
+
+/* 内联图标默认排版：跟随文字大小，基线略下沉以与中文对齐 */
+.li-icon {
+  display: inline-block;
+  vertical-align: -0.18em;
+  color: var(--vp-c-brand-1);
+  flex-shrink: 0;
+}
+
+/* AProductCard 的橙色主题（组件原稿只写了 blue / purple / green，orange 卡片会退成无色） */
+.product-card.theme-orange::before {
+  background: linear-gradient(180deg, #f59e0b, #f97316);
+}
+.product-card.theme-orange .product-icon-wrapper {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(249, 115, 22, 0.12));
+}
+.product-card.theme-orange .product-slogan,
+.product-card.theme-orange .product-icon-svg {
+  color: #f59e0b;
+}
+.product-card.theme-orange .product-action-btn.is-primary {
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+}
+.product-card.theme-orange .highlight-dot {
+  background: #f59e0b;
 }

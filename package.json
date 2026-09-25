@@ -11,6 +11,7 @@
     "sync-providers": "python scripts/sync-providers.py ../ai-profile docs/reference/providers.md"
   },
   "devDependencies": {
+    "@iconify-icons/lucide": "^1.2.136",
     "vitepress": "^1.6.3"
   },
   "pnpm": {

@@ -13,31 +13,35 @@ hero:
       text: 快速开始
       link: /guide/quick-start
     - theme: alt
+      text: 按场景查找
+      link: /guide/cookbook
+    - theme: alt
       text: 这是什么
       link: /guide/introduction
-    - theme: alt
-      text: GitHub
-      link: https://github.com/bkywksj/ai-profile
 
 features:
-  - title: 对话 25 家 + 生图 / 视频 / 配音 17 条预置
-    details: base_url、模型 id、协议类型、专有字段、密钥申请页，全部作为静态数据内置。按厂商聚合成目录 —— 同一家的多种能力共用一个密钥，配一次就能全开。
+  - title: 对话 25 家 + 多模态 17 条预置
+    details: 地址、模型 id、协议、专有字段、密钥申请页全部内置。按厂商聚合成目录 —— 同一家的多种能力共用一个密钥，配一次就能全开。
     link: /reference/providers
     linkText: 看完整清单
   - title: ai.profile 跨应用互通
-    details: 用户在 A 应用配好的模型服务，复制一段 JSON 就能粘进 B 应用。解析宽进（接受三种字段拼写）、生成严出（只产出规范写法）。
+    details: 在 A 应用配好的模型服务，复制一段 JSON 就能粘进 B 应用，支持一次分享一整组。解析宽进（兼容多种字段拼写）、生成严出。
     link: /api/protocol
     linkText: 协议详情
-  - title: 结构化错误，不是一行红字
-    details: 六个错误变体各对应一个界面动作。404 带上推断出的正确地址，界面才能给「一键改用」；缺专有字段在发请求之前就能判出来，直接禁用按钮。
-    link: /reference/errors
-    linkText: 错误码对照
-  - title: 零成本验证
-    details: 只打端点的模型列表接口，不产生任何生成费用。顺带把真实模型清单拉回来 —— 用户不必去翻文档抄模型名。
+  - title: 零成本验证，结构化错误
+    details: 「获取模型」只打模型列表接口，不产生生成费用。失败时七种错误各对应一个界面动作 —— 404 带上推断出的正确地址，界面能给「一键改用」。
     link: /api/verify
     linkText: 验证 API
+  - title: 地址规则确定、不猜
+    details: OpenAI 兼容地址原样使用（智谱 /v4、Gemini /v1beta/openai 各不相同，猜错只会 404）；Anthropic 只有 v1，填不填 /v1 都能用。
+    link: /api/endpoint
+    linkText: 端点拼接
+  - title: 限额与历史裁剪
+    details: 上下文窗口、输出上限按「用户 > 端点上报 > 预置 > 未知」逐字段取值，来源可见。历史按窗口裁剪，服务端报超长时自动裁一半重试。
+    link: /api/limits
+    linkText: 限额
   - title: 生图 / 视频 / 配音调用
-    details: 六套视频提交与轮询协议、两套生图、两套配音，按地址自动识别。来自生产环境的实现：错误翻成可操作的中文，出图不会被超时误杀却照样扣费。
+    details: 六套视频提交与轮询协议、两套生图、两套配音，按配置自动识别。来自生产环境的实现：错误翻成可操作的中文，出图不会被超时误杀却照样扣费。
     link: /api/media
     linkText: 多模态调用
   - title: 应用可以定制目录
@@ -45,32 +49,121 @@ features:
     link: /api/catalog
     linkText: 定制目录
   - title: 默认零重依赖
-    details: 默认只有 serde 与 thiserror，纯数据 + 纯函数，能编到移动端。需要真发 HTTP 时才开 client feature 拉 reqwest；不用的能力不编进二进制。
+    details: 默认只有 serde、serde_json 与 thiserror，纯数据 + 纯函数，能编到移动端。真要发 HTTP 才开 client；不用的能力不编进二进制。
     link: /guide/installation
     linkText: feature 矩阵
-  - title: base_url 原样使用
-    details: 不做版本段推断。各家并不统一 —— 多数 /v1、智谱 /v4、Gemini 的 /v1beta/openai 甚至不在末尾。推断错的代价是隐性的：用户照文档填对了，库悄悄加了一段，他只看到 404。
-    link: /api/endpoint
-    linkText: 端点拼接
 ---
+
+## 30 秒上手
+
+```toml
+[dependencies]
+ai-profile = { version = "0.1", features = ["chat", "client"] }
+```
+
+```rust
+use ai_profile::{preset_by_key, vendors, Kind};
+
+// 设置页的服务商下拉：只做对话的应用不会看到「只提供视频」的厂商
+for v in vendors(&[Kind::Chat]) {
+    println!("{} [{}]", v.label, v.group_label);
+}
+
+// 用户选了一家：预填地址与默认模型
+let p = preset_by_key("deepseek").expect("预置存在");
+println!("{:?} / {}", p.base_url, p.model);
+```
+
+验证、粘贴导入、限额、多模态见[快速开始](/guide/quick-start)；不知道从哪看起，按[你要做的事](/guide/cookbook)找。
 
 ## 为什么要有这个库
 
-多个桌面应用都要做同一件事：让用户配置 AI 模型服务。这套逻辑此前在每个应用里各写一遍 ——
-约 1.5 万行代码做同一件事，且**模型 id 变动时必然漏改**。
+多个桌面应用都要做同一件事：让用户配置 AI 模型服务。这套逻辑此前在每个应用里各写一遍，
+而且**模型 id 一变就必然漏改** —— DeepSeek 在 2026-07-24 下线了 `deepseek-chat` 别名，
+有个应用两个月后才发现自己的预置「点开即报错」。
 
-一个真实的例子：DeepSeek 在 2026-07-24 下线了 `deepseek-chat` 别名，
-某个应用两个月后才发现自己的预置「点开即报错」—— 因为没人会主动去核对另外三个应用里的同一份清单。
+ai-profile 把**变动最频繁、跨应用差异为零**的那部分抽出来。密钥存储、数据库、对话请求这些各应用差异大的部分**不进本库**，
+边界见[这是什么](/guide/introduction)。
 
-ai-profile 把**变动最频繁、而跨应用差异为零**的那部分抽出来，做成一份可依赖的库。
+## 谁在用
 
-## 它不做什么
+| 应用 | 用到的部分 |
+|---|---|
+| [Sigil 掌玺](https://sigil.ruoyi.plus) | 对话：预置、验证、限额、历史裁剪、`ai.profile` |
+| [Reeve](https://reeve.ruoyi.plus) | 对话（桌面 + 移动端） |
+| [本地知识库](https://kb.ruoyi.plus/) | 对话：预置、验证、限额、超长识别、`ai.profile` |
+| 一站通 | 对话 + 生图 / 视频 / 配音预置 |
+| StoryLoom | 四种能力全用 —— 生图 / 视频 / 配音的调用实现就来自它 |
 
-| | 内容 | 归属 |
-|---|---|---|
-| ✅ | 预置清单、`ai.profile` 协议、端点拼接、模型清单清洗、验证与结构化错误 | 本 crate |
-| ❌ | **密钥存储与加密** | 留给应用 —— 各家差异极大（系统密钥环 / SQLCipher 金库 / 明文配置各有各的取舍） |
-| ❌ | 数据库、CRUD、哪条配置是「当前启用」 | 同上 |
+在其中任何一个应用里配好的模型服务，复制一段 `ai.profile` 就能粘进另一个。
 
-**本 crate 不持久化任何东西**。它只在验证时接收调用方传入的密钥，用完即弃，
-密钥也绝不会出现在任何错误信息里 —— 调用方可以放心把错误写进日志。
+## 产品矩阵
+
+抓蛙师出品，覆盖智能编程、凭据安全、服务器运维、知识管理、桌面框架、全栈开发等场景 —— [看完整介绍](/products)
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin: 30px 0;">
+
+<a href="https://sigil.ruoyi.plus" target="_blank" rel="noopener noreferrer" class="product-preview-card">
+  <img src="/products/sigil.svg" alt="Sigil 掌玺" style="width: 48px; height: 48px; object-fit: contain; margin-bottom: 12px;" />
+  <h4 style="margin: 0 0 8px; font-size: 18px; color: var(--vp-c-text-1);">Sigil 掌玺</h4>
+  <p style="margin: 0 0 8px; font-size: 13px; color: #0B6EF0; font-weight: 500;">AI 凭据金库 · MCP 协议代理</p>
+  <p style="margin: 0; font-size: 13px; color: var(--vp-c-text-2); line-height: 1.6;">凭据零明文 | 160+ 内置能力 | 完整审计</p>
+</a>
+
+<a href="https://ruoyi.plus/" target="_blank" rel="noopener noreferrer" class="product-preview-card">
+  <img src="/products/ruoyi-plus-uniapp.png" alt="RuoYi-Plus-UniApp" style="width: 48px; height: 48px; object-fit: contain; margin-bottom: 12px;" />
+  <h4 style="margin: 0 0 8px; font-size: 18px; color: var(--vp-c-text-1);">RuoYi-Plus-UniApp</h4>
+  <p style="margin: 0 0 8px; font-size: 13px; color: #0B6EF0; font-weight: 500;">Spring Boot 3 + Vue 3 + UniApp 全栈框架</p>
+  <p style="margin: 0; font-size: 13px; color: var(--vp-c-text-2); line-height: 1.6;">四层架构 | 多租户 | AI集成 | 80+企业信赖</p>
+</a>
+
+<a href="https://ai-workstation.ruoyi.plus/" target="_blank" rel="noopener noreferrer" class="product-preview-card">
+  <img src="/products/ai-workstation.svg" alt="AI 全能工作站" style="width: 48px; height: 48px; object-fit: contain; margin-bottom: 12px;" />
+  <h4 style="margin: 0 0 8px; font-size: 18px; color: var(--vp-c-text-1);">AI 全能工作站</h4>
+  <p style="margin: 0 0 8px; font-size: 13px; color: #0B6EF0; font-weight: 500;">一句话搞定一切 · 61个模块 · 1246 AI技能</p>
+  <p style="margin: 0; font-size: 13px; color: var(--vp-c-text-2); line-height: 1.6;">八大领域全覆盖 | 智能路由 | 42集视频教程</p>
+</a>
+
+<a href="https://aicoder.ruoyi.plus/" target="_blank" rel="noopener noreferrer" class="product-preview-card">
+  <img src="/products/aicoder.png" alt="智码 AiCoder" style="width: 48px; height: 48px; object-fit: contain; margin-bottom: 12px;" />
+  <h4 style="margin: 0 0 8px; font-size: 18px; color: var(--vp-c-text-1);">智码 AiCoder</h4>
+  <p style="margin: 0 0 8px; font-size: 13px; color: #8B5CF6; font-weight: 500;">给 Claude Code、Codex、Gemini CLI 一个统一的家</p>
+  <p style="margin: 0; font-size: 13px; color: var(--vp-c-text-2); line-height: 1.6;">多标签会话 | Token费用追踪 | 零额外开销</p>
+</a>
+
+<a href="https://tauri.ruoyi.plus/" target="_blank" rel="noopener noreferrer" class="product-preview-card">
+  <img src="/products/tauri-desktop.svg" alt="灵动桌面框架" style="width: 48px; height: 48px; object-fit: contain; margin-bottom: 12px;" />
+  <h4 style="margin: 0 0 8px; font-size: 18px; color: var(--vp-c-text-1);">灵动桌面框架</h4>
+  <p style="margin: 0 0 8px; font-size: 13px; color: #10B981; font-weight: 500;">React 19 + Rust + TypeScript · AI驱动跨平台</p>
+  <p style="margin: 0; font-size: 13px; color: var(--vp-c-text-2); line-height: 1.6;">Tauri 2.x | 33个AI技能 | 三引擎协同</p>
+</a>
+
+<a href="https://reeve.ruoyi.plus" target="_blank" rel="noopener noreferrer" class="product-preview-card">
+  <img src="/products/reeve.png" alt="Reeve" style="width: 48px; height: 48px; object-fit: contain; margin-bottom: 12px;" />
+  <h4 style="margin: 0 0 8px; font-size: 18px; color: var(--vp-c-text-1);">Reeve</h4>
+  <p style="margin: 0 0 8px; font-size: 13px; color: #0EA5E9; font-weight: 500;">服务器庄园总管 · 你持钥 AI 借道</p>
+  <p style="margin: 0; font-size: 13px; color: var(--vp-c-text-2); line-height: 1.6;">SSH 管理 | MCP 受控接入 | 四重关卡 + 审计</p>
+</a>
+
+<a href="https://agileshot.ruoyi.plus" target="_blank" rel="noopener noreferrer" class="product-preview-card">
+  <img src="/products/agileshot.png" alt="AgileShot" style="width: 48px; height: 48px; object-fit: contain; margin-bottom: 12px;" />
+  <h4 style="margin: 0 0 8px; font-size: 18px; color: var(--vp-c-text-1);">AgileShot</h4>
+  <p style="margin: 0 0 8px; font-size: 13px; color: #F59E0B; font-weight: 500;">AI 时代的桌面截图与标注工具</p>
+  <p style="margin: 0; font-size: 13px; color: var(--vp-c-text-2); line-height: 1.6;">11 种标注 | AI OCR/翻译 | MCP 扩展</p>
+</a>
+
+<a href="https://kb.ruoyi.plus/" target="_blank" rel="noopener noreferrer" class="product-preview-card">
+  <img src="/products/knowledge-base.png" alt="本地知识库" style="width: 48px; height: 48px; object-fit: contain; margin-bottom: 12px;" />
+  <h4 style="margin: 0 0 8px; font-size: 18px; color: var(--vp-c-text-1);">本地知识库</h4>
+  <p style="margin: 0 0 8px; font-size: 13px; color: #8B5CF6; font-weight: 500;">全文搜索 · 双链 · 知识图谱 · MCP</p>
+  <p style="margin: 0; font-size: 13px; color: var(--vp-c-text-2); line-height: 1.6;">12 工具 MCP | 双链图谱 | 多端同步</p>
+</a>
+
+<a href="https://officia.ruoyi.plus" target="_blank" rel="noopener noreferrer" class="product-preview-card">
+  <img src="/products/officia.svg" alt="Officia" style="width: 48px; height: 48px; object-fit: contain; margin-bottom: 12px;" />
+  <h4 style="margin: 0 0 8px; font-size: 18px; color: var(--vp-c-text-1);">Officia</h4>
+  <p style="margin: 0 0 8px; font-size: 13px; color: #F59E0B; font-weight: 500;">零依赖 Java 办公套件 · 无损转 PDF · Aspose 平替</p>
+  <p style="margin: 0; font-size: 13px; color: var(--vp-c-text-2); line-height: 1.6;">Word/Excel/PPT 无损转 PDF | PDF 加密 | OCR | 仅需 JDK</p>
+</a>
+
+</div>
