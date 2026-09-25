@@ -100,8 +100,14 @@ for attempt in 0..3 {
 | OpenAI / DeepSeek / vLLM | `context_length_exceeded`、`maximum context length` |
 | Anthropic | `prompt is too long` |
 | Gemini（OpenAI 兼容层） | `exceeds the maximum number of tokens` |
-| OpenRouter / Kimi / 通义 / 智谱 | 各自的措辞 |
+| OpenRouter | `maximum context length` |
+| Kimi | `exceeded model token limit` |
+| 通义 | `input length` |
+| 智谱 | `超长`（中文片段原文比较） |
 | `413` | 请求体过大，裁历史同样有效 |
+
+完整片段表是公开常量 `history::CONTEXT_OVERFLOW_PATTERNS`，也随多语言规范发布在 `history.json` 的 `rules` 里。
+只检查 `400` 与 `422` 两个状态码（外加一律算超长的 `413`）。
 
 明确**排除**：
 

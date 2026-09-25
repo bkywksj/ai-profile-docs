@@ -143,8 +143,12 @@ println!("{} 个可用，滤掉 {} 个", cleaned.models.len(), cleaned.dropped);
 
 ### 排除法，不是白名单
 
-判断依据是**特征词排除**（`embed`、`rerank`、`whisper`、`tts`、`image`、`ocr`…），
-而不是「认识的模型才留」。
+判断依据是**特征词排除**（`embed`、`rerank`、`whisper`、`tts`、`image`、`ocr` 等），
+而不是「认识的模型才留」。完整的特征词表是公开常量 `model_filter::NON_CHAT_MARKERS`
+（前缀排除见 `NON_CHAT_PREFIXES`），也随多语言规范发布在 `model_filter.json` 的 `rules` 里。
+
+本库自己的生图 / 视频 / 配音预置有守卫测试：它们的模型名必须全部被识别为非对话，
+新增一条非对话预置而特征词没覆盖到，测试直接失败。
 
 理由：厂商上新速度远快于特征词更新。白名单必然把新模型误藏，
 而**"藏起来"对用户是不可见的** —— 他只会觉得"这个端点怎么没有那个模型"，

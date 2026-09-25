@@ -79,8 +79,17 @@ let effective = [user_l, endpoint_l, preset_l]
 | `limits` | **当前填的那个模型**的限额；端点不报时为 `None` |
 | `model_limits` | 端点上报了限额的全部模型 `(id, 限额)` —— 切换模型时不必再打一次端点 |
 
-各家字段名不统一，`parse_model_limits` 按固定顺序依次尝试（`context_length`、`context_window`、
-`max_input_tokens`……），OpenRouter 优先取「当前服务商实际提供」的那一份。
+各家字段名不统一，`parse_model_limits` 按固定顺序依次尝试：
+
+| 值 | 字段（前者优先） |
+|---|---|
+| 上下文窗口 | `context_length`、`context_window`、`max_context_length`、`max_input_tokens` |
+| 输出上限 | `max_completion_tokens`、`max_output_tokens`、`max_tokens` |
+
+每个值**先在 `top_provider` 对象里按表查，没有再查顶层**，两个值各自独立 ——
+OpenRouter 的 `top_provider` 是「当前服务商实际提供」的额度，比模型标称值更贴近能用到的。
+数字写成字符串（两端可带空白）也接受；`0` 视为没报（有的端点用 0 表示未知），负数不认。
+两张表是公开常量 `limits::{CONTEXT_WINDOW_FIELDS, MAX_OUTPUT_FIELDS}`。
 
 ## 用起来
 

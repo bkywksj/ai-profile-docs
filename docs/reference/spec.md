@@ -48,21 +48,29 @@ ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预
 
 「必要性」按你要做的功能看：只做服务商下拉，前两行就够了。
 
-| 功能 | 要实现的函数（Rust 名） | 用例 | 什么时候需要 |
+| 功能 | 要实现的函数（用例里的 `fn`） | 用例 | 什么时候需要 |
 |------|----------------------|------|-------------|
 | 预置数据 | `presets` / `preset_by_key` / `vendors` | 无，直接读 `presets.json` | 所有场景 |
 | 端点拼接 | `join_api_path` / `join_chat_endpoint` / `anthropic_base_url` / `ends_with_version_segment` | `endpoint.json` | 发任何请求 |
 | 反推预置 | `infer_preset_key` / `model_limits` | `preset_lookup.json` | 打开老配置时认出是哪家、取预置限额 |
 | 模型清洗 | `is_chat_model_id` / `clean_fetched_models` | `model_filter.json` | 做「获取模型」下拉 |
-| `/models` 解析 | `parse_model_ids` / `parse_model_limits` | `models_response.json` | 同上 |
+| `/models` 解析 | `parse_models_response`（= Rust 的 `parse_model_ids` + `parse_model_limits`，结果合成 `{ids, limits}`） | `models_response.json` | 同上 |
 | 错误判定 | `diagnose` / `suggest_url` / `check_required_fields` | `diagnose.json` | 做「测试连接」 |
 | 测试连接 | `verify` | 无，按[下面的流程](#测试连接的网络层)把上面几个串起来 | 做「测试连接」 |
 | 导入导出 | `parse_profiles` / `to_profile` | `ai_profile.json` | 做粘贴导入、分享 |
-| 限额 | `TokenLimits::or` | `limits.json` | 显示上下文窗口 / 输出上限 |
+| 限额 | `merge_limits`（= 从左往右折叠 Rust 的 `TokenLimits::or`） | `limits.json` | 显示上下文窗口 / 输出上限 |
 | 超长识别 | `is_context_overflow` | `history.json` | 对话报错后决定要不要裁历史重试 |
 | 历史裁剪、生图 / 视频 / 配音调用 | `trim_history` / `media` 模块 | **暂无** | 见[未覆盖的部分](#未覆盖的部分) |
 
 函数名、参数名在你的语言里按惯例改（`join_api_path` → `joinApiPath`），行为一致即可。
+
+::: warning 先读每个用例文件的 description 和 rules
+- **`description` 是完整规则**：处理顺序、边界值（比如 `parse_profiles` 先查版本再查 kind、
+  `suggest_url` 只认字面的 `/v1beta/` 与 `/v1/`）。用例只是抽样，光看用例会有多种读法。
+- **`rules` 是规则用到的数据表**：模型清洗的特征词（`model_filter.json`）、超长报错片段（`history.json`）、
+  限额字段名（`models_response.json`）。**实现时读这张表，不要对着用例凑** ——
+  第一次外部试写就是这样：用例全过，凑出来的词表却把 `FLUX.1-dev` 判成了对话模型。
+:::
 
 ### 只用数据
 
@@ -120,7 +128,8 @@ for p in chat:                       # 保持原数组顺序 = 分组顺序
    - `modelInList`：当前填的 model 为空、或清单为空、或在清单里 → `true`。
      **模型不在清单里不算失败**，界面据此提示「端点没有这个模型，要换一个吗」
    - `limits`：`parse_model_limits(body)` 里当前 model 那一条，没有就是 `null`
-   - `modelLimits`：`parse_model_limits(body)` 的全部结果，每项是 `[id, 限额]`
+   - `modelLimits`：`parse_model_limits(body)` 的全部结果，**每项是 `[id, 限额]` 二元数组**
+     （注意与 `models_response.json` 用例里的 `{id, limits}` 写法不同，这里照线格式输出）
 
 错误对象的字段与各自该给用户的动作见[错误码对照](/reference/errors)。
 
@@ -163,6 +172,12 @@ for p in chat:                       # 保持原数组顺序 = 分组顺序
 - `expected` 的键名照 Rust 版的线格式原样给出：数据结构是 camelCase，**错误对象是 snake_case**
   （如 `suggested_url`）。这是已发布的格式，照抄即可，别统一成一种。
 - 按 **JSON 值**比较（对象键无序），不要比字符串。`to_profile` 的输出也先解析再比。
+  🔴 当心语言里的宽松相等：Python 的 `True == 1`、`1 == 1.0` 都成立，会放过类型错误 ——
+  先把两边规范化成 JSON 文本（键排序）再比。
+- 返回空的 `Result` 写成 `{"ok": null}`。
+- 用例可能带 `"ignore": ["error.detail"]`：比较前从两边删掉这些路径。目前只用于 `invalid_json`
+  的 `detail` —— 那是 Rust JSON 库的报错原文，别的语言不可能逐字复现，只要求 `code` 一致。
+- `check_required_fields` 的 `extra` 在用例里写成 `[{key, value}]`。
 
 ## 接进你的测试
 
@@ -180,9 +195,24 @@ FNS = {
 spec = json.loads(pathlib.Path("spec/conformance/endpoint.json").read_text("utf-8"))
 assert spec["specVersion"] == 1
 
+def canon(v):
+    # 规范化后再比：避免 True == 1、1 == 1.0 这类宽松相等放过类型错误
+    return json.dumps(v, sort_keys=True, ensure_ascii=False)
+
+def drop(v, path):
+    # 处理用例的 "ignore"：删掉 "error.detail" 这样的路径
+    *parents, last = path.split(".")
+    for p in parents:
+        v = v.get(p, {}) if isinstance(v, dict) else {}
+    if isinstance(v, dict):
+        v.pop(last, None)
+
 @pytest.mark.parametrize("case", spec["cases"], ids=lambda c: f'{c["fn"]}:{c["input"]}')
 def test_endpoint(case):
-    assert FNS[case["fn"]](case["input"]) == case["expected"]
+    got, want = FNS[case["fn"]](case["input"]), case["expected"]
+    for path in case.get("ignore", []):
+        drop(got, path); drop(want, path)
+    assert canon(got) == canon(want)
 ```
 
 TypeScript + Vitest 同理：
