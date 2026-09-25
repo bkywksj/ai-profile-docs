@@ -120,7 +120,7 @@ xtask 依赖 `client` feature，workspace 级命令会触发 **feature unificati
 
 ## 当前状态
 
-已发布到 [crates.io](https://crates.io/crates/ai-profile)，当前 `0.1.1`（2026-09-24）。
+已发布到 [crates.io](https://crates.io/crates/ai-profile)，当前 `0.1.2`（2026-09-25）。
 发布前五个应用（Sigil、Reeve、知识库、一站通、StoryLoom）已按提交号接入跑通，API 形状经过真实使用检验；
 发布后下游统一改按版本号 `0.1` 引用。
 

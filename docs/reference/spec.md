@@ -38,8 +38,8 @@ ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预
 | 地址 | 用途 |
 |------|------|
 | `https://ai-profile.ruoyi.plus/spec/…` | **最新版**，跟着 crate 发版变 |
-| `https://ai-profile.ruoyi.plus/spec/v0.1.1/…` | **固定版本**，发布后不再改动。自动下载、写进构建脚本时用这个 |
-| <a href="/spec/versions.json" target="_blank" rel="noopener"><code>/spec/versions.json</code></a> | 已有版本清单：`{"latest": "0.1.1", "versions": [...]}` |
+| `https://ai-profile.ruoyi.plus/spec/v0.1.2/…` | **固定版本**，发布后不再改动。自动下载、写进构建脚本时用这个 |
+| <a href="/spec/versions.json" target="_blank" rel="noopener"><code>/spec/versions.json</code></a> | 已有版本清单：`{"latest": "0.1.2", "versions": [...]}` |
 
 最稳妥的做法是把整个目录复制进你的仓库（`spec/`），记下来源版本 —— 构建不依赖网络，
 升级时整体替换、看哪些用例红了，红掉的就是这次规则变化的全部内容。
@@ -66,7 +66,7 @@ ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预
 
 ::: warning 先读每个用例文件的 description 和 rules
 - **`description` 是完整规则**：处理顺序、边界值（比如 `parse_profiles` 先查版本再查 kind、
-  `suggest_url` 只认字面的 `/v1beta/` 与 `/v1/`）。用例只是抽样，光看用例会有多种读法。
+  误填的端点后缀按路径段识别）。用例只是抽样，光看用例会有多种读法。
 - **`rules` 是规则用到的数据表**：模型清洗的特征词（`model_filter.json`）、超长报错片段（`history.json`）、
   限额字段名（`models_response.json`）。**实现时读这张表，不要对着用例凑** ——
   第一次外部试写就是这样：用例全过，凑出来的词表却把 `FLUX.1-dev` 判成了对话模型。
@@ -147,7 +147,7 @@ for p in chat:                       # 保持原数组顺序 = 分组顺序
 ```json
 {
   "specVersion": 1,
-  "crateVersion": "0.1.1",
+  "crateVersion": "0.1.2",
   "title": "端点拼接",
   "description": "规则摘要",
   "generatedBy": "cargo xtask gen-spec …",
@@ -243,7 +243,7 @@ test.each(spec.cases)('$fn $input', (c) => {
 
 规范与用例：
 - 实现说明：https://ai-profile.ruoyi.plus/reference/spec.md
-- 用例文件已放在本仓库 spec/ 目录（来自 https://ai-profile.ruoyi.plus/spec/v0.1.1/）
+- 用例文件已放在本仓库 spec/ 目录（来自 https://ai-profile.ruoyi.plus/spec/v0.1.2/）
 
 要求：
 1. 先读实现说明的「实现范围」与「测试连接的网络层」两节，再动手

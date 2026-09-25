@@ -3,6 +3,26 @@
 面向使用者的版本说明：每个版本带来了什么、升级时要不要改代码。
 开发过程的完整记录见仓库里的 [CHANGELOG.md](https://github.com/bkywksj/ai-profile/blob/master/CHANGELOG.md)。
 
+## 0.1.2 · 2026-09-25
+
+**升级只需 `cargo update -p ai-profile`，不用改代码。**
+
+### 修复
+
+- **「获取模型」的对话下拉里混进了生图 / 视频 / 配音模型**：`dall-e-3`、火山的 seedream / seedance、
+  通义万相文生图、各家图生视频、智谱 cogvideox、MiniMax 海螺、fish-speech，以及 OpenAI 的语音转写模型，
+  现在都会被正确滤掉。它们仍在 `dropped_models` 里 —— 按它排生图 / 视频 / 配音下拉的应用，这些模型会排到正确位置
+- `suggest_url` 对以 `/v1beta` 结尾的地址会建议出 `…/v1beta/v1` 这种错地址，现在不再给建议
+- 误填的端点后缀按路径段识别：`…/v1/mymessages` 此前会被当成误填的 `/messages` 剥掉
+- `ai.profile` 顶层必须是 JSON 对象：数组形式此前也能导入，协议里没有这种写法
+
+### 新增
+
+- 公开常量 `NON_CHAT_MARKERS` / `NON_CHAT_PREFIXES`、`CONTEXT_OVERFLOW_PATTERNS`、
+  `CONTEXT_WINDOW_FIELDS` / `MAX_OUTPUT_FIELDS`：模型清洗、超长识别、限额解析用到的数据表
+- **[其他语言实现](/reference/spec)**：与语言无关的预置数据和 246 条一致性用例，按版本存档。
+  非 Rust 项目（Python / TypeScript / Java…）照着它实现，跑通用例即与本库行为一致
+
 ## 0.1.1 · 2026-09-24
 
 **文档修复，无代码变更。** 升级无需改动。
