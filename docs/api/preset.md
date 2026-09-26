@@ -122,6 +122,25 @@ assert_eq!(key, "deepseek");   // 即使存的地址不带 /v1
 `match_hosts` 为空的预置（自定义端点档）靠 `protocol` 反推 —— 协议是 Anthropic
 但 host 不是 `api.anthropic.com` 的，多半是中转站，归到 Claude Code 那一档。
 
+### 生图 / 视频 / 配音（0.1.4 起）
+
+`infer_preset_key` 只认对话预置。其它能力的配置用 `infer_preset_key_for`：
+
+```rust
+use ai_profile::{preset::infer_preset_key_for, Kind, Protocol};
+
+let url = Some("https://api.siliconflow.cn/v1");
+// 同一个 host，按能力认到各自的档
+assert_eq!(infer_preset_key_for(Kind::Chat, Protocol::OpenAiCompatible, url), "siliconflow");
+assert_eq!(infer_preset_key_for(Kind::Image, Protocol::OpenAiCompatible, url), "siliconflow_image");
+```
+
+- `Kind::Chat` 的结果与 `infer_preset_key` 完全相同，`protocol` 只在这里起作用
+- 其余能力只在该能力的预置里按 `match_hosts` 找；认不出或没填地址，落到该能力的自定义端点档：
+  `custom_image` / `custom_video` / `custom_tts`
+- 🔴 不要自己遍历 `match_hosts`：`dashscope.aliyuncs.com`、`api.siliconflow.cn`、`ark.cn-beijing.volces.com`
+  同时是多种能力的 host；而「哪条算自定义档」是预置的内部约定，预置一变，自己写的判断就会悄悄认错
+
 ## 专有字段
 
 有些服务商要求额外配置项（如豆包 TTS 的 `appid` / `cluster`）。

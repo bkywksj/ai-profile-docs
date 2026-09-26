@@ -67,6 +67,7 @@ ai-profile = { version = "0.1", features = ["client", "image", "video", "tts"] }
 |---|---|
 | 服务商下拉 | `vendors(&[Kind::Chat])`，按厂商聚合；`is_local` 区分「去申请密钥」和「先启动服务」 |
 | 选中后预填 | `preset_by_key(key)` → `base_url`（`None` 表示让用户填）/ `model` / `models` / `apply_url` |
+| 已存 / 导入的地址认回预置 | 对话 `preset::infer_preset_key(protocol, base_url)`；生图 / 视频 / 配音用 `preset::infer_preset_key_for(kind, protocol, base_url)`（0.1.4 起）。不要自己遍历 `match_hosts`：同一个 host 横跨多种能力 |
 | 获取模型 | `Verifier::verify(cfg).await` → `VerifyOk { models, dropped, model_in_list, limits, .. }` |
 | 粘贴导入 | `parse_profiles(text, 兜底模型)` → 列表；`skipped > 0` 要告诉用户 |
 | 分享 | `to_profile(name, protocol, base_url, api_key, model)` |
@@ -74,7 +75,7 @@ ai-profile = { version = "0.1", features = ["client", "image", "video", "tts"] }
 | 限额 | `TokenLimits` 逐字段 `or` 叠加：用户 > 端点上报 > `preset::model_limits(..)` |
 | 裁历史 | 消息结构实现 `history::HistoryMessage` → `history_budget` + `trim_history`；`dropped > 0` 要提示用户 |
 | 超长重试 | `history::is_context_overflow(status, body)` → `retry_budget(&msgs)` 再裁，最多三次 |
-| 生图 / 视频 / 配音 | `media::image::AnyImageProvider` / `media::video::AnyVideoProvider` / `media::tts::synthesize_with`，代理走 `media::MediaHttp::from_fn` |
+| 生图 / 视频 / 配音 | `media::image::AnyImageProvider` / `media::video::AnyVideoProvider` / `media::tts::synthesize_with`，代理走 `media::MediaHttp::from_fn`。生图的 `size` 是请求值，火山方舟 / OpenAI 官方不认，记录尺寸要从返回的字节读 |
 
 每一行在示例目录里都有能编译的完整代码，照着改比从文档片段拼更可靠。
 

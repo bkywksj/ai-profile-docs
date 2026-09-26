@@ -52,7 +52,7 @@ ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预
 |------|----------------------|------|-------------|
 | 预置数据 | `presets` / `preset_by_key` / `vendors` | 无，直接读 `presets.json` | 所有场景 |
 | 端点拼接 | `join_api_path` / `join_chat_endpoint` / `anthropic_base_url` / `ends_with_version_segment` | `endpoint.json` | 发任何请求 |
-| 反推预置 | `infer_preset_key` / `model_limits` / `preset_endpoint` | `preset_lookup.json` | 打开老配置时认出是哪家、取预置限额；用户没填地址时该请求哪 |
+| 反推预置 | `infer_preset_key` / `infer_preset_key_for` / `model_limits` / `preset_endpoint` | `preset_lookup.json` | 打开老配置时认出是哪家（生图 / 视频 / 配音用 `infer_preset_key_for`）、取预置限额；用户没填地址时该请求哪 |
 | 模型清洗 | `is_chat_model_id` / `clean_fetched_models` | `model_filter.json` | 做「获取模型」下拉 |
 | `/models` 解析 | `parse_models_response`（= Rust 的 `parse_model_ids` + `parse_model_limits`，结果合成 `{ids, limits}`） | `models_response.json` | 同上 |
 | 错误判定 | `diagnose` / `diagnose_success` / `suggest_url` / `check_required_fields` | `diagnose.json` | 做「测试连接」 |
@@ -272,6 +272,7 @@ test.each(spec.cases)('$fn $input', (c) => {
 | 规则 | 要点 | 详见 |
 |------|------|------|
 | 端点拼接 | OpenAI 兼容地址**原样使用**，不补 `/v1`；只剥掉误填的对话端点后缀与末尾 `#`。Anthropic 协议是唯一例外：末段不是 `v<数字>` 就补 `/v1`，末尾 `#` 表示别补 | [端点与模型清单](/api/endpoint) |
+| 反推预置 | 地址小写后看是否**包含** `matchHosts` 的某一项（可带端口），不整串比较；对话只在 OpenAI 兼容的对话预置里找，Anthropic 协议按官方 / 中转二分；其它能力先按 kind 过滤再找，认不出落到该能力的自定义档（`rules.customPresetKeys`） | [预置与服务商目录](/api/preset) |
 | 模型清洗 | 排除法：只滤掉带明确非对话特征的（向量、重排、语音、生图、OCR、审核…），**未知名称一律放行**；去空白、去重、保持顺序；全被滤光时原样返回 | [端点与模型清单](/api/endpoint) |
 | `/models` 解析 | `{"data":[…]}` 与裸数组都接受；限额只收录报了的模型，OpenRouter 优先取 `top_provider` | [限额](/api/limits) |
 | 错误判定 | 401/403 → `auth_failed`；404 → `not_found`（看不出版本段时带 `suggested_url`）；其余 → `malformed`。2xx 但响应体不是 JSON → 同样 `not_found`。必填专有字段缺失 → `missing_extra_field` | [连通性验证](/api/verify) |
