@@ -128,7 +128,7 @@ let outcome = dec.abort(); // 返回已收到的文字，工具调用一律丢
 | 换行与格式 | `\r\n`、单独的 `\r`、BOM、`data:` 后没有空格、多行 `data`、事件之间漏空行 |
 | 工具调用 | 缺 `index`（按 id 或位置分块）、`index` 全是 0 但 id 不同、id 或名字晚到、`arguments` 是对象而不是字符串 |
 | 结束 | `finish_reason` 为空串、末尾只带 usage 的帧、只以 `[DONE]` 收尾 |
-| 用量 | 后面的值覆盖前面的，不累加 |
+| 用量 | 后面的值覆盖前面的，不累加；Anthropic 的缓存读写 token 见[下文](#anthropic-的缓存用量-0-1-5-起) |
 | 其它 | 多个 choices 只读第一个、`reasoning_content` / `thinking_delta` 思考内容、Anthropic 缺 `event:` 行时按 `data.type` 分派 |
 | 流内错误 | 统一成终态事件 |
 
@@ -137,14 +137,51 @@ let outcome = dec.abort(); // 返回已收到的文字，工具调用一律丢
 解码按完整一行进行，所以把一个汉字或一个 `\r\n` 切在两个网络包中间也不会乱码，
 **无论怎么分包，结果完全一致**（有专门的守卫测试）。
 
+## 思考块与回传（0.1.5 起，可选）
+
+Anthropic 的扩展思考配合工具调用时有一条硬要求：多轮对话里，上一轮 assistant 消息的 **thinking 块要连同 `signature` 原样回传**，
+否则下一轮请求会被服务端拒绝。默认情况下 `stream` 不保留它们（`ReasoningDelta` 只用来展示思考过程），
+需要回传的应用显式开启：
+
+```rust
+let mut dec = StreamDecoder::new(Protocol::Anthropic).with_thinking_blocks(true);
+```
+
+开启后，`outcome.content` 按流里的顺序带上两种块，形状和 Anthropic 的请求格式一致，可以直接存进历史、下一轮原样发回去：
+
+| 块 | 形状 |
+|---|---|
+| 思考块 | `{"type":"thinking","thinking":"…","signature":"…"}` |
+| 被遮蔽的思考块 | `{"type":"redacted_thinking","data":"…"}` |
+
+| 规则 | 说明 |
+|---|---|
+| 默认关闭 | 关闭时输出与 0.1.4 完全一致，已有应用不受影响 |
+| 只影响 `content` | 事件序列完全不变，`ReasoningDelta` 照发 |
+| 块的顺序 | 沿用 Anthropic 自带的 `index`，`content` 按 `index` 升序排好 |
+| 🔴 只有 `Complete` 才带思考块 | 断流 / 取消 / 流内错误时 `content` 只留文字：签名不全，发回去服务端必拒 |
+| 没有签名的思考块不进 `content` | 个别 Anthropic 兼容网关不转发 `signature_delta`，这种块发不回官方端点；思考文字仍在 `outcome.reasoning` |
+| OpenAI 兼容协议 | 开关不起作用：`reasoning_content` 没有签名，也没有回传要求 |
+
+## Anthropic 的缓存用量（0.1.5 起）
+
+`outcome.usage` 多了两个字段，来自 Anthropic 的 `message_start` 与 `message_delta`（累计值，覆盖不累加，0 不覆盖非零）：
+
+| 字段 | 序列化名 |
+|---|---|
+| `cache_creation_input_tokens` | `cacheCreationInputTokens` |
+| `cache_read_input_tokens` | `cacheReadInputTokens` |
+
+这两项**默认就读**（不改 `content`），且只在 `outcome.usage` 里，不进 `Usage` 事件；没有缓存时序列化省略，和 0.1.4 的 JSON 逐字节一致。
+OpenAI 兼容协议的缓存字段（如 `cached_tokens`）暂未覆盖，恒为 0。
+
 ## 不做的事
 
 | 不做 | 原因 |
 |---|---|
 | Ollama 原生 NDJSON | 不是 SSE，留给应用 |
 | 剥 `<think>` 标签、「正文为空就把思考提升为正文」 | 产品取舍 |
-| Anthropic 的 thinking 块及其 `signature` | 开启扩展思考并配合工具调用时，要把 thinking 块原样回传的应用需要自己处理 |
-| 缓存用量字段 | 暂不需要 |
+| OpenAI 兼容协议的缓存用量字段 | 暂未覆盖，`cache_*` 恒为 0 |
 
 ## 辅助函数
 

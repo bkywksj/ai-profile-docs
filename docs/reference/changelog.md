@@ -3,6 +3,24 @@
 面向使用者的版本说明：每个版本带来了什么、升级时要不要改代码。
 开发过程的完整记录见仓库里的 [CHANGELOG.md](https://github.com/bkywksj/ai-profile/blob/master/CHANGELOG.md)。
 
+## 0.1.5 · 2026-10-01
+
+**升级只需 `cargo update -p ai-profile`，不用改代码；默认行为与 0.1.4 完全一致。** 两项新增都是 `stream` 的，来自 reeve 接入流式的前置要求。
+
+### 新增
+
+- **可选保留 Anthropic 的 thinking 块（含 `signature`）**：`StreamDecoder::with_thinking_blocks(true)`，默认关闭。
+  Anthropic 要求带工具调用的多轮对话把上一轮的 thinking 块连同签名原样回传，否则下一轮请求被拒；0.1.4 有意不保留它们。
+  开启后 `outcome.content` 按 `index` 顺序带上 `thinking` 与 `redacted_thinking` 块，事件序列不变。
+  🔴 只有流完整结束才带思考块，断流 / 取消 / 出错时只留文字（签名不全，发回去服务端必拒）。详见[流式解码](/api/stream#思考块与回传-0-1-5-起-可选)
+- **Anthropic 缓存用量**：`outcome.usage` 增加 `cache_creation_input_tokens` / `cache_read_input_tokens`，默认就读，
+  只在 `outcome.usage` 里（不进 `Usage` 事件，以免破坏下游的模式匹配），没有缓存时序列化省略
+- [多语言规范](/reference/spec)的 `stream.json` 新增 11 条用例（共 336 条）；`decode` 用例的 `input` 增加可选的 `thinkingBlocks`（缺省 = 关闭）。**已有用例一条未改**
+
+### 说明
+
+- OpenAI 兼容协议的缓存字段（`cached_tokens` 等）本次未覆盖，恒为 0
+
 ## 0.1.4 · 2026-10-01
 
 **升级只需 `cargo update -p ai-profile`，不用改代码。** 两处新增，都是兼容的。
