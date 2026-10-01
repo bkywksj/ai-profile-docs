@@ -3,6 +3,31 @@
 面向使用者的版本说明：每个版本带来了什么、升级时要不要改代码。
 开发过程的完整记录见仓库里的 [CHANGELOG.md](https://github.com/bkywksj/ai-profile/blob/master/CHANGELOG.md)。
 
+## 0.1.4 · 2026-10-01
+
+**升级只需 `cargo update -p ai-profile`，不用改代码。** 两处新增，都是兼容的。
+
+### 新增
+
+- **[流式解码 `stream`](/api/stream)**：把 OpenAI 兼容 / Anthropic 的 SSE 字节流解成统一事件
+  （文字、思考、工具调用、用量、结束原因、流内错误）。
+  各应用原来都在各写一套，网关怪癖覆盖参差不齐，现在收成一份：
+  - **只吃字节、吐事件**：不发 HTTP、不绑异步运行时、没有新依赖，移动端也能编。请求、取消、工具循环仍留在应用
+  - 吸收了常见网关的怪癖：`\r\n`、心跳行、工具调用缺 `index`、id 或名字晚到、只以 `[DONE]` 收尾、末尾只带用量的帧、流内报错等
+  - 断流、取消、流内错误有明确的收尾状态，且只保留文字、丢弃不完整的工具调用，避免把半截参数当成完整调用去执行
+  - 一个汉字被切在两个网络包中间也不会乱码：无论怎么分包，结果完全一致
+  - 已经自己写了 SSE 解析的应用不用急着换，下次改到对话功能时再迁即可
+- **`preset::infer_preset_key_for(kind, protocol, base_url)`**：按能力类别，从已存的配置反推出是哪个预置。
+  对话类的结果与 `infer_preset_key` 完全一致；生图 / 视频 / 配音只在该能力的预置里按域名认，
+  认不出的落到该能力的自定义端点档（`custom_image` / `custom_video` / `custom_tts`）。
+  通义、硅基流动、火山方舟的同一个域名横跨多种能力，所以必须先按能力过滤，不能只看域名
+- [多语言规范](/reference/spec)新增 `stream.json`，`preset_lookup.json` 增加 `infer_preset_key_for` 用例，共 325 条
+
+### 说明
+
+- `ImageGenParams::size` 是**请求值，不保证是出图的实际尺寸**：OpenAI 兼容的生图请求里，这个值只会以硅基流动认的 `image_size` 发出；
+  火山方舟 Seedream 和 OpenAI 官方认的是 `size`，对它们不起作用（方舟按模型默认尺寸出图）。要记录图片尺寸，请从返回的图片字节里读
+
 ## 0.1.3 · 2026-09-25
 
 **升级只需 `cargo update -p ai-profile`，不用改代码。** 这三处问题来自一个外部实现者（C++）照[规范](/reference/spec)实现时的反馈。

@@ -30,10 +30,13 @@
 | Anthropic 地址用户只填了主机名 | 不用管 —— Anthropic 协议自动补 `/v1`，填不填都能用 | [端点与模型清单](/api/endpoint#anthropic-协议自动补-v1) |
 | 历史太长，按窗口裁掉旧消息 | `history::history_budget` + `history::trim_history` | [历史裁剪与超长重试](/api/history) |
 | 服务端报「上下文超长」，自动裁一半重试 | `history::is_context_overflow` + `history::retry_budget` | [历史裁剪与超长重试](/api/history) |
+| 把对话响应的 SSE 字节流解成文字 / 工具调用事件 | `stream::StreamDecoder` | [流式解码](/api/stream) |
+| 服务端不认 `stream_options`，去掉后重试 | `stream::is_stream_options_rejected` | [流式解码](/api/stream#辅助函数) |
 | `max_tokens` 别超过模型上限 | `TokenLimits::max_output` 只用来收窄 | [限额](/api/limits) |
 
 ::: tip 对话请求本身不在本库
-请求格式、流式解析、鉴权头都是应用自己的 —— 本库只负责在那之前把地址、模型、窗口算对。
+请求格式、鉴权头、取消和工具循环是应用自己的 —— 本库负责在那之前把地址、模型、窗口算对，
+以及在那之后把响应的 SSE 字节流解成统一事件（[流式解码](/api/stream)）。
 :::
 
 ## 生图、视频、配音

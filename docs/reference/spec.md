@@ -32,14 +32,15 @@ ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预
 | <a href="/spec/conformance/limits.json" target="_blank" rel="noopener"><code>conformance/limits.json</code></a> | token 限额三层合并 |
 | <a href="/spec/conformance/preset_lookup.json" target="_blank" rel="noopener"><code>conformance/preset_lookup.json</code></a> | 从已存配置反推预置、查预置登记的限额 |
 | <a href="/spec/conformance/history.json" target="_blank" rel="noopener"><code>conformance/history.json</code></a> | 超长报错识别 |
+| <a href="/spec/conformance/stream.json" target="_blank" rel="noopener"><code>conformance/stream.json</code></a> | 流式解码：SSE 字节流 → 统一事件与收尾结果 |
 
 ### 最新版与固定版本
 
 | 地址 | 用途 |
 |------|------|
 | `https://ai-profile.ruoyi.plus/spec/…` | **最新版**，跟着 crate 发版变 |
-| `https://ai-profile.ruoyi.plus/spec/v0.1.3/…` | **固定版本**，发布后不再改动。自动下载、写进构建脚本时用这个 |
-| <a href="/spec/versions.json" target="_blank" rel="noopener"><code>/spec/versions.json</code></a> | 已有版本清单：`{"latest": "0.1.3", "versions": [...]}` |
+| `https://ai-profile.ruoyi.plus/spec/v0.1.4/…` | **固定版本**，发布后不再改动。自动下载、写进构建脚本时用这个 |
+| <a href="/spec/versions.json" target="_blank" rel="noopener"><code>/spec/versions.json</code></a> | 已有版本清单：`{"latest": "0.1.4", "versions": [...]}` |
 
 最稳妥的做法是把整个目录复制进你的仓库（`spec/`），记下来源版本 —— 构建不依赖网络，
 升级时整体替换、看哪些用例红了，红掉的就是这次规则变化的全部内容。
@@ -60,6 +61,7 @@ ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预
 | 导入导出 | `parse_profiles` / `to_profile` | `ai_profile.json` | 做粘贴导入、分享 |
 | 限额 | `merge_limits`（= 从左往右折叠 Rust 的 `TokenLimits::or`） | `limits.json` | 显示上下文窗口 / 输出上限 |
 | 超长识别 | `is_context_overflow` | `history.json` | 对话报错后决定要不要裁历史重试 |
+| 流式解码 | `decode` / `is_stream_options_rejected` / `looks_like_html` / `stop_reason_from_openai` | `stream.json` | 自己解对话的 SSE 流；规则见[流式解码](/api/stream) |
 | 历史裁剪、生图 / 视频 / 配音调用 | `trim_history` / `media` 模块 | **暂无** | 见[未覆盖的部分](#未覆盖的部分) |
 
 函数名、参数名在你的语言里按惯例改（`join_api_path` → `joinApiPath`），行为一致即可。
@@ -149,7 +151,7 @@ for p in chat:                       # 保持原数组顺序 = 分组顺序
 ```json
 {
   "specVersion": 1,
-  "crateVersion": "0.1.3",
+  "crateVersion": "0.1.4",
   "title": "端点拼接",
   "description": "规则摘要",
   "generatedBy": "cargo xtask gen-spec …",
@@ -245,7 +247,7 @@ test.each(spec.cases)('$fn $input', (c) => {
 
 规范与用例：
 - 实现说明：https://ai-profile.ruoyi.plus/reference/spec.md
-- 用例文件已放在本仓库 spec/ 目录（来自 https://ai-profile.ruoyi.plus/spec/v0.1.3/）
+- 用例文件已放在本仓库 spec/ 目录（来自 https://ai-profile.ruoyi.plus/spec/v0.1.4/）
 
 要求：
 1. 先读实现说明的「实现范围」与「测试连接的网络层」两节，再动手

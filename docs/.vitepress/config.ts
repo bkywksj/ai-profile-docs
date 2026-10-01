@@ -53,6 +53,7 @@ const SIDEBAR = [
     items: [
       { text: '限额：窗口与输出上限', link: '/api/limits' },
       { text: '历史裁剪与超长重试', link: '/api/history' },
+      { text: '流式解码', link: '/api/stream' },
     ],
   },
   {
