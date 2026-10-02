@@ -3,6 +3,17 @@
 面向使用者的版本说明：每个版本带来了什么、升级时要不要改代码。
 开发过程的完整记录见仓库里的 [CHANGELOG.md](https://github.com/bkywksj/ai-profile/blob/master/CHANGELOG.md)。
 
+## 0.1.6 · 2026-10-02
+
+**升级只需 `cargo update -p ai-profile`，不用改代码；没有任何预置的默认模型变化。**
+
+### 新增
+
+- **Sonnet 5.5 进候选清单**（2026-09-28 发布，接替 Sonnet 5，单价不变）：Anthropic 官方档与 Claude Code 档加 `claude-sonnet-5-5`，
+  OpenRouter 档加 `anthropic/claude-sonnet-5.5`（点号写法）。**只加候选，不改默认模型**，也不填静态限额
+  （同一个 id 官方端点是 1M、经中转站按 200k，这份清单又被两档共用，填哪个都会对其中一档说错，交给端点上报或用户手填）
+- [多语言规范](/reference/spec)里的 `presets.json` 同步多了这几条候选；用例没有变化（仍是 336 条）
+
 ## 0.1.5 · 2026-10-01
 
 **升级只需 `cargo update -p ai-profile`，不用改代码；默认行为与 0.1.4 完全一致。** 两项新增都是 `stream` 的，来自 reeve 接入流式的前置要求。
