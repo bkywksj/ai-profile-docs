@@ -3,6 +3,34 @@
 面向使用者的版本说明：每个版本带来了什么、升级时要不要改代码。
 开发过程的完整记录见仓库里的 [CHANGELOG.md](https://github.com/bkywksj/ai-profile/blob/master/CHANGELOG.md)。
 
+## 0.1.7 · 2026-10-08
+
+**升级只需 `cargo update -p ai-profile`，不用改代码；不调用新接口的下游行为完全不变。** 新增「关掉思考」的服务商参数表，来自 sigil 的网页翻译：
+用户的 deepseek-flash 默认带思考，一批网页段落光思考就用掉 4000 多 token，译文一个字都没回来。
+
+### 新增
+
+- **按服务商登记「关掉思考」的参数**：翻译、摘要这类不需要推理的任务，用 `preset::thinking_off_params(protocol, base_url)`
+  取到要并进请求体顶层的字段（已有的同名键不覆盖），返回 `None` 就什么都不发。只登记官方文档写明了的（2026-10-08 逐家核对）：
+
+  | 预置 | 字段 |
+  |---|---|
+  | `deepseek`、`zhipu`、`volcengine_ark`、`anthropic_official`、`claude_code` | `{"thinking":{"type":"disabled"}}` |
+  | `qwen`（百炼 OpenAI 兼容模式）、`siliconflow` | `{"enable_thinking":false}` |
+
+  其余预置都是 `None`：OpenAI 官方遇到不认识的参数直接 400，查不到的不猜。详见[关掉思考](/api/preset#关掉思考-0-1-7-起)
+- 已经拿到预置时用 `ProviderPreset::thinking_off_params()`；应用自建的预置用 `with_thinking_off(..)` 登记，
+  常用的两种写法有常量 `THINKING_TYPE_DISABLED` / `ENABLE_THINKING_FALSE`
+- 预置序列化后多一个 `thinkingOff` 字段（解析好的对象或 `null`），[前端类型](/guide/frontend#typescript-类型)已同步
+- [多语言规范](/reference/spec)：`presets.json` 每条预置多一个 `thinkingOff`；`preset_lookup.json` 新增 11 条 `thinking_off_params` 用例（共 347 条）。**已有用例一条未改**
+
+### 说明
+
+- 🔴 **这是尽力而为**：同一家里也有关不掉思考的模型（智谱 GLM-5.3 / 5.3-FLASH「强制思考」、百炼 `qwq-plus` 等只能思考的模型），
+  请求被拒（4xx）时**去掉这些字段重试一次**，而不是直接报错
+- 只用在不需要推理的任务上，正常对话别关
+- `with_thinking_off` 写成非 JSON 对象（数组、字符串、`null` 等）时，取参数返回 `None`，序列化这条预置直接报错
+
 ## 0.1.6 · 2026-10-02
 
 **升级只需 `cargo update -p ai-profile`，不用改代码；没有任何预置的默认模型变化。**
