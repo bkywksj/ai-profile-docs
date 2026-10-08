@@ -75,6 +75,7 @@ ai-profile = { version = "0.1", features = ["client", "image", "video", "tts"] }
 | 限额 | `TokenLimits` 逐字段 `or` 叠加：用户 > 端点上报 > `preset::model_limits(..)` |
 | 裁历史 | 消息结构实现 `history::HistoryMessage` → `history_budget` + `trim_history`；`dropped > 0` 要提示用户 |
 | 超长重试 | `history::is_context_overflow(status, body)` → `retry_budget(&msgs)` 再裁，最多三次 |
+| 翻译 / 摘要关思考 | `preset::thinking_off_params(protocol, base_url)`（0.1.7 起）→ 键并进请求体顶层、已有不覆盖；`None` 就什么都不发；请求被拒（4xx）时去掉这些字段重试一次。不要按模型名自己猜参数（OpenAI 官方遇到不认识的参数直接 400） |
 | 生图 / 视频 / 配音 | `media::image::AnyImageProvider` / `media::video::AnyVideoProvider` / `media::tts::synthesize_with`，代理走 `media::MediaHttp::from_fn`。生图的 `size` 是请求值，火山方舟 / OpenAI 官方不认，记录尺寸要从返回的字节读 |
 
 每一行在示例目录里都有能编译的完整代码，照着改比从文档片段拼更可靠。

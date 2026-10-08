@@ -43,6 +43,7 @@ let p = preset_by_key("deepseek");            // Option<&'static ProviderPreset>
 | `apply_url` | `Option<&'static str>` | 密钥申请页；`None` = 本地服务不需申请 |
 | `is_local` | `bool` | 需用户先把服务跑起来（Ollama / LM Studio / vLLM） |
 | `verified_at` | `Option<&'static str>` | 最后一次**实际调通**的日期；`None` = 未核实 |
+| `thinking_off` | `Option<&'static str>` | 关掉思考要并入请求体的字段（JSON 对象的文本）；`None` = 不知道怎么关、什么都别发。见[关掉思考](#关掉思考-0-1-7-起) |
 
 ### 几个字段的用法要点
 
@@ -140,6 +141,49 @@ assert_eq!(infer_preset_key_for(Kind::Image, Protocol::OpenAiCompatible, url), "
   `custom_image` / `custom_video` / `custom_tts`
 - 🔴 不要自己遍历 `match_hosts`：`dashscope.aliyuncs.com`、`api.siliconflow.cn`、`ark.cn-beijing.volces.com`
   同时是多种能力的 host；而「哪条算自定义档」是预置的内部约定，预置一变，自己写的判断就会悄悄认错
+
+## 关掉思考（0.1.7 起）
+
+翻译、摘要、抽取这类**不需要推理**的批量任务，带思考的模型默认先想再答，思考算在输出 token 里 ——
+一批网页段落光思考就能用掉几千 token，输出上限给紧了还会一个字的正文都回不来。
+关思考的写法各家不同，发错了会被拒（OpenAI 官方遇到不认识的参数直接 400），所以由本库按服务商登记：
+
+```rust
+use ai_profile::{preset, Protocol};
+
+// 按已存配置取：先认出是哪家，再取它登记的参数
+if let Some(params) = preset::thinking_off_params(Protocol::OpenAiCompatible, Some(base_url)) {
+    // body：请求体顶层的 serde_json::Map
+    for (k, v) in params {
+        body.entry(k).or_insert(v); // 已有的同名键不覆盖
+    }
+}
+// None = 不知道这家怎么关：什么都别发
+```
+
+已经拿到预置时用 `p.thinking_off_params()`，结果相同。
+
+| 预置 | 并入的字段 |
+|---|---|
+| `deepseek`、`zhipu`、`volcengine_ark`、`anthropic_official`、`claude_code` | `{"thinking":{"type":"disabled"}}`（常量 `preset::THINKING_TYPE_DISABLED`） |
+| `qwen`（百炼 OpenAI 兼容模式）、`siliconflow` | `{"enable_thinking":false}`（常量 `preset::ENABLE_THINKING_FALSE`） |
+
+其余预置都是 `None`：只登记官方文档写明了的（2026-10-08 逐家核对），查不到的不猜。
+
+- **按平台认，不按模型认**：参数名是平台定的 —— 百炼上的 DeepSeek 模型照样用百炼的 `enable_thinking`
+- **Anthropic 协议看协议、不看地址**：官方与各家中转一律是协议自带的 `{"thinking":{"type":"disabled"}}`，
+  DeepSeek、百炼等家的 Anthropic 兼容地址也用这一写法
+- **自定义端点认不出背后是谁**，返回 `None`
+
+::: warning 尽力而为
+同一家里也有关不掉思考的模型（智谱 GLM-5.3 / 5.3-FLASH「强制思考」、百炼 `qwq-plus` 等只能思考的模型），
+文档没写发了会被拒还是被忽略。**请求被拒（4xx）时去掉这些字段重试一次**，而不是直接报错。
+只用在不需要推理的任务上，正常对话别关。
+:::
+
+应用自建的预置用 `with_thinking_off(..)` 登记（见[定制服务商目录](/api/catalog#写自己的预置)）。
+`preset::thinking_off_params` 只认本库内置的预置：私有条目要从你 build 出来的目录里按 key 找到那条，
+再调它的 `thinking_off_params()`。
 
 ## 专有字段
 

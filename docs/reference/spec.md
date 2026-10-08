@@ -30,7 +30,7 @@ ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预
 | <a href="/spec/conformance/diagnose.json" target="_blank" rel="noopener"><code>conformance/diagnose.json</code></a> | 验证失败的错误判定、必填字段检查 |
 | <a href="/spec/conformance/ai_profile.json" target="_blank" rel="noopener"><code>conformance/ai_profile.json</code></a> | `ai.profile` 解析与生成 |
 | <a href="/spec/conformance/limits.json" target="_blank" rel="noopener"><code>conformance/limits.json</code></a> | token 限额三层合并 |
-| <a href="/spec/conformance/preset_lookup.json" target="_blank" rel="noopener"><code>conformance/preset_lookup.json</code></a> | 从已存配置反推预置、查预置登记的限额 |
+| <a href="/spec/conformance/preset_lookup.json" target="_blank" rel="noopener"><code>conformance/preset_lookup.json</code></a> | 从已存配置反推预置、查预置登记的限额与关思考参数 |
 | <a href="/spec/conformance/history.json" target="_blank" rel="noopener"><code>conformance/history.json</code></a> | 超长报错识别 |
 | <a href="/spec/conformance/stream.json" target="_blank" rel="noopener"><code>conformance/stream.json</code></a> | 流式解码：SSE 字节流 → 统一事件与收尾结果 |
 
@@ -53,7 +53,7 @@ ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预
 |------|----------------------|------|-------------|
 | 预置数据 | `presets` / `preset_by_key` / `vendors` | 无，直接读 `presets.json` | 所有场景 |
 | 端点拼接 | `join_api_path` / `join_chat_endpoint` / `anthropic_base_url` / `ends_with_version_segment` | `endpoint.json` | 发任何请求 |
-| 反推预置 | `infer_preset_key` / `infer_preset_key_for` / `model_limits` / `preset_endpoint` | `preset_lookup.json` | 打开老配置时认出是哪家（生图 / 视频 / 配音用 `infer_preset_key_for`）、取预置限额；用户没填地址时该请求哪 |
+| 反推预置 | `infer_preset_key` / `infer_preset_key_for` / `model_limits` / `thinking_off_params` / `preset_endpoint` | `preset_lookup.json` | 打开老配置时认出是哪家（生图 / 视频 / 配音用 `infer_preset_key_for`）、取预置限额、翻译摘要前关掉思考；用户没填地址时该请求哪 |
 | 模型清洗 | `is_chat_model_id` / `clean_fetched_models` | `model_filter.json` | 做「获取模型」下拉 |
 | `/models` 解析 | `parse_models_response`（= Rust 的 `parse_model_ids` + `parse_model_limits`，结果合成 `{ids, limits}`） | `models_response.json` | 同上 |
 | 错误判定 | `diagnose` / `diagnose_success` / `suggest_url` / `check_required_fields` | `diagnose.json` | 做「测试连接」 |
@@ -280,6 +280,7 @@ test.each(spec.cases)('$fn $input', (c) => {
 | 错误判定 | 401/403 → `auth_failed`；404 → `not_found`（看不出版本段时带 `suggested_url`）；其余 → `malformed`。2xx 但响应体不是 JSON → 同样 `not_found`。必填专有字段缺失 → `missing_extra_field` | [连通性验证](/api/verify) |
 | `ai.profile` | 解析**宽进**（多种字段拼写、单条与打包统一成列表、OAuth 条目跳过计数）；生成**严出**（只产出规范写法） | [ai.profile 协议](/api/protocol) |
 | 限额合并 | 用户 > 端点 > 预置，两两合并：高层全空时整条换成低层；否则逐字段补空，来源保留高层 | [限额](/api/limits) |
+| 关思考参数 | 先 `infer_preset_key`，再取 `presets.json` 里该预置的 `thinkingOff`（JSON 对象，键并进请求体顶层、已有不覆盖）；没登记 = `null`，什么都不发。Anthropic 协议一律是协议自带写法，不看地址 | [预置与服务商目录](/api/preset#关掉思考-0-1-7-起) |
 
 `model_not_found`、`protocol_mismatch` 两个错误码已在格式里预留，但目前 Rust 版不会产生，实现时可以先不管。
 

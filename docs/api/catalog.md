@@ -62,8 +62,13 @@ let list: Vec<ProviderPreset> = PresetCatalog::new()   // 从本库的全部预�
 | `with_default_extra(&[…])` | 预置定死的配置（见下） | 空 |
 | `with_apply_url(url)` | 密钥申请页 | 无 |
 | `local()` | 标记为本机服务（需用户先把服务跑起来） | 否 |
+| `with_thinking_off(json)` | 关掉思考要并入请求体的字段（0.1.7 起，见[关掉思考](/api/preset#关掉思考-0-1-7-起)） | 无 |
 
 构造器不设 i18n key（`label_key` 为空）。接了多语言的界面遇到空 key 应直接显示 `label`。
+
+`with_thinking_off` 只接受 **JSON 对象**的文本，常用的两种有常量 `THINKING_TYPE_DISABLED` / `ENABLE_THINKING_FALSE`。
+写成数组、字符串、`null` 之类，取参数返回 `None`，序列化这条预置（连同整个目录）**直接报错** ——
+写错了当场暴露，不会悄悄把一个字符串交给前端。
 
 ::: tip key 别和内置预置重名
 重名就是原位覆盖 —— 通常不是本意。建议在应用里写一条测试：

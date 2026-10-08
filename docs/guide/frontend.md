@@ -44,7 +44,8 @@
   "defaultExtra": [],
   "applyUrl": "https://platform.deepseek.com/api_keys",
   "isLocal": false,
-  "verifiedAt": "2026-09-17"
+  "verifiedAt": "2026-09-17",
+  "thinkingOff": { "thinking": { "type": "disabled" } }
 }
 ```
 
@@ -113,6 +114,8 @@ export interface ProviderPreset {
   isLocal: boolean;
   /** null = 未实际核实过，可给一个淡色提示 */
   verifiedAt: string | null;
+  /** 关掉思考要并入请求体顶层的字段（已有同名键不覆盖）；null = 不知道怎么关，什么都别发。0.1.7 起 */
+  thinkingOff: Record<string, unknown> | null;
 }
 
 export interface Vendor {
