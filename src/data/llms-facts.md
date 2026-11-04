@@ -27,7 +27,7 @@
 
 ## 谁在用
 
-同一作者的 7 个桌面应用：Sigil、Reeve、本地知识库、OneStop、StoryLoom、Prism、AI 标书工作站（全部引用 0.1.7）。
+同一作者的 7 个桌面应用：Sigil、Reeve、本地知识库、一站通、StoryLoom、Prism、AI 标书工作站（全部引用 0.1.7）。
 
 ## 出品方
 
