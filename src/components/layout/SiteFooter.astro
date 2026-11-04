@@ -120,7 +120,7 @@ const cols = groups.length + (site.social.length > 0 ? 1 : 0) + (contact ? 1 : 0
       )
     }
     <p>
-      © {year} {site.copyrightName || site.author.name}
+      {siteOption('copyrightPrefix')}© {year} {site.copyrightName || site.author.name}
       {
         site.icp && (
           <>

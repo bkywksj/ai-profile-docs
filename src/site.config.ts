@@ -278,11 +278,13 @@ export const site = {
   ] as FooterGroup[],
   /** 页脚说明行：旧站 footer.message（MIT、欢迎 PR、QQ 交流群）+ 技术服务入口；文档站仓库不链（是否公开以后会变），问题与 PR 走 crate 主仓库 */
   footerNote: {
-    text: 'MIT License · 问题与建议请到 crate 主仓库提 issue · QQ 交流群 1087715758 · ',
+    text: '问题与建议请到 crate 主仓库提 issue · QQ 交流群 1087715758 · ',
     link: { label: '技术服务', href: '/services' },
   } as { text: string; link?: NavItem } | null,
   /** 版权行署名：与 crate 仓库 LICENSE 一致 */
   copyrightName: '湛江市麻章区湖光镇若依科技工作室',
+  /** 版权行前缀：版权行就是「MIT License · © 2026 湛江市麻章区湖光镇若依科技工作室」（用户定的口径，与 crate LICENSE 一致） */
+  copyrightPrefix: 'MIT License · ',
   /** 开源库，不放咨询购买入口；联系方式在技术服务页 */
   contact: null as ContactInfo | null,
 };

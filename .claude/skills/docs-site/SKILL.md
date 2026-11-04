@@ -93,7 +93,7 @@ description: docs 模块（迁移型文档站骨架）：.md 原样迁入、Docs
 
 页头页脚是框架核心（`SiteHeader` / `SiteFooter`）：文档站设 `site.frameWidth: 'wide'`（90rem，与三栏版心对齐）、`navBreakpoint: 'lg'`（1280 才横排）、
 `headerCta`（主按钮）、`footerGroups` / `footerNote` / `copyrightName` / `contact`（`contact.label` = 抽屉里联系按钮的字，卖授权的站写「咨询购买」）。
-开源库站另有三个可选字段（经 `src/lib/site-options.ts` 读，旧站点配置里没有也编译得过）：`headLinks`（head 里成组的 PNG 图标 / apple-touch-icon / manifest，照搬旧站）、`headerLinks`（页头右侧 crates.io、docs.rs 这类文字链接，抽屉底部同样列出）、`socialTitle`（页脚 social 栏标题，默认「关注」）。
+开源库站另有三个可选字段（经 `src/lib/site-options.ts` 读，旧站点配置里没有也编译得过）：`headLinks`（head 里成组的 PNG 图标 / apple-touch-icon / manifest，照搬旧站）、`headerLinks`（页头右侧 crates.io、docs.rs 这类文字链接，抽屉底部同样列出）、`socialTitle`（页脚 social 栏标题，默认「关注」）、`copyrightPrefix`（版权行前缀，如「MIT License · 」）。
 
 ## 营销页（LandingLayout）
 
