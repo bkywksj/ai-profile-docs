@@ -1,0 +1,14 @@
+---
+// 营销页与文档正文组件块的小交互（与原型 site.js 同一套行为）：复制按钮、代码页签、自定义下拉、产品分类筛选、提示条。
+// 页头文档大下拉、窄屏抽屉、站内搜索由框架 SiteHeader / SearchDialog 接管，原型里这几段不移植；
+// 服务商筛选、规范页版本切换、更新日志筛选是各页自己的脚本（数据随页面一起构建）。
+// 带组件块的文档页（快速开始、连通性验证、服务商清单、规范、更新日志）由 src/components/aiprofile/DocPage.astro 渲染，同样挂这个脚本。
+// 没有 JS 时：代码页签停在默认那一页、产品全部显示、复制按钮不起作用，内容都能读
+---
+
+<div class="ap ap-toast" role="status" aria-live="polite"></div>
+
+<script>
+  import { initApInteractions } from '@/lib/ap-interactions';
+  initApInteractions(document);
+</script>

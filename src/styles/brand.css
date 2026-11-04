@@ -1,19 +1,172 @@
-/* 品牌样式（项目文件，框架同步不覆盖）：docs 模块的 DocsLayout / LandingLayout 最后引入它，覆盖 docs-theme.css 的中性默认值。
-   这里放本站的视觉选择：中性色带不带主色色相、点缀色、首屏底、代码窗底、投影色温，以及要不要渐变。
-   框架示例站用默认值，这里只留常用变量的写法做参考：
+/* 品牌样式（项目文件，框架同步不覆盖）：DocsLayout 最后引入，营销页同样最后引入。不进 CSS 层，永远压过模块样式。
+   🔴 用户定的：主题色靛蓝，Logo 与配色不改，只用旧站 docs/.vitepress/theme/style.css 的值（用法照原型 brand.md）：
+     - 主按钮 #4338ca 实底白字（7.90:1），悬停 #4f46e5；#4f46e5 只做链路签当前段、下划线、短横、圆点
+     - #6366f1 只做焦点环与图形里的非文字线条；白底上不用 #6366f1 / #818cf8 / #a5b4fc 写字
+     - 品牌浅底 rgba(79,70,229,.14)，上面的字 #4338ca；深色代码窗里的关键字 / 类型 #a5b4fc / #818cf8
+     - 深色模式：旧站 .dark 的 #818cf8 / #a5b4fc / rgba(129,140,248,.18)
+   中性色近纯灰（原型 #f6f6f8 / #eeeff2 / #e4e5ea / #cfd1d8，墨色 #17181c / #42454d / #5d616b），不混主色。不用渐变、不用毛玻璃。
+   营销页与文档正文组件的样式在 aiprofile.css（.ap 作用域，由原型 site.css 生成），这里引入，文档页也能用 */
+@import './aiprofile.css';
 
-:root:not(.dark) {
-  --canvas: #f8f7fb;            页面底：中性色带一点主色色相，整页统一色温（工作站 brand_palette.js 输出）
-  --surface: #f1eff5;
-  --ink: #120f1f;
-  --muted: #5e5a6e;
-  --line: rgb(18 15 31 / 0.08);
-  --brand-ink: #6e31b6;         品牌色做小字：白底对比度不到 4.5:1 时再压一档
-}
 :root {
-  --ry-cyan: #0d9e96;           点缀色（链接 / 关联的记号）
-  --ry-code-bg: #14111f;        代码窗底
-  --ry-aurora-bg: #f3f0fa;      首屏 / 重点区块的底
-  --shadow-tint: 18 15 31;      投影 / 遮罩底色（RGB 三元组）
+  --brand: #4f46e5;
+  --canvas: #ffffff;
+  --surface: #f6f6f8;
+  --elevated: #ffffff;
+  --ink: #17181c;
+  --muted: #5d616b;
+  --line: #e4e5ea;
+  --brand-ink: #4338ca;
+  --brand-strong: #4338ca;
+  --brand-on: #ffffff;
+  --color-brand-ink: #4338ca;
+  --color-brand-soft: rgba(79, 70, 229, 0.14);
+  --color-brand-strong: #4338ca;
+  --ry-cyan: #4f46e5;
+  /* 代码窗底：原型 --code-bg */
+  --ry-code-bg: #16171c;
+  /* 首屏 / 标题区：原型 --canvas */
+  --ry-aurora-bg: #f6f6f8;
+  --shadow-tint: 17 18 22;
 }
-*/
+:root.dark {
+  --canvas: #1b1b1f;
+  --surface: #202127;
+  --elevated: #1b1b1f;
+  --ink: #dfdfd6;
+  --muted: #98989f;
+  --line: #2e2e32;
+  --brand-ink: #a5b4fc;
+  --brand-strong: #4338ca;
+  --color-brand-ink: #a5b4fc;
+  --color-brand-soft: rgba(129, 140, 248, 0.18);
+  --color-brand-strong: #4338ca;
+  --ry-cyan: #818cf8;
+  --ry-code-bg: #161618;
+  --ry-aurora-bg: #202127;
+}
+
+/* ---------- 按钮：#4338ca 实底白字，悬停 #4f46e5，无渐变、无彩色投影 ---------- */
+.btn-brand,
+.ry-btn-primary {
+  background: #4338ca;
+  color: #ffffff;
+  box-shadow: none;
+}
+.btn-brand:hover,
+.ry-btn-primary:hover {
+  background: #4f46e5;
+  color: #ffffff;
+}
+/* 页头主按钮照原型：6px 圆角的方按钮，不是胶囊 */
+header .btn-brand {
+  border-radius: 6px;
+}
+
+/* ---------- 页头：实色白底，不用毛玻璃（原型 brand.md）；下拉里的当前项墨色 + 浅底 ---------- */
+header[data-site-header] {
+  background: var(--elevated);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+header .text-brand {
+  color: var(--ink);
+}
+/* 按整个类名匹配（[class~=]）：子串匹配会把 hover:bg-brand/[.06] 也当成常驻底色 */
+header [class~='bg-brand/[.08]'],
+header [class~='bg-brand/[.1]'],
+header [class~='hover:bg-brand/[.06]']:hover {
+  background-color: var(--color-brand-soft);
+}
+
+/* ---------- 文档正文：链接墨色 + #4f46e5 下划线（原型 .lnk），悬停下划线加粗 ---------- */
+.vp-doc a {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: #4f46e5;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+.vp-doc a:hover {
+  text-decoration-thickness: 2.5px;
+}
+:root.dark .vp-doc a {
+  text-decoration-color: #818cf8;
+}
+/* 组件块里的链接自带样式（卡片、文件行），不要正文下划线 */
+.vp-doc .ap a:not(.lnk) {
+  font-weight: inherit;
+  text-decoration: none;
+}
+/* 行内代码：中性灰底，不带主色色相 */
+.vp-doc :not(pre) > code {
+  background: #eeeff2;
+  color: var(--ink);
+  border-color: transparent;
+}
+:root.dark .vp-doc :not(pre) > code {
+  background: rgba(255, 255, 255, 0.07);
+}
+/* 二级标题不编号：原型文档页的标题没有 01 / 02 */
+.vp-doc.h2-num h2::before {
+  content: none;
+  display: none;
+}
+/* ::: 容器（原型 .callout）：tip 用品牌浅底、warning 中性浅底、danger 是红线（#B42318 / #FDECEA），info 中性 */
+.vp-doc .vp-callout {
+  border-color: transparent;
+  background: #f6f6f8;
+  border-radius: 10px;
+}
+.vp-doc .vp-callout-tip {
+  background: rgba(79, 70, 229, 0.14);
+}
+.vp-doc .vp-callout-warning {
+  background: #eeeff2;
+}
+.vp-doc .vp-callout-danger {
+  background: #fdecea;
+}
+.vp-doc .vp-callout-danger > .vp-callout-title {
+  color: #b42318;
+}
+.vp-doc .vp-callout-title > svg.iconify {
+  background: #4338ca;
+  color: #ffffff;
+}
+.vp-doc .vp-callout-danger > .vp-callout-title > svg.iconify {
+  background: #b42318;
+}
+.vp-doc .vp-callout :not(pre) > code {
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px #e4e5ea;
+}
+:root.dark .vp-doc .vp-callout {
+  background: #202127;
+}
+:root.dark .vp-doc .vp-callout-tip {
+  background: rgba(129, 140, 248, 0.18);
+}
+:root.dark .vp-doc .vp-callout-danger {
+  background: rgba(180, 35, 24, 0.22);
+}
+:root.dark .vp-doc .vp-callout-danger > .vp-callout-title {
+  color: #fdecea;
+}
+:root.dark .vp-doc .vp-callout :not(pre) > code {
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: none;
+}
+/* 代码组页签：选中项墨色 */
+.vp-doc .vp-cg-tabs input:checked + label {
+  color: var(--ink);
+}
+
+/* ---------- 文档侧栏：选中项品牌浅底 + #4338ca 字（原型 .side a.on） ---------- */
+.ry-sidebar a[aria-current='page'] {
+  background: var(--color-brand-soft);
+  color: var(--brand-ink);
+  font-weight: 600;
+  box-shadow: none;
+}
