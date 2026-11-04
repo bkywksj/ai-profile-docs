@@ -2,8 +2,9 @@
 
 ## 项目事实（只写用户确认过的内容）
 - 站点定位：ai-profile 是 MIT 开源的 Rust crate（AI 模型服务配置层：服务商预置、ai.profile 跨应用互通、端点拼接、零成本验证、限额与历史裁剪、流式解码、生图 / 视频 / 配音调用）。本站是它的文档站
-- 生产域名：https://ai-profile.ruoyi.plus；旧站 VitePress 仓库 `E:/my/桌面软件tauri/ai-profile-docs`（远程 gitee / github / gitcode，上线触发源是 gitee）。
-  本目录 `E:/my/桌面软件tauri/ai-profile-docs-astro` 是 2026-11-04 起的 Astro 迁移版，**尚未切换上线**
+- 生产域名：https://ai-profile.ruoyi.plus；本目录 `E:/my/桌面软件tauri/ai-profile-docs`（远程 gitee / github / gitcode，上线触发源是 gitee，分支 master）
+- 2026-11-04 由 VitePress 迁到本 Astro 站并切换上线（`merge -s ours` 接入旧站历史，快进推送，未强推）；
+  VitePress 旧目录留作只读参考 `E:/my/桌面软件tauri/ai-profile-docs.vitepress-bak-20261104`
 - 迁移台账 `docs/tasks/active/迁移-aiprofile.md`；源码核对台账 `docs/tasks/active/内容核对-aiprofile.md`
 - 🔴 真相源：crate 仓库 `E:/my/桌面软件tauri/ai-profile`（公开 API 以 `crates/ai-profile/src/lib.rs` 的 pub use 与各模块 pub 项为准；版本看 Cargo.toml 与 CHANGELOG.md；
   下游名单看 `docs/downstream.md`）。不编数字：服务商数、预置数、用例数都从 `public/spec/` 读
@@ -47,6 +48,6 @@
 - 网址：urlFormat clean（旧站 cleanUrls: true，叶子页 /guide/introduction）；markdownCompat vitepress
 - 构建末尾多一步 `scripts/build-llms-full.mjs`（llms-full.txt 与逐页 .md，旧站 vitepress-plugin-llms 的产物）
 
-## 部署（切换上线后）
-- EdgeOne Pages 连 gitee `bkywksj/ai-profile-docs`：构建预设改 Astro，构建命令 `pnpm build`、输出目录 `dist`、Node ≥ 22.12
+## 部署
+- EdgeOne Pages 连 gitee `bkywksj/ai-profile-docs`：构建预设已改 Astro（2026-11-04 用户改），构建命令 `pnpm build`、输出目录 `dist`、Node ≥ 22.12
 - 托管平台必须把 `/guide/introduction` 解析到 `guide/introduction.html`（EdgeOne Pages 默认如此）
