@@ -1,13 +1,80 @@
 ---
 title: "快速开始"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-09-25
+description: "四步跑通一次真实验证：列出服务商、取一条预置填表单、用 Verifier 零成本验证密钥、按 VerifyError 变体给界面动作，附可直接运行的完整示例。"
+lastUpdated: 2026-11-04
 ---
 # 快速开始
 
 本页用四步跑通一次真实验证：列出服务商 → 取一条预置 → 验证密钥 → 处理错误。
 
+<div class="ap ap-meta"><span class="ap-chain"><span class="on">preset</span><span class="on">endpoint</span><span class="on">verify</span></span><span>四步都讲到：取预置、拼端点、零成本验证</span></div>
+
 前置：已按[安装与 feature](/guide/installation) 加好依赖，并开启了 `client` feature。
+
+## 环境与依赖
+
+<div class="ap"><div class="req">
+<div><small>Rust</small><b>1.88+</b><span>rust-version 按开多模态时的依赖写</span></div>
+<div><small>feature</small><b>client</b><span>验证要发 HTTP；预置与纯函数只需默认的 chat</span></div>
+<div><small>异步运行时</small><b>tokio</b><span>verify 是 async；本库不替你选运行时</span></div>
+</div></div>
+
+## 完整示例
+
+先看整体，下面四步逐段解释。两个页签依次是依赖和代码；运行结果（示意）放在代码后面。
+
+<div class="vp-code-group"><div class="vp-cg-tabs" role="tablist"><input type="radio" name="cg-qs" id="cg-qs-0" checked><label for="cg-qs-0">Cargo.toml</label><input type="radio" name="cg-qs" id="cg-qs-1"><label for="cg-qs-1">src/main.rs</label></div>
+
+```toml
+[package]
+name = "hello-ai-profile"
+edition = "2021"
+
+[dependencies]
+ai-profile = { version = "0.1", features = ["client"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+```
+
+```rust
+use ai_profile::client::{ServiceConfig, Verifier};
+use ai_profile::{preset_by_key, vendors, Kind};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // 1. 服务商下拉：只列本应用支持的能力
+    for v in vendors(&[Kind::Chat]).iter().filter(|v| v.label == "DeepSeek") {
+        println!("{} [{}] {}", v.label, v.group_label, if v.is_local { "本地服务" } else { "云端" });
+    }
+    // 2. 取预置填表单
+    let p = preset_by_key("deepseek").expect("预置存在");
+    println!("地址：{}
+默认模型：{}", p.base_url.unwrap_or(""), p.model);
+
+    // 3. 验证：Verifier 建一次、存起来、反复用
+    let verifier = Verifier::new()?;
+    let cfg = ServiceConfig::new(p.protocol, "https://api.deepseek.com/v1")
+        .with_preset("deepseek")
+        .with_api_key("sk-你的密钥")
+        .with_model("deepseek-flash");
+    match verifier.verify(cfg).await {
+        Ok(ok) => println!("连通 · {}ms · 端点提供 {} 个模型", ok.latency_ms, ok.models.len()),
+        Err(e) => println!("失败：{e}"), // 4. 真实界面里按变体给动作，见下文
+    }
+    Ok(())
+}
+```
+
+</div>
+
+```text
+$ cargo run
+DeepSeek [国内] 云端
+地址：https://api.deepseek.com/v1
+默认模型：deepseek-flash
+连通 · 320ms · 端点提供 2 个模型
+```
+
+运行结果是示意：延迟与模型数以你的端点为准；密钥填错时不会走到 `Ok` 分支，而是 `Err(VerifyError::AuthFailed { .. })`，错误变体见第 4 步。
 
 ## 1. 列出服务商给用户选
 
@@ -28,7 +95,7 @@ Anthropic 官方 [Anthropic / 协议档] 云端
 …
 DeepSeek [国内] 云端
 …
-Ollama [本地 / 自建] 本地服务
+Ollama（本地） [本地 / 自建] 本地服务
 ```
 
 （节选。实际按预置数组顺序输出，同一分组连续排列。）
@@ -126,6 +193,7 @@ match verifier.verify(cfg).await {
     }
 
     // 端点不认这个模型，但它给了真实清单 → 直接展开成下拉让用户改选
+    // （预留变体：当前版本的 verify 不会产生它，模型不在清单里看 ok.model_in_list；见错误码对照）
     Err(VerifyError::ModelNotFound { available }) => {
         println!("请改选：{available:?}");
     }
@@ -156,14 +224,14 @@ if e.is_actionable() {
 
 ## 一个可以少走的弯路
 
-有些服务商要求填专有字段（如豆包 TTS 的 `appid`）。**在发请求之前**就能判出来，
-不必等用户点了才报错：
+有些服务商要求填专有字段（如豆包配音的 `appid`）。**在发请求之前**就能判出来，
+不必等用户点了才报错（`volc_tts` 是配音预置，这段要同时开 `tts` feature）：
 
 ```rust
 use ai_profile::client::check_required_fields;
 
 let extra = [("appid", "")];
-let can_submit = check_required_fields(Some("some_preset"), &extra).is_ok();
+let can_submit = check_required_fields(Some("volc_tts"), &extra).is_ok();
 // can_submit == false → 直接把「测试连接」按钮置灰
 ```
 

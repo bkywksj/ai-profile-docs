@@ -1,13 +1,8 @@
 ---
 title: "更新日志"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-10-08
+description: "ai-profile 各版本的更新说明：带来了什么、升级要不要改代码，日期与 crate 仓库 CHANGELOG.md 一致；0.1.x 补丁升级只需 cargo update。"
+lastUpdated: 2026-11-04
 ---
-# 更新日志
-
-面向使用者的版本说明：每个版本带来了什么、升级时要不要改代码。
-开发过程的完整记录见仓库里的 [CHANGELOG.md](https://github.com/bkywksj/ai-profile/blob/master/CHANGELOG.md)。
-
 ## 0.1.7 · 2026-10-08
 
 **升级只需 `cargo update -p ai-profile`，不用改代码；不调用新接口的下游行为完全不变。** 新增「关掉思考」的服务商参数表，来自 sigil 的网页翻译：
@@ -36,7 +31,7 @@ lastUpdated: 2026-10-08
 - 只用在不需要推理的任务上，正常对话别关
 - `with_thinking_off` 写成非 JSON 对象（数组、字符串、`null` 等）时，取参数返回 `None`，序列化这条预置直接报错
 
-## 0.1.6 · 2026-10-02
+## 0.1.6 · 2026-10-01
 
 **升级只需 `cargo update -p ai-profile`，不用改代码；没有任何预置的默认模型变化。**
 
@@ -65,7 +60,7 @@ lastUpdated: 2026-10-08
 
 - OpenAI 兼容协议的缓存字段（`cached_tokens` 等）本次未覆盖，恒为 0
 
-## 0.1.4 · 2026-10-01
+## 0.1.4 · 2026-09-30
 
 **升级只需 `cargo update -p ai-profile`，不用改代码。** 两处新增，都是兼容的。
 
@@ -126,7 +121,7 @@ lastUpdated: 2026-10-08
 
 - 公开常量 `NON_CHAT_MARKERS` / `NON_CHAT_PREFIXES`、`CONTEXT_OVERFLOW_PATTERNS`、
   `CONTEXT_WINDOW_FIELDS` / `MAX_OUTPUT_FIELDS`：模型清洗、超长识别、限额解析用到的数据表
-- **[其他语言实现](/reference/spec)**：与语言无关的预置数据和 246 条一致性用例，按版本存档。
+- **[规范与多语言实现](/reference/spec)**：与语言无关的预置数据和 246 条一致性用例，按版本存档。
   非 Rust 项目（Python / TypeScript / Java…）照着它实现，跑通用例即与本库行为一致
 
 ## 0.1.1 · 2026-09-24

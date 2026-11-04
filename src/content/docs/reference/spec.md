@@ -1,14 +1,8 @@
 ---
-title: "其他语言实现"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-10-08
+title: "规范与多语言实现"
+description: "规范与多语言实现：预置数据 presets.json 与一致性用例 conformance/*.json 按版本发布，Python、TypeScript、Java 照用例实现，跑通即与 Rust 版行为一致。"
+lastUpdated: 2026-11-04
 ---
-# 其他语言实现
-
-ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预置数据是一份 JSON，地址拼接、错误判定、
-模型清洗、`ai.profile` 解析是一组规则。所以我们把这两样单独发布出来 —— 别的语言**不用重抄数据、
-不用凭文字猜规则**：数据直接拿，规则照用例写，跑通用例就与 Rust 版行为一致。
-
 
 <div class="vp-callout vp-callout-tip"><p class="vp-callout-title">这些文件由代码生成</p>
 
@@ -26,33 +20,7 @@ ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预
 | 要完整能力（拼地址、测试连接、粘贴导入…） | 按[实现范围](#实现范围)写函数，跑通对应用例 | 一到两天 |
 | 同上，但想省事 | 把用例交给 AI，[让它照着写并跑通](#用-ai-实现) | 半天 |
 
-三种方式都建议**锁定版本**（见下），升级时有意识地换，而不是被动跟着变。
-
-## 下载
-
-| 文件 | 内容 |
-|------|------|
-| <a href="/spec/presets.json" target="_blank" rel="noopener"><code>presets.json</code></a> | 全部服务商预置 + 按厂商聚合的目录 |
-| <a href="/spec/conformance/endpoint.json" target="_blank" rel="noopener"><code>conformance/endpoint.json</code></a> | 端点拼接 |
-| <a href="/spec/conformance/model_filter.json" target="_blank" rel="noopener"><code>conformance/model_filter.json</code></a> | 模型清单清洗 |
-| <a href="/spec/conformance/models_response.json" target="_blank" rel="noopener"><code>conformance/models_response.json</code></a> | `/models` 响应解析（id 与限额） |
-| <a href="/spec/conformance/diagnose.json" target="_blank" rel="noopener"><code>conformance/diagnose.json</code></a> | 验证失败的错误判定、必填字段检查 |
-| <a href="/spec/conformance/ai_profile.json" target="_blank" rel="noopener"><code>conformance/ai_profile.json</code></a> | `ai.profile` 解析与生成 |
-| <a href="/spec/conformance/limits.json" target="_blank" rel="noopener"><code>conformance/limits.json</code></a> | token 限额三层合并 |
-| <a href="/spec/conformance/preset_lookup.json" target="_blank" rel="noopener"><code>conformance/preset_lookup.json</code></a> | 从已存配置反推预置、查预置登记的限额与关思考参数 |
-| <a href="/spec/conformance/history.json" target="_blank" rel="noopener"><code>conformance/history.json</code></a> | 超长报错识别 |
-| <a href="/spec/conformance/stream.json" target="_blank" rel="noopener"><code>conformance/stream.json</code></a> | 流式解码：SSE 字节流 → 统一事件与收尾结果 |
-
-### 最新版与固定版本
-
-| 地址 | 用途 |
-|------|------|
-| `https://ai-profile.ruoyi.plus/spec/…` | **最新版**，跟着 crate 发版变 |
-| `https://ai-profile.ruoyi.plus/spec/v0.1.7/…` | **固定版本**，发布后不再改动。自动下载、写进构建脚本时用这个 |
-| <a href="/spec/versions.json" target="_blank" rel="noopener"><code>/spec/versions.json</code></a> | 已有版本清单：`{"latest": "0.1.7", "versions": [...]}` |
-
-最稳妥的做法是把整个目录复制进你的仓库（`spec/`），记下来源版本 —— 构建不依赖网络，
-升级时整体替换、看哪些用例红了，红掉的就是这次规则变化的全部内容。
+三种方式都建议**锁定版本**（见上方「文件地址」），升级时有意识地换，而不是被动跟着变。
 
 ## 实现范围
 
@@ -140,8 +108,10 @@ for p in chat:                       # 保持原数组顺序 = 分组顺序
      "dropped": 2,
      "droppedModels": ["…被滤掉的"],
      "modelInList": true,
-     "limits": { "contextWindow": 128000, "maxOutput": 8192, "source": "endpoint" },
-     "modelLimits": [["deepseek-flash", { "contextWindow": 128000, "maxOutput": 8192, "source": "endpoint" }]]
+     "limits": { "contextWindow": 128000, "maxOutput": 8192, "source": "endpoint",
+                 "contextWindowSource": "endpoint", "maxOutputSource": "endpoint" },
+     "modelLimits": [["deepseek-flash", { "contextWindow": 128000, "maxOutput": 8192, "source": "endpoint",
+                                          "contextWindowSource": "endpoint", "maxOutputSource": "endpoint" }]]
    }
    ```
 

@@ -1,14 +1,25 @@
 ---
 title: "连通性验证"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-09-25
+description: "连通性验证 API：Verifier 只打 /models 零成本验证，ServiceConfig 构造、VerifyOk 字段、VerifyError 变体、代理与并发、可单测的纯函数。"
+lastUpdated: 2026-11-04
 ---
 # 连通性验证
+
+<div class="ap ap-meta"><span class="ap-chain"><span>preset</span><span>endpoint</span><span class="on">verify</span></span><span>需要 <code>client</code> feature</span></div>
 
 需要 `client` feature。
 
 验证只打端点的**模型列表**接口 —— 它回答「这个地址 + 这个密钥能不能用」，
 并顺带把真实模型清单带回来，**不产生任何生成费用**。
+
+## 一次验证做了什么
+
+<div class="ap"><div class="vflow">
+<div><span class="no">01 · preset</span><b>查必填字段</b><code>check_required_fields</code><span class="r">缺了直接返回，不发请求</span></div>
+<div><span class="no">02 · endpoint</span><b>拼 /models</b><code>join_api_path</code><span class="r">拼出 /models；Anthropic 先补 /v1</span></div>
+<div class="on"><span class="no">03 · verify</span><b>发 GET</b><span class="d">总超时 20 秒 · 连接 10 秒 · 禁重定向</span><span class="r">只打模型列表，不花钱</span></div>
+<div><span class="no">04 · verify</span><b>判结果</b><code>diagnose</code><span class="r">2xx 不是 JSON 也按 404 报</span></div>
+</div></div>
 
 ## 为什么验证和试运行要分开
 
@@ -228,6 +239,9 @@ pub struct TokenLimits {
     pub context_window: Option<u32>,
     pub max_output: Option<u32>,
     pub source: LimitSource,   // User | Endpoint | Preset
+    // 0.1.3 起：两个字段各自的来源（逐字段合并后可能不同，界面分别标注用这两个）
+    pub context_window_source: Option<LimitSource>,
+    pub max_output_source: Option<LimitSource>,
 }
 ```
 
@@ -288,7 +302,7 @@ let results = join_all(rows.iter().map(|r| {
 
 共用一个 `Verifier` 就是共用连接池 —— 同一家的多条配置只握手一次。
 
-本库自己的 `cargo xtask probe` 就是这么做的：25 家串行最坏要 8 分钟，
+本库自己的 `cargo xtask probe` 就是这么做的：探测所有写了地址的非本地预置（当前 32 条），串行最坏要 10 分钟以上，
 并发后实测 12 家 4.5 秒跑完。
 
 ## 不发请求也能判的事
@@ -298,8 +312,9 @@ let results = join_all(rows.iter().map(|r| {
 ```rust
 use ai_profile::client::check_required_fields;
 
+// volc_tts 是豆包配音预置，必填 appid（这段要同时开 tts feature）；不认识的预置 key 直接放行
 let extra = [("appid", "")];
-if check_required_fields(Some("some_preset"), &extra).is_err() {
+if check_required_fields(Some("volc_tts"), &extra).is_err() {
     // 「测试连接」按钮置灰
 }
 ```
@@ -316,7 +331,9 @@ if check_required_fields(Some("some_preset"), &extra).is_err() {
 | `diagnose(status, body, requested_url, base_url)` | HTTP 状态码 + 响应体 → `VerifyError` |
 | `suggest_url(base_url)` | 404 时推断正确地址；已有版本段时返回 `None` |
 | `check_required_fields(preset_key, extra)` | 必填专有字段校验 |
+| `diagnose_success(body, requested_url, base_url)` | 2xx 却不是 JSON（地址指到了网站首页）→ `NotFound`，带一键改用建议；是 JSON 返回 `None` |
 | `parse_model_ids(body)` | 从 `/models` 响应抽 id，容错裸数组格式 |
+| `parse_model_limits(body)` | 从 `/models` 响应抽端点上报的限额（只收报了限额的模型，OpenRouter 优先取 `top_provider`） |
 
 `suggest_url` 只在**确实看不到版本段**时给建议：
 
