@@ -18,7 +18,20 @@
     "faq",
     "guides"
   ],
-  "lastSync": null,
-  "lastCommit": "3bb744bcd579dc2bd31aa22e42080051021ba621",
-  "syncs": []
+  "lastSync": "2026-11-04T18:00:00+08:00",
+  "lastCommit": "8cb8ceffed263db44993e7d4a20f5cb5bd765b9c",
+  "syncs": [
+    {
+      "date": "2026-11-04T18:00:00+08:00",
+      "from": "3bb744b",
+      "to": "8cb8cef",
+      "merged": [
+        "a4fec53",
+        "e9f3135",
+        "8cb8cef"
+      ],
+      "skipped": [],
+      "note": "三条都是本站迁移时修在框架的（headLinks / headerLinks / socialTitle、editLabel、copyrightPrefix），本站以 feat(framework) 同步（b2ebbf3、4eb9e02、56bea6f）"
+    }
+  ]
 }
