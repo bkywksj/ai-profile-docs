@@ -1,4 +1,9 @@
 {
   "说明": "不在 docs 集合里的独立页面（src/pages/*.astro）的最后更新日期，键是页面 id（首页为 index）。docs.json 的 sitemapLastmod 为 strict 时每个独立页都必须登记，缺了构建失败（src/lib/lastmod.ts）",
-  "pages": {}
+  "pages": {
+    "index": "2026-11-04",
+    "products": "2026-11-04",
+    "services": "2026-11-04",
+    "public/ai/ai-profile-integration": "2026-10-08"
+  }
 }

@@ -1,0 +1,97 @@
+---
+// 产品矩阵（旧网址 /products；照工作站原型 products.html）：ai-profile 大卡、内置 ai-profile 的三款、同一作者的其他产品、技术服务入口，分类筛选。
+// 用户定的：补 Agile-Qt（链 https://qt.ruoyi.plus）；各产品不用旧站的品牌色标语，统一墨色，图标用各自 Logo
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageScript from '@/components/aiprofile/PageScript.astro';
+import { siteJsonLd, pageArticle } from '@/lib/site-jsonld';
+import pageDates from '@/data/page-dates.json';
+import '@/styles/docs-theme.css';
+// 品牌样式最后引入（本站配色与营销页样式 aiprofile.css，见 src/styles/brand.css）
+import '@/styles/brand.css';
+const TITLE = '产品矩阵';
+const DESCRIPTION = '抓蛙师出品的 11 款开发者工具：智能编程、凭据安全、服务器运维、知识管理、桌面框架、全栈开发。Sigil、Reeve、本地知识库内置 ai-profile，共用同一份预置、验证与 ai.profile。';
+---
+
+<BaseLayout title={TITLE} description={DESCRIPTION} jsonLd={[...siteJsonLd, pageArticle(TITLE, DESCRIPTION, '/products', pageDates.pages.products)]}>
+  <div class="ap page" data-pagefind-body>
+  <section class="pg-hero">
+    <div class="wrap">
+      <div class="eyebrow">产品矩阵 · 11 款产品</div>
+      <h1>同一个作者，同一套做事方式</h1>
+      <p class="lead">覆盖智能编程、凭据安全、服务器运维、知识管理、桌面框架与全栈开发。其中三款桌面应用内置 ai-profile：在一个里配好的模型服务，复制一段 ai.profile 就能粘进另一个。</p>
+      <div class="cats" role="group" aria-label="按类别筛选">
+        <button type="button" data-cat="全部" aria-pressed="true">全部<span class="c">11</span></button>
+        <button type="button" data-cat="内置" aria-pressed="false">内置 ai-profile<span class="c">3</span></button>
+        <button type="button" data-cat="AI" aria-pressed="false">AI 效率<span class="c">3</span></button>
+        <button type="button" data-cat="安全" aria-pressed="false">安全运维<span class="c">2</span></button>
+        <button type="button" data-cat="框架" aria-pressed="false">开发框架<span class="c">4</span></button>
+        <button type="button" data-cat="桌面" aria-pressed="false">桌面应用<span class="c">1</span></button>
+        <button type="button" data-cat="办公" aria-pressed="false">办公文档<span class="c">1</span></button>
+      </div>
+    </div>
+  </section>
+  
+  <section class="section" style="padding-top:48px">
+    <div class="wrap">
+      <div data-grp></div>
+      <div>
+        <article class="self" data-cat-item="框架">
+          <div class="self-l">
+            <div class="self-h"><img src="/logo.svg" alt="ai-profile" width="48" height="48" loading="lazy" /><div><h2>ai-profile <span class="tag b">你正在看的产品</span></h2><p>AI 模型服务配置层 · Rust crate · MIT 开源</p></div></div>
+            <p>服务商预置、端点拼接、零成本验证、限额与跨应用互通的 ai.profile，统一放进一个库。下面三款应用的「模型服务」设置页都由它驱动。</p>
+            <div class="btns"><a class="btn pri sm" href="/guide/quick-start">快速开始</a><a class="btn sec sm" href="https://crates.io/crates/ai-profile" target="_blank" rel="noopener"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>crates.io</a></div>
+          </div>
+          <div class="self-r">
+            <ul>
+              <li>31 家服务商 · 42 条预置，对话之外还有生图 / 视频 / 配音</li>
+              <li>9 组 347 条一致性用例，非 Rust 项目照着实现</li>
+              <li>7 个应用引用同一个版本 0.1.7</li>
+              <li>默认零重依赖，能编到 Android / iOS</li>
+            </ul>
+            <div class="ap-chain-row" style="margin-top:14px"><span class="ap-chain"><span class="on">preset</span><span class="on">endpoint</span><span class="on">verify</span></span></div>
+          </div>
+        </article>
+      </div>
+  
+      <div class="grp-h" data-grp><h2>内置 ai-profile</h2><span class="ap-chain"><span class="on">preset</span><span class="on">endpoint</span><span class="on">verify</span></span><span>三款都用整条链路，下面只列各自多用的部分</span></div>
+      <div class="built">
+        <article class="prod" data-cat-item="内置 安全">
+          <div class="prod-h"><img src="/products/sigil.svg" alt="" width="48" height="48" loading="lazy" /><div><b>Sigil 掌玺</b><small>AI 凭据金库 · MCP 协议代理</small></div></div>
+          <p>让 AI 帮你执行任务，但 Token、密钥、密码永远不离开本地。OS 密钥环 + AES-256-GCM 加密、完整审计。</p>
+          <ul><li>13 种凭据类型，明文用完即从内存清零</li><li>Claude Code、Cursor、Cline、Zed 零适配接入</li><li>危险动作逐次审批，每次调用留审计</li></ul>
+          <div class="uses"><small>还用到</small><div class="ap-chain-row"><span class="tag">流式解码</span><span class="tag">关思考（网页翻译）</span></div></div>
+          <div class="foot"><a class="lnk-arr" href="https://sigil.ruoyi.plus" target="_blank" rel="noopener"><span>访问官网</span><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a></div>
+        </article>
+        <article class="prod" data-cat-item="内置 安全">
+          <div class="prod-h"><img src="/products/reeve.png" alt="" width="48" height="48" loading="lazy" /><div><b>Reeve</b><small>服务器庄园总管 · 你持钥，AI 借道</small></div></div>
+          <p>SSH 服务器管理 + 受控 AI 接入：AI 通过 MCP 操作服务器，只看到服务器别名，拿不到账号、密码和私钥。</p>
+          <ul><li>多标签终端、SFTP、命令片段</li><li>四重关卡：总开关、分级策略、黑名单、审计</li><li>MCP 只监听 127.0.0.1</li></ul>
+          <div class="uses"><small>还用到（桌面端与移动端）</small><div class="ap-chain-row"><span class="tag">历史裁剪</span><span class="tag">thinking 块回传</span></div></div>
+          <div class="foot"><a class="lnk-arr" href="https://reeve.ruoyi.plus" target="_blank" rel="noopener"><span>访问官网</span><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a></div>
+        </article>
+        <article class="prod" data-cat-item="内置 AI">
+          <div class="prod-h"><img src="/products/knowledge-base.png" alt="" width="48" height="48" loading="lazy" /><div><b>本地知识库</b><small>全文搜索 · 双向链接 · 知识图谱</small></div></div>
+          <p>本地优先的知识库：Markdown 笔记 + 双向链接 + 知识图谱，内置 MCP Server 让 AI 直接读写，数据全在本机 SQLite。</p>
+          <ul><li>PDF 标注、Word 导入、图片 / 视频 / 音频附件</li><li>内置 MCP Server（12 个工具）</li><li>WebDAV / 坚果云 / NAS 多端同步</li></ul>
+          <div class="uses"><small>还用到（桌面与 Android 同一个 crate）</small><div class="ap-chain-row"><span class="tag">超长识别</span><span class="tag">流式解码</span></div></div>
+          <div class="foot"><a class="lnk-arr" href="https://kb.ruoyi.plus/" target="_blank" rel="noopener"><span>访问官网</span><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a></div>
+        </article>
+      </div>
+  
+      <div class="grp-h" data-grp><h2>同一作者的其他产品</h2></div>
+      <div class="others">
+        <a class="other" data-cat-item="AI" href="https://aicoder.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/aicoder.png" alt="" width="48" height="48" loading="lazy" /><div><b>智码 AiCoder</b><small>Claude Code、Codex、Gemini CLI 的统一工作台</small></div><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+        <a class="other" data-cat-item="AI" href="https://ai-workstation.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/ai-workstation.svg" alt="" width="48" height="48" loading="lazy" /><div><b>AI 全能工作站</b><small>一句话调度 63 个模块</small></div><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+        <a class="other" data-cat-item="框架" href="https://tauri.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/tauri-desktop.svg" alt="" width="48" height="48" loading="lazy" /><div><b>灵动桌面框架</b><small>Tauri 2 桌面应用开发框架 · React 19 + Rust</small></div><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+        <a class="other" data-cat-item="框架" href="https://qt.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/agile-qt.svg" alt="" width="48" height="48" loading="lazy" /><div><b>Agile-Qt</b><small>AI 原生的 C++20 / Qt 6 桌面开发框架 · AgileShot 用它构建</small></div><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+        <a class="other" data-cat-item="框架" href="https://ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/ruoyi-plus-uniapp.svg" alt="" width="48" height="48" loading="lazy" /><div><b>RuoYi-Plus-UniApp</b><small>Spring Boot 3 + Vue 3 + UniApp 全栈框架</small></div><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+        <a class="other" data-cat-item="桌面" href="https://agileshot.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/agileshot.png" alt="" width="48" height="48" loading="lazy" /><div><b>AgileShot</b><small>截图标注 · OCR / 翻译 · MCP Server；照本库规范写了 C++ 实现</small></div><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+        <a class="other" data-cat-item="办公" href="https://officia.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/officia.svg" alt="" width="48" height="48" loading="lazy" /><div><b>Officia</b><small>零依赖 Java 办公套件 · Office 无损转 PDF</small></div><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+      </div>
+  
+      <div class="custom-bar"><svg class="ico lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0V8ZM12 18v4"/></svg><div><b>想把 ai-profile 接进你的应用？</b><p>接入咨询、已发布应用的存量配置迁移、私有服务商目录、其他语言实现，同一团队承接。微信 / QQ 770492966</p></div><a class="lnk-arr" href="/services"><span>看技术服务</span><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    </div>
+  </section>
+  </div>
+  <PageScript />
+</BaseLayout>

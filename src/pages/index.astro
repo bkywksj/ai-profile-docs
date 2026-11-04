@@ -1,45 +1,239 @@
 ---
-// 首页：定义句 Hero → 精选作品 → 分类入口 → 最新文章 → 常见问题
-// 首页统计数字全部来自真实数据（集合计数），不写死任何营销数字
-import { ArrowRight } from '@lucide/astro';
+// 首页（照工作站原型 20261104_ai-profile文档站重构/index.html）：首屏「图 1」、30 秒上手、为什么、能力索引、谁在用、对外契约、产品与交流、深色收尾。
+// 数字（31 家服务商 / 42 条预置 / 对话 25 / 多模态 17 / 347 条用例 / 0.1.7）由 pnpm check:facts 对照 public/spec 核对，改了预置或发版先跑它
+// 谁在用 7 家取自 crate 仓库 docs/downstream.md；产品矩阵小卡与 /products 同步
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Container from '@/components/ui/Container.astro';
-import Section from '@/components/ui/Section.astro';
-import Button from '@/components/ui/Button.astro';
-import { site } from '@/site.config';
-import { websiteJsonLd } from '@/lib/seo';
-
-const stats: { label: string; value: number }[] = [];
+import PageScript from '@/components/aiprofile/PageScript.astro';
+import { siteJsonLd, pageArticle } from '@/lib/site-jsonld';
+import pageDates from '@/data/page-dates.json';
+import '@/styles/docs-theme.css';
+// 品牌样式最后引入（本站配色与营销页样式 aiprofile.css，见 src/styles/brand.css）
+import '@/styles/brand.css';
+const DESCRIPTION = 'ai-profile 是给应用用的 AI 模型服务配置层（MIT 开源 Rust crate）：服务商预置、ai.profile 跨应用互通、端点拼接、零成本验证、限额与历史裁剪、流式解码、生图视频配音调用，按 feature 裁剪。';
 ---
 
-<BaseLayout
-  description={site.description}
-  jsonLd={[websiteJsonLd()]}
->
-  <section class="relative overflow-hidden border-b border-line">
-    <div
-      class="pointer-events-none absolute -top-40 right-[-10%] size-[520px] rounded-full bg-brand/15 blur-3xl"
-      aria-hidden="true"
-    ></div>
-    <Container class="relative py-20 sm:py-28">
-      <p class="mb-5 inline-flex items-center gap-2 rounded-full border border-line bg-elevated px-3 py-1 text-xs text-muted">
-        <span class="size-1.5 rounded-full bg-brand" aria-hidden="true"></span>
-        持续更新中
-      </p>
-      <h1 class="max-w-3xl text-4xl leading-tight font-semibold tracking-tight text-pretty sm:text-5xl">
-        {site.name}
-      </h1>
-      <p class="mt-5 max-w-2xl text-lg leading-8 text-muted">{site.tagline}</p>
-      <div class="mt-8 flex flex-wrap gap-3">
+<BaseLayout description={DESCRIPTION} jsonLd={[...siteJsonLd, pageArticle('ai-profile — AI 模型服务配置层', DESCRIPTION, '/', pageDates.pages.index)]}>
+  <div class="ap page" data-pagefind-body>
+  <section class="hero">
+    <div class="wrap hero-in">
+      <div>
+        <div class="eyebrow">Rust crate · crates.io/ai-profile · MIT</div>
+        <h1>AI 模型服务配置，<br>多个应用<span class="ap-hl">只写一份</span></h1>
+        <p class="lead">服务商预置、地址拼接、零成本验证、限额与跨应用互通的 ai.profile，统一放进一个库。模型 id 变了只改一处，各应用升级依赖就能拿到。</p>
+        <div class="btns"><a class="btn pri" href="/guide/quick-start">快速开始<svg class="ico arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn sec" href="/guide/cookbook">按场景查找</a></div>
+        <div class="hero-cmd"><span class="pr">$</span>cargo add ai-profile<button type="button" data-copy="cargo add ai-profile" aria-label="复制"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span>复制</span></button></div>
+        <ul class="hero-facts"><li>31 家服务商 · 42 条预置</li><li>默认零重依赖，能编到移动端</li><li>最低 Rust 1.88</li></ul>
       </div>
-      <dl class="mt-14 grid max-w-md grid-cols-3 gap-6">
-        {stats.map((stat) => (
-          <div>
-            <dt class="text-sm text-muted">{stat.label}</dt>
-            <dd class="mt-1 text-3xl font-semibold tabular-nums">{stat.value}</dd>
+      <figure class="figure" data-mock aria-label="图 1：一条模型服务配置在 ai-profile 里走过的路">
+        <div class="fig-hd"><b>图 1</b><span>一条配置在 ai-profile 里走过的路</span><em>示意 · 数据取自预置与规范样例</em></div>
+        <div class="fig-bd">
+          <div class="ap-chain-row" style="margin-bottom:14px"><span class="ap-chain"><span class="on">preset</span><span class="on">endpoint</span><span class="on">verify</span></span>本库替应用做的三段</div>
+          <div class="fig-steps">
+            <div class="fig-step">
+              <div class="lbl"><i>01</i>取预置</div>
+              <div class="fig-card"><div class="k">deepseek</div><div class="d">preset_by_key 取到 DeepSeek，默认 <code>deepseek-flash</code></div><div class="d">核实于 2026-09-17</div></div>
+            </div>
+            <div class="fig-step">
+              <div class="lbl"><i>02</i>拼地址：原样使用，不补 /v1</div>
+              <div class="fig-card"><div class="url nw-wide">https://api.deepseek.com/v1<u>/models</u></div><div class="d">智谱 /v4、Gemini /v1beta/openai 照抄文档原文</div></div>
+            </div>
+            <div class="fig-step">
+              <div class="lbl"><i>03</i>零成本验证</div>
+              <div class="fig-card on"><div class="res">连通 · 320ms</div><div class="d">只打 /models，不花生成费用，顺带拉回模型清单</div></div>
+            </div>
           </div>
-        ))}
-      </dl>
-    </Container>
+          <div class="fig-share">
+            <div class="code"><div class="code-bar"><span class="fname"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6"/></svg>ai.profile</span><button class="copy" type="button" aria-label="复制"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span>复制</span></button></div>
+  <pre><code>&#123; <span class="s">"kind"</span>: <span class="s">"ai.profile"</span>, <span class="s">"v"</span>: <span class="n">1</span>,
+    <span class="s">"data"</span>: &#123; <span class="s">"name"</span>: <span class="s">"我的 DeepSeek"</span>,
+      <span class="s">"baseURL"</span>: <span class="s">"https://api.deepseek.com/v1"</span>,
+      <span class="s">"model"</span>: <span class="s">"deepseek-flash"</span> &#125; &#125;</code></pre></div>
+            <div class="fig-apps">
+              <div class="t"><b class="mono" style="color:var(--ink)">04</b> 复制上面这一段，粘进另一个应用</div>
+              <div class="fig-app"><img src="/products/sigil.svg" alt="" width="48" height="48" loading="lazy" /><b>Sigil 掌玺</b><span>粘贴导入 1 条</span></div>
+              <div class="fig-app"><img src="/products/reeve.png" alt="" width="48" height="48" loading="lazy" /><b>Reeve</b><span>粘贴导入 1 条</span></div>
+              <div class="fig-app"><img src="/products/knowledge-base.png" alt="" width="48" height="48" loading="lazy" /><b>本地知识库</b><span>粘贴导入 1 条</span></div>
+            </div>
+          </div>
+        </div>
+      </figure>
+    </div>
   </section>
+  
+  <section class="section">
+    <div class="wrap split">
+      <div>
+        <div class="ap-chain-row" style="margin-bottom:12px"><span class="ap-chain"><span class="on">preset</span><span>endpoint</span><span>verify</span></span>30 秒：列出服务商、取一条预置</div>
+        <div class="code" data-tabs>
+          <div class="code-bar" role="tablist">
+            <button class="code-tab" type="button" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>Cargo.toml</button>
+            <button class="code-tab" type="button" role="tab" aria-selected="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>main.rs</button>
+            <button class="code-tab" type="button" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 6-6-6-6M12 19h8"/></svg>运行结果</button>
+            <button class="copy" type="button" aria-label="复制"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span>复制</span></button>
+          </div>
+          <div class="code-pane" hidden><pre><code><span class="t">[dependencies]</span>
+  ai-profile = &#123; version = <span class="s">"0.1"</span>, features = [<span class="s">"chat"</span>, <span class="s">"client"</span>] &#125;</code></pre></div>
+          <div class="code-pane"><pre><code><span class="k">use</span> ai_profile::&#123;preset_by_key, vendors, <span class="t">Kind</span>&#125;;
+  
+  <span class="k">fn</span> main() &#123;
+      <span class="c">// 设置页的服务商下拉：只做对话的应用不会看到「只提供视频」的厂商</span>
+      <span class="k">for</span> v <span class="k">in</span> vendors(&amp;[<span class="t">Kind</span>::Chat]) &#123;
+          println!(<span class="s">"&#123;&#125; [&#123;&#125;]"</span>, v.label, v.group_label);
+      &#125;
+      <span class="c">// 用户选了一家：预填地址与默认模型</span>
+      <span class="k">let</span> p = preset_by_key(<span class="s">"deepseek"</span>).expect(<span class="s">"预置存在"</span>);
+      println!(<span class="s">"&#123;:?&#125; / &#123;&#125;"</span>, p.base_url, p.model);
+  &#125;</code></pre></div>
+          <div class="code-pane" hidden><pre><code><span class="pr">$ </span>cargo run
+  Anthropic 官方 [Anthropic / 协议档]
+  DeepSeek [国内]
+  智谱 GLM [国内]
+  <span class="c">… 共 25 家，按预置数组顺序，同一分组连续</span>
+  Ollama（本地） [本地 / 自建]
+  <span class="em">Some("https://api.deepseek.com/v1") / deepseek-flash</span></code></pre></div>
+          <div class="code-note"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>输出取自 0.1.7 的预置数据；对话能力共 25 家</div>
+        </div>
+        <div class="feat-pick">
+          <div><small>只要预置与纯函数</small><code>ai-profile = "0.1"</code><span>能编到 Android / iOS</span></div>
+          <div><small>再加「获取模型」验证</small><code>features = ["client"]</code><span>带上 reqwest、tokio</span></div>
+          <div><small>再加生图 / 视频 / 配音</small><code>"image", "video", "tts"</code><span>与 client 同开才有调用</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-head" style="margin-bottom:20px">
+          <div class="eyebrow">从这里开始</div>
+          <h2>接下来看哪篇</h2>
+        </div>
+        <ol class="next-list">
+          <li><span class="n">01</span><b><a class="lnk" href="/guide/quick-start">快速开始</a></b><p>四步跑通一次真实验证：列服务商、取预置、验证密钥、处理错误。</p><div class="ap-chain-row"><span class="ap-chain"><span class="on">preset</span><span class="on">endpoint</span><span class="on">verify</span></span></div></li>
+          <li><span class="n">02</span><b><a class="lnk" href="/guide/tauri-integration">Tauri 应用接入</a></b><p>Verifier 存进 AppState、包成 Command、把错误结构原样交给前端。</p></li>
+          <li><span class="n">03</span><b><a class="lnk" href="/guide/migration">已发布应用的接入迁移</a></b><p>用户手里已经存着配置时先读这篇：冻结旧规则，写存量地址修正。</p></li>
+          <li><span class="n">04</span><b><a class="lnk" href="/guide/ai-assisted">用 AI 接入</a></b><p>本库 2026-09 才发布，AI 的训练数据里没有它。先让 AI 读 llms-full.txt。</p></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+  
+  <section class="section alt" id="why">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">为什么要有这个库</div>
+        <h2>同一段配置逻辑，此前在每个应用里各写一遍</h2>
+        <p>模型 id 一变就必然漏改。ai-profile 只收变动最频繁、跨应用差异为零的那部分；密钥存储、数据库、对话请求这些各应用差异大的，不进本库。</p>
+      </div>
+      <div class="why-grid">
+        <div class="story">
+          <div class="story-item"><time>2026-07-24</time><b>DeepSeek 下线了 deepseek-chat 别名</b><p>各应用的预置表里都写着这个 id，散在不同仓库、不同文件里。</p></div>
+          <div class="story-item hit"><time>两个月后</time><b>有个应用才发现预置「点开即报错」</b><p>没有任何报错指向原因：用户看到的只是「测试连接失败」。</p></div>
+          <div class="story-item"><time>2026-09-24</time><b>0.1.0 发布，七个应用陆续换成同一份预置</b><p>现在模型换代改的是本库一处，下游 <code>cargo update -p ai-profile</code> 即可拿到。</p></div>
+        </div>
+        <div class="bound">
+          <div class="bound-row"><div>进本库</div><div><ul><li>服务商预置：地址、模型 id、协议、专有字段、密钥申请页</li><li>端点拼接、模型清单清洗、「获取模型」零成本验证</li><li>限额、历史裁剪、超长识别、流式解码、ai.profile</li></ul></div></div>
+          <div class="bound-row out"><div>不进本库</div><div><ul><li>密钥存储（各应用的系统钥匙串、加密方式不同）</li><li>数据库与配置的持久化</li><li>对话请求本身：请求格式、鉴权头、取消、工具循环</li></ul></div></div>
+        </div>
+      </div>
+      <div class="rules">
+        <div class="rule"><span class="no">约定 1</span><h3>base_url 原样使用，不推断版本段</h3><p>OpenAI 兼容地址照抄文档原文。各家版本段不统一（智谱 /v4、Gemini /v1beta/openai），猜错只会 404。</p><div class="rule-ex"><span class="ap-red"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg>红线</span>替用户补 /v1</div></div>
+        <div class="rule"><span class="no">约定 2</span><h3>默认模型选「够用档」，不选最强档</h3><p>默认值是用户第一次点开就会用上的，选贵的那档等于替他花钱；候选清单里仍然列出更强的。</p><div class="rule-ex"><span class="tag mono">deepseek-flash</span><span class="tag mono">qwen-plus</span></div></div>
+        <div class="rule"><span class="no">约定 3</span><h3>错误必须结构化</h3><p>每个 VerifyError 变体对应一个界面动作：404 带建议地址可以「一键改用」，网络不通给「重试」。</p><div class="rule-ex"><span class="ap-red"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg>红线</span>只给用户一行红字</div></div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="section">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">能力索引</div>
+        <h2>九项能力，各有一页说明</h2>
+        <p>按 feature 裁剪：默认只有 serde、serde_json 与 thiserror，真要发 HTTP 才开 client。</p>
+      </div>
+      <div class="idx">
+        <a class="feat" href="/reference/providers"><span class="no">§1</span><h3>对话 25 家 + 多模态 17 条预置</h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><p>按厂商聚合成目录：同一家的多种能力共用一个密钥，配一次就能全开。</p><code class="feat-code">ai_profile::vendors(&amp;[Kind::Chat])</code><div class="feat-demo" aria-hidden="true"><span>Anthropic 官方<small>Anthropic / 协议档 · 云端</small></span><span>DeepSeek<small>国内 · 云端</small></span><span>Ollama（本地）<small>本地 / 自建 · 本地服务</small></span></div><div class="meta"><span class="ap-chain"><span class="on">preset</span><span>endpoint</span><span>verify</span></span></div></a>
+        <a href="/api/protocol"><span class="no">§2</span><h3>ai.profile 跨应用互通</h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><p>复制一段 JSON 就能粘进另一个应用，可一次分享一整组。解析宽进，生成严出。</p><div class="meta"><span class="tag mono">parse_profiles</span><span class="tag mono">to_profile</span></div></a>
+        <a class="feat" href="/api/verify"><span class="no">§3</span><h3>零成本验证，结构化错误</h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><p>只打模型列表接口。失败时每种错误对应一个界面动作，404 附建议地址。</p><code class="feat-code">verifier.verify(cfg).await</code><div class="feat-demo" aria-hidden="true"><span class="ok">连通 · 320ms<small>VerifyOk · 示意</small></span><span>not_found<small>附 suggested_url → 一键改用</small></span><span>auth_failed<small>→ 聚焦密钥输入框</small></span></div><div class="meta"><span class="ap-chain"><span>preset</span><span>endpoint</span><span class="on">verify</span></span></div></a>
+        <a href="/api/endpoint"><span class="no">§4</span><h3>地址规则确定、不猜</h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><p>OpenAI 兼容原样使用；Anthropic 只有 v1，填不填 /v1 都能用。</p><div class="meta"><span class="ap-chain"><span>preset</span><span class="on">endpoint</span><span>verify</span></span></div></a>
+        <a href="/api/limits"><span class="no">§5</span><h3>限额与历史裁剪</h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><p>窗口与输出上限按「用户 &gt; 端点上报 &gt; 预置 &gt; 未知」逐字段取值，来源可见。</p><div class="meta"><span class="tag mono">TokenLimits</span><span class="tag mono">trim_history</span></div></a>
+        <a href="/api/stream"><span class="no">§6</span><h3>流式解码</h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><p>只吃字节、吐事件，不发 HTTP；断流、流内错误、多字节字符跨包都已处理。</p><div class="meta"><span class="tag mono">StreamDecoder</span><span class="tag b">0.1.4 起</span></div></a>
+        <a href="/api/media"><span class="no">§7</span><h3>生图 / 视频 / 配音调用</h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><p>六套视频提交与轮询协议、两套生图、两套配音，按配置自动识别协议。</p><div class="meta"><span class="tag mono">image</span><span class="tag mono">video</span><span class="tag mono">tts</span></div></a>
+        <a href="/api/catalog"><span class="no">§8</span><h3>应用可以定制目录</h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><p>公共服务商在库里，只属于某个应用的条目由它自己加，也能删掉用不上的几家。</p><div class="meta"><span class="tag mono">PresetCatalog</span></div></a>
+        <a class="feat" href="/reference/spec"><span class="no">§9</span><h3>其他语言也能用</h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><p>预置数据与一致性用例按版本发布，Python / TypeScript / Java 照着实现，用例跑通即一致。</p><code class="feat-code">GET /spec/v0.1.7/presets.json</code><div class="meta"><span class="tag mono">presets.json</span><span class="tag mono">347 条用例</span></div></a>
+      </div>
+    </div>
+  </section>
+  
+  <section class="section alt">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">谁在用</div>
+        <h2>七个应用引用同一个版本</h2>
+        <p>在其中任何一个应用里配好的模型服务，复制一段 ai.profile 就能粘进另一个。</p>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl users">
+          <thead><tr><th>应用</th><th>用到的部分</th><th>引用版本</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://sigil.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/sigil.svg" alt="" width="48" height="48" loading="lazy" />Sigil 掌玺</a></td><td><div class="feat"><span class="tag">预置</span><span class="tag">验证</span><span class="tag">限额</span><span class="tag">历史裁剪</span><span class="tag">ai.profile</span><span class="tag">流式解码</span><span class="tag b">关思考</span></div></td><td class="num mono">0.1.7</td></tr>
+            <tr><td><a href="https://reeve.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/reeve.png" alt="" width="48" height="48" loading="lazy" />Reeve</a></td><td><div class="feat"><span class="tag">预置</span><span class="tag">验证</span><span class="tag">限额</span><span class="tag">历史裁剪</span><span class="tag">ai.profile</span><span class="tag">流式解码</span><span class="tag">移动端：端点 · 清洗</span></div></td><td class="num mono">0.1.7</td></tr>
+            <tr><td><a href="https://kb.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/knowledge-base.png" alt="" width="48" height="48" loading="lazy" />本地知识库</a></td><td><div class="feat"><span class="tag">预置</span><span class="tag">验证</span><span class="tag">限额</span><span class="tag">超长识别</span><span class="tag">ai.profile</span><span class="tag">流式解码</span></div></td><td class="num mono">0.1.7</td></tr>
+            <tr><td><span class="nm"><img src="/products/onestop.png" alt="" width="48" height="48" loading="lazy" />一站通</span></td><td><div class="feat"><span class="tag">预置</span><span class="tag">验证</span><span class="tag">限额</span><span class="tag">超长识别</span><span class="tag">ai.profile</span><span class="tag">生图 / 视频 / 配音预置</span></div></td><td class="num mono">0.1.7</td></tr>
+            <tr><td><span class="nm"><img src="/products/storyloom.png" alt="" width="48" height="48" loading="lazy" />StoryLoom</span></td><td><div class="feat"><span class="tag b">四种能力全用</span><span class="tag">生图 / 视频 / 配音调用的实现就来自它</span></div></td><td class="num mono">0.1.7</td></tr>
+            <tr><td><span class="nm"><img src="/products/prism.png" alt="" width="48" height="48" loading="lazy" />Prism</span></td><td><div class="feat"><span class="tag">预置</span><span class="tag">验证</span><span class="tag">历史裁剪</span><span class="tag">ai.profile</span><span class="tag">生图预置与调用</span></div></td><td class="num mono">0.1.7</td></tr>
+            <tr><td><span class="nm"><img src="/products/aibid.png" alt="" width="48" height="48" loading="lazy" />AI 标书工作站</span></td><td><div class="feat"><span class="tag">对话预置</span><span class="tag">验证</span><span class="tag">限额</span><span class="tag">超长识别</span><span class="tag">ai.profile</span><span class="tag">流式解码</span></div></td><td class="num mono">0.1.7</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  
+  <section class="section">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">对外契约</div>
+        <h2>这三处地址有程序在读，发版不改路径</h2>
+        <p>非 Rust 实现、AI 编程助手、Context7 都直接读取站点上的文件。改版换框架，地址一个字不动。</p>
+      </div>
+      <div class="contract">
+        <div class="c-card"><span class="c-no">§A · /spec/</span><h3>规范文件</h3><p>预置数据与一致性用例，Python / TypeScript / Java 等直接下载。固定版本发布后不再改动。</p>
+          <div class="urls"><div class="url-row"><span>/spec/presets.json</span><button type="button" data-copy="https://ai-profile.ruoyi.plus/spec/presets.json" aria-label="复制"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><div class="url-row"><span>/spec/v0.1.7/conformance/*.json</span><button type="button" data-copy="https://ai-profile.ruoyi.plus/spec/v0.1.7/" aria-label="复制"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><a class="lnk-arr" href="/reference/spec" style="margin-top:8px"><span>规范与多语言实现</span><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></div>
+        <div class="c-card"><span class="c-no">§B · /ai/</span><h3>给 AI 读的接入规则</h3><p>技能文件原文，可直接放进项目的技能目录；crate 的 README 链接到这里。</p>
+          <div class="urls"><div class="url-row"><span>/ai/ai-profile-integration.md</span><button type="button" data-copy="https://ai-profile.ruoyi.plus/ai/ai-profile-integration.md" aria-label="复制"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><div class="url-row"><span>/llms-full.txt</span><button type="button" data-copy="https://ai-profile.ruoyi.plus/llms-full.txt" aria-label="复制"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><a class="lnk-arr" href="/guide/ai-assisted" style="margin-top:8px"><span>用 AI 接入</span><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></div>
+        <div class="c-card"><span class="c-no">§C · context7.json</span><h3>Context7 收录规则</h3><p>context7.json 里的 12 条规则，AI 通过 Context7 查本库时一并拿到。规则与正文同源维护。</p>
+          <div class="urls"><div class="url-row"><span>context7.json · 12 条 rules</span><button type="button" data-copy="context7.json" aria-label="复制"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><div class="url-row"><span>excludeFiles: products.md</span><button type="button" data-copy="products.md" aria-label="复制"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><a class="lnk-arr" href="/reference/spec#ai" style="margin-top:8px"><span>三份 AI 文件的分工</span><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="section tight">
+    <div class="wrap">
+      <div class="grp-h" style="margin-top:0"><h2>产品矩阵</h2><span>抓蛙师出品，标着「内置 ai-profile」的三款共用本库的预置与验证</span><a class="lnk-arr" href="/products" style="margin-left:auto"><span>看完整介绍</span><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+      <div class="mini-prods">
+        <a href="https://sigil.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/sigil.svg" alt="" width="48" height="48" loading="lazy" /><div><b>Sigil 掌玺</b><span>AI 凭据金库 · 内置 ai-profile</span></div></a>
+        <a href="https://reeve.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/reeve.png" alt="" width="48" height="48" loading="lazy" /><div><b>Reeve</b><span>SSH 运维 · 内置 ai-profile</span></div></a>
+        <a href="https://kb.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/knowledge-base.png" alt="" width="48" height="48" loading="lazy" /><div><b>本地知识库</b><span>双链 · 图谱 · 内置 ai-profile</span></div></a>
+        <a href="https://aicoder.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/aicoder.png" alt="" width="48" height="48" loading="lazy" /><div><b>智码 AiCoder</b><span>AI CLI 的统一工作台</span></div></a>
+        <a href="https://ai-workstation.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/ai-workstation.svg" alt="" width="48" height="48" loading="lazy" /><div><b>AI 全能工作站</b><span>一句话调度 63 个模块</span></div></a>
+        <a href="https://tauri.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/tauri-desktop.svg" alt="" width="48" height="48" loading="lazy" /><div><b>灵动桌面框架</b><span>Tauri 2 · React 19 + Rust</span></div></a>
+        <a href="https://agileshot.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/agileshot.png" alt="" width="48" height="48" loading="lazy" /><div><b>AgileShot</b><span>截图与标注 · MCP</span></div></a>
+        <a href="https://officia.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/officia.svg" alt="" width="48" height="48" loading="lazy" /><div><b>Officia</b><span>零依赖 Java 办公套件</span></div></a>
+        <a href="https://ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/ruoyi-plus-uniapp.svg" alt="" width="48" height="48" loading="lazy" /><div><b>RuoYi-Plus-UniApp</b><span>Spring Boot 3 全栈框架</span></div></a>
+        <a href="https://qt.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/agile-qt.svg" alt="" width="48" height="48" loading="lazy" /><div><b>Agile-Qt</b><span>AI 原生的 C++20 / Qt 6 框架</span></div></a>
+      </div>
+      <div class="community"><span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/></svg>B 站视频介绍 <a class="lnk" href="https://www.bilibili.com/video/BV1dhh16qEvE" target="_blank" rel="noopener">BV1dhh16qEvE</a></span><span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>QQ 交流群 <b>1087715758</b> · 接入问题、新服务商需求、Bug 反馈都可以提</span></span></div>
+    </div>
+  </section>
+  
+  <section class="cta">
+    <div class="wrap cta-in">
+      <div>
+        <h2>模型服务这一层，交给一个库</h2>
+        <p>下一次模型换代，你只需要升一次依赖。</p>
+      </div>
+      <div>
+        <div class="cmd"><span class="pr">$</span>cargo add ai-profile<button type="button" data-copy="cargo add ai-profile" aria-label="复制"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span>复制</span></button></div>
+        <div class="btns"><a class="btn pri" href="/guide/quick-start">快速开始<svg class="ico arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn sec" href="https://github.com/bkywksj/ai-profile" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>GitHub</a></div>
+      </div>
+    </div>
+  </section>
+  </div>
+  <PageScript />
 </BaseLayout>

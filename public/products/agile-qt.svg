@@ -1,0 +1,8 @@
+<svg viewBox="0 0 120 120" width="120" height="120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Agile-Qt 主 Logo（Light）：Qt 官方绿圆角方块 + 白色描边 Q -->
+  <rect x="8" y="8" width="104" height="104" rx="27" fill="#41CD52"/>
+  <g fill="none" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round">
+    <circle cx="57" cy="56" r="25"/>
+    <path d="M66 66 L82 82"/>
+  </g>
+</svg>
