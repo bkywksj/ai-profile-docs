@@ -1,7 +1,7 @@
 ---
 title: "版本策略"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-10-08
+description: "ai-profile 的版本策略：什么改动算破坏性、preset.key 为什么是存量配置的锚、non_exhaustive 枚举的约定，以及发版前的检查。"
+lastUpdated: 2026-11-04
 ---
 # 版本策略
 
@@ -23,6 +23,15 @@ lastUpdated: 2026-10-08
 | 改 `preset.key` | **major** | 🔴 见下 |
 | 改 `ai.profile` 的**规范**字段名 | **major** | 见下 |
 | reqwest 大版本升级 | **major** | 🔴 见下 |
+
+
+<div class="vp-callout vp-callout-warning"><p class="vp-callout-title">0.x 阶段的换算</p>
+
+上表按 1.0 之后的语义写。0.x 期间 Cargo 把版本位整体右移一位：表中 patch 与 minor（兼容的新增）都发 `0.1.x` 补丁位，
+下游 `cargo update -p ai-profile` 自动拿到；表中 major（破坏性）才发 `0.x.0`，下游必须改 `Cargo.toml`。
+0.1.2 到 0.1.7 的新增公开 API 都按补丁位发布。
+
+</div>
 
 ## 三个特别危险的改动
 
@@ -121,7 +130,18 @@ cargo test --workspace --all-features
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo fmt --all --check
 cargo xtask gen-docs                                        # 确认 providers.md 无变化
+cargo xtask gen-spec                                        # 改版本号后 spec/ 的 crateVersion 必变，一并提交
+RUSTDOCFLAGS="-D warnings --cfg docsrs" cargo doc -p ai-profile --all-features --no-deps
+cargo package -p ai-profile                                 # 打包 + 编译验证
 ```
+
+另外三条是 0.1.0 发布时漏掉、只能靠补发 0.1.1 弥补的：
+
+- **docs.rs 按全部 feature 构建**：包内 `Cargo.toml` 要有 `[package.metadata.docs.rs] all-features = true`，
+  否则 docs.rs 只用默认 feature，`client` / `media` 在文档站上整块消失
+- **打包后单独跑测试**：`cargo package` 的产物解到临时目录再 `cargo test --all-features`。
+  下载包里没有仓库的 `docs/`，依赖它的测试必须能跳过
+- **MSRV 真编**：CI 的 `msrv` 任务用声明的 1.88 编一遍，推送后等它绿了再发布
 
 
 <div class="vp-callout vp-callout-warning"><p class="vp-callout-title">cargo test --workspace 不能代替前三条</p>

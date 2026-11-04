@@ -1,7 +1,7 @@
 ---
 title: "安装与 feature"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-09-25
+description: "安装 ai-profile：Cargo 依赖写法、chat / client / image / video / tts 五个 feature 各带来什么、默认零重依赖能编到移动端，最低 Rust 1.88。"
+lastUpdated: 2026-11-04
 ---
 # 安装与 feature
 
@@ -49,7 +49,7 @@ ai-profile = { version = "0.1", features = ["chat", "client"] }
 
 | 开的 feature | 得到 |
 |---|---|
-| `chat` | 预置、服务商目录、`ai.profile`、端点拼接、模型清洗、限额、历史裁剪 —— 全是纯数据与纯函数 |
+| `chat` | 预置、服务商目录、`ai.profile`、端点拼接、模型清洗、限额、历史裁剪、流式解码 —— 全是纯数据与纯函数 |
 | `chat` + `client` | 再加「获取模型」零成本验证 |
 | + `image` / `video` / `tts` | 再加对应能力的预置 |
 | + `client` 且开了某个能力 | 再加该能力的真实调用（[生图、视频与配音](/api/media)） |
@@ -62,7 +62,8 @@ ai-profile = "0.1"                      # = features = ["chat"]
 
 ### 不开 client 时你得到什么
 
-纯数据 + 纯函数：预置清单、服务商目录、`ai.profile` 解析生成、端点拼接、模型清单清洗。
+纯数据 + 纯函数：预置清单、服务商目录、`ai.profile` 解析生成、端点拼接、模型清单清洗、限额、历史裁剪、
+流式解码（[`stream`](/api/stream)，只吃字节、不发 HTTP）。
 **全部不需要网络，也不需要异步运行时** —— 依赖只有 `serde` / `serde_json` / `thiserror`。
 
 这个形态能编到 Android / iOS，也适合只想用预置数据、HTTP 走自己那一套的项目。

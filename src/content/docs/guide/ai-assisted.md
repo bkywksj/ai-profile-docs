@@ -1,13 +1,13 @@
 ---
 title: "用 AI 接入"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-09-25
+description: "用 AI 编程助手接入 ai-profile：本库较新、训练数据里没有，先把 llms-full.txt 或接入技能文件交给它，附提示词与常见坑。"
+lastUpdated: 2026-11-04
 ---
 # 用 AI 接入
 
 用 Claude Code、Codex、Cursor 等 AI 编程助手把本库接进你的项目。
 本库 2026-09 才发布，**AI 的训练数据里没有它** —— 不给它资料，它只能凭印象猜 API，
-还会踩几个我们在五个应用接入时踩过的坑。下面三样东西就是为此准备的。
+还会踩几个我们在七个应用接入时踩过的坑。下面三样东西就是为此准备的。
 
 | 给 AI 的材料 | 地址 | 用途 |
 |---|---|---|
@@ -81,4 +81,4 @@ AI 工具支持读取网址时，直接给它 [`https://ai-profile.ruoyi.plus/ll
 - [快速开始](/guide/quick-start) —— 人读的入门
 - [按场景查找](/guide/cookbook) —— 按要做的事查 API
 - [已发布应用的接入迁移](/guide/migration) —— 用户手里已有配置时必读
-- [其他语言实现](/reference/spec#用-ai-实现) —— 不是 Rust 项目？让 AI 照一致性用例写一份
+- [规范与多语言实现](/reference/spec#用-ai-实现) —— 不是 Rust 项目？让 AI 照一致性用例写一份

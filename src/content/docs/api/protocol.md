@@ -1,7 +1,7 @@
 ---
 title: "ai.profile 协议"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-09-25
+description: "ai.profile 跨应用配置交换协议：信封格式、宽进严出的解析规则、parse_profiles 粘贴导入（单条与打包）、to_profile 分享与 ParseError。"
+lastUpdated: 2026-11-04
 ---
 # ai.profile 协议
 
@@ -226,7 +226,7 @@ if env.v > AI_PROFILE_VERSION { return Err(UnsupportedVersion { .. }) }
 | 变体 | JSON `code` | 含义 |
 |---|---|---|
 | `Empty` | `empty` | 输入为空 |
-| `InvalidJson { detail }` | `invalid_json` | 不是合法 JSON |
+| `InvalidJson { detail }` | `invalid_json` | 不是合法 JSON；顶层不是对象（0.1.2 起）、字段类型不对也归这里 |
 | `NotAiProfile { found }` | `not_ai_profile` | `kind` 不是 `ai.profile` |
 | `UnsupportedVersion { found, supported }` | `unsupported_version` | 版本高于本实现 |
 | `MissingData` | `missing_data` | `data` 缺失或不是对象 |
@@ -246,7 +246,7 @@ if env.v > AI_PROFILE_VERSION { return Err(UnsupportedVersion { .. }) }
 5. 多条打包用 `ai.profile.bundle`，并照收 `api_profiles` 这个既有写法
 6. 字段**只增不改** —— 改已有字段名是生态分裂
 
-以上约定都有对应的一致性用例，跑通即与 Rust 版行为一致，见[其他语言实现](/reference/spec)。
+以上约定都有对应的一致性用例，跑通即与 Rust 版行为一致，见[规范与多语言实现](/reference/spec)。
 
 ## 相关
 

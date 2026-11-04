@@ -1,7 +1,7 @@
 ---
 title: "预置与服务商目录"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-10-08
+description: "预置与服务商目录 API：preset_by_key、presets_for、vendors、ProviderPreset 的字段、按地址反推预置、模型限额与关思考参数 thinking_off_params。"
+lastUpdated: 2026-11-04
 ---
 # 预置与服务商目录
 
@@ -25,10 +25,11 @@ let p = preset_by_key("deepseek");            // Option<&'static ProviderPreset>
 
 <div class="vp-callout vp-callout-tip"><p class="vp-callout-title">数组顺序即呈现顺序</p>
 
-预置数组的顺序就是下拉/列表该呈现的顺序，**同一分组必须连续**（有守卫测试盯着）。
+预置数组的顺序就是下拉/列表该呈现的顺序。**同一能力内同一分组必须连续** —— 有守卫测试盯着。
 调用方直接按顺序渲染即可，不需要自己排序。
 
-排序依据是「用户找到它的概率」：Anthropic 协议档 → 国内 → 国际 → 本地自建。
+整体按能力排：对话 → 生图 → 视频 → 配音（只含本次编译开启的能力）。
+能力内的排序依据是「用户找到它的概率」：Anthropic 协议档 → 国内 → 国际 → 本地自建；各能力分开渲染，生图 / 视频 / 配音从「国内」起排。
 
 </div>
 
@@ -48,7 +49,8 @@ let p = preset_by_key("deepseek");            // Option<&'static ProviderPreset>
 | `models` | `&'static [ModelOption]` | 建议清单 |
 | `protocol` | `Protocol` | 走 `/v1/messages` 还是 `/v1/chat/completions` |
 | `match_hosts` | `&'static [&'static str]` | 反推用的 host 片段；空 = 靠 protocol 反推 |
-| `extra_fields` | `&'static [ExtraField]` | 服务商专有字段 |
+| `extra_fields` | `&'static [ExtraField]` | 服务商专有字段（让用户填的） |
+| `default_extra` | `&'static [(&'static str, &'static str)]` | 新建配置时自动写进 `extra` 的固定键值（预置定死、用户不用填），如 `("video_api", "newapi")`。线格式 `[[key, value], …]`；内置预置目前都为空 |
 | `apply_url` | `Option<&'static str>` | 密钥申请页；`None` = 本地服务不需申请 |
 | `is_local` | `bool` | 需用户先把服务跑起来（Ollama / LM Studio / vLLM） |
 | `verified_at` | `Option<&'static str>` | 最后一次**实际调通**的日期；`None` = 未核实 |
@@ -59,6 +61,9 @@ let p = preset_by_key("deepseek");            // Option<&'static ProviderPreset>
 **`base_url` 为 `None`** 表示没有预填地址。两种情况：官方端点固定（Anthropic 官方），
 或这是个「自定义端点」档（Claude Code / Codex 客户端档）。
 调用方据此**隐藏或显示地址输入框**。
+
+真正发请求时用 `p.endpoint()`（0.1.3 起）取地址：写了 `base_url` 就是它；没写、但协议官方端点落在
+`match_hosts` 里（Anthropic 官方档）就回落到官方端点；自定义端点档返回 `None`，必须由用户填。
 
 **`model` 为空串**出现在本地推理服务上 —— Ollama 上装了什么模型因人而异，
 预置里写死任何一个都会是错的。

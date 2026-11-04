@@ -1,6 +1,6 @@
 ---
 title: "定制服务商目录"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
+description: "定制服务商目录：用 PresetCatalog 在本库预置上增、删、改、筛，只属于本应用的私有服务商留在应用里，公共数据不抄走。"
 lastUpdated: 2026-10-08
 ---
 # 定制服务商目录

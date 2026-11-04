@@ -1,6 +1,6 @@
 ---
 title: "Tauri 应用接入"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
+description: "在 Tauri 应用里接入 ai-profile：Verifier 存进 AppState、Service 层包成 Command、VerifyError 原样交给前端、批量验证与代理配置。"
 lastUpdated: 2026-09-25
 ---
 # Tauri 应用接入

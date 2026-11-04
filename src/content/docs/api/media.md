@@ -1,7 +1,7 @@
 ---
 title: "生图、视频与配音"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-09-26
+description: "生图、视频与配音调用：media::image / video / tts 按配置自动识别协议，视频的提交与轮询、生图与配音的响应解码，需开 client 与对应 feature。"
+lastUpdated: 2026-11-04
 ---
 # 生图、视频与配音
 
@@ -95,7 +95,9 @@ OpenAI images 兼容实现（火山方舟、硅基流动、中转站都走它）
 视频必然是异步的：提交拿任务号，再轮询到完成。
 
 ```rust
-use ai_profile::media::video::{AnyVideoProvider, VideoGenConfig, VideoGenParams, VideoProvider, VideoTaskStatus};
+use ai_profile::media::video::{
+    explain_error, AnyVideoProvider, VideoGenConfig, VideoGenParams, VideoProvider, VideoTaskStatus,
+};
 
 let provider = AnyVideoProvider::from_config(
     VideoGenConfig { endpoint, model, api_key },

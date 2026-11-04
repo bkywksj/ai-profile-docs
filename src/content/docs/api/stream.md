@@ -1,7 +1,7 @@
 ---
 title: "流式解码"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-10-01
+description: "流式解码 API：StreamDecoder 把 OpenAI 兼容与 Anthropic 的 SSE 字节解成统一事件，处理断流、流内错误、多字节字符跨包与 thinking 块。"
+lastUpdated: 2026-11-04
 ---
 # 流式解码
 
@@ -202,7 +202,7 @@ OpenAI 兼容协议的缓存字段（如 `cached_tokens`）暂未覆盖，恒为
 
 ## 其他语言
 
-规范里有对应的 `stream.json`，含分包、断流、取消、流内错误等用例，见[其他语言实现](/reference/spec)。
+规范里有对应的 `stream.json`，含分包、断流、取消、流内错误等用例，见[规范与多语言实现](/reference/spec)。
 
 ## 相关
 

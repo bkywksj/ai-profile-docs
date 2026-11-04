@@ -1,7 +1,7 @@
 ---
 title: "错误码对照"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-09-25
+description: "错误码对照：VerifyError 每个变体的 code、触发条件与该给的界面动作，auth_failed、not_found、unreachable、missing_extra_field 等。"
+lastUpdated: 2026-11-04
 ---
 # 错误码对照
 
@@ -17,8 +17,8 @@ lastUpdated: 2026-09-25
 | `unreachable` | `Unreachable { proxy_hint }` | 超时 / DNS / TLS | **「重试」**；`proxy_hint` 为真时提示去配代理 |
 | `model_not_found` | `ModelNotFound { available }` | ⏸ 预留，当前版本不产生 | 把 `available` **展开成下拉**让用户改选 |
 | `protocol_mismatch` | `ProtocolMismatch { expect }` | ⏸ 预留，当前版本不产生 | 提示切到对应的服务商模板 |
-| `missing_extra_field` | `MissingExtraField { key }` | 专有字段没填 | **定位到那个输入框**并标红 |
-| `malformed` | `Malformed { detail }` | 端点返回了预期外内容 | 兜底：显示摘要 |
+| `missing_extra_field` | `MissingExtraField { key }` | 专有字段没填；或没填地址、预置也给不出端点（`key` 为 `"base_url"`） | **定位到那个输入框**并标红 |
+| `malformed` | `Malformed { detail }` | 401 / 403 / 404 以外的非 2xx（如 429、500）；构造 HTTP 客户端失败 | 兜底：显示摘要 |
 
 ## 唯一「改配置没用」的那个
 
@@ -136,6 +136,9 @@ case "model_not_found":
 { "code": "missing_extra_field", "key": "appid" }
 ```
 
+地址也走这个变体：表单没填 `base_url`、所选预置也解析不出端点（自定义端点档、未选预置）时，
+`key` 为 `"base_url"`，把光标定位到地址框即可。「Anthropic 官方」这类没写地址的固定档会回落到官方端点，不报这个错。
+
 
 <div class="vp-callout vp-callout-tip"><p class="vp-callout-title">这个错误最好永远不要出现</p>
 
@@ -149,7 +152,9 @@ case "model_not_found":
 
 ### malformed
 
-兜底变体。端点返回了非 JSON、或结构完全对不上。
+兜底变体。401 / 403 / 404 以外的非 2xx 状态（如 429、500、502）都归这里；
+`Verifier::new` / `from_builder` 构造 HTTP 客户端失败也报它。
+2xx 但不是 JSON 归 `not_found`（见上）；2xx 且是 JSON 但没有 `data` 数组时不算失败，结果是空的模型清单。
 
 `detail` 只取响应体里**端点自己写给人看的那句话**：依次尝试 `error.message`、`error`（本身是字符串时）、
 顶层 `message`，去两端空白后截断到 300 个字符；都没有时为 `HTTP <状态码>`。

@@ -1,7 +1,7 @@
 ---
 title: "加一家服务商"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-09-25
+description: "给 ai-profile 加一家服务商：base_url 照抄文档原文、默认模型选够用档、verified_at 只在真实密钥调通后填，改本库后下游只升版本。"
+lastUpdated: 2026-11-04
 ---
 # 加一家服务商
 
@@ -24,7 +24,7 @@ lastUpdated: 2026-09-25
 ### 1. 加一条 ProviderPreset
 
 在 `crates/ai-profile/src/preset/<kind>.rs`（`chat` / `image` / `video` / `tts`）里按分组插入。
-🔴 **数组顺序即呈现顺序，同一分组必须连续** —— 有守卫测试盯着。
+🔴 **数组顺序即呈现顺序，同一能力内同一分组必须连续** —— 有守卫测试盯着。
 
 ```rust
 ProviderPreset {
@@ -50,6 +50,7 @@ ProviderPreset {
     apply_url: Some("https://console.acme.com/keys"),
     is_local: false,
     verified_at: None,
+    thinking_off: None,   // 0.1.7 起；只填官方文档写明了的关思考参数，查不到留 None
 },
 ```
 
@@ -126,6 +127,7 @@ vendor_id: "siliconflow",
 ```bash
 cargo test -p ai-profile
 cargo test -p ai-profile --features client
+cargo test -p ai-profile --all-features   # 生图 / 视频 / 配音预置只在开了对应 feature 时才编译、才被测到
 ```
 
 九个守卫测试必须全绿。它们防的是：
@@ -163,7 +165,7 @@ cargo xtask probe
 ```
 
 不带密钥打所有非本地预置的地址，验**地址是否还有效**。
-25 家并发探测，实测几秒跑完。
+所有非本地、写了地址的预置（当前 32 条，含生图 / 视频 / 配音）并发探测，实测几秒跑完。
 
 ```text
   ✅ deepseek         地址可达（未带密钥，返回鉴权失败属正常）

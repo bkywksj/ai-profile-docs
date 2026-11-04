@@ -1,7 +1,7 @@
 ---
 title: "前端对接"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-10-08
+description: "前端对接 ai-profile：Rust 结构序列化后的两套命名风格、TypeScript 类型定义，以及按错误 code 给出界面动作的写法。"
+lastUpdated: 2026-11-04
 ---
 # 前端对接
 
@@ -13,7 +13,7 @@ lastUpdated: 2026-10-08
 
 | 类型 | 字段风格 | 例子 |
 |---|---|---|
-| `ProviderPreset`、`Vendor`、`ModelOption`、`ExtraField` | **camelCase** | `vendorId`、`baseUrl`、`isLocal`、`applyUrl` |
+| `ProviderPreset`、`Vendor`、`ModelOption`、`ExtraField`、`VerifyOk`、`TokenLimits`、`ParsedProfile` | **camelCase** | `vendorId`、`baseUrl`、`isLocal`、`latencyMs` |
 | `VerifyError`、`ParseError` | **snake_case** | `requested_url`、`suggested_url`、`proxy_hint` |
 
 原因是两类数据的定位不同：预置是**喂给界面渲染的数据**，跟着前端习惯走 camelCase；
@@ -145,6 +145,10 @@ export interface TokenLimits {
   maxOutput: number | null;
   /** 🔴 user = 用户手填；endpoint = 端点上报的事实；preset = 本库的估计值，应允许用户修改 */
   source: LimitSource;
+  /** contextWindow 这个值来自哪一层；值为 null 时也为 null。0.1.3 起 */
+  contextWindowSource: LimitSource | null;
+  /** maxOutput 这个值来自哪一层；值为 null 时也为 null。0.1.3 起 */
+  maxOutputSource: LimitSource | null;
 }
 
 export interface VerifyOk {

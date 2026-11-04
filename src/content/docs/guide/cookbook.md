@@ -1,6 +1,6 @@
 ---
 title: "按场景查找"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
+description: "按场景查找 ai-profile 的用法：做设置页、配置互通、发对话请求之前、生图视频配音，各场景该调哪个函数、看哪一页。"
 lastUpdated: 2026-10-01
 ---
 # 按场景查找

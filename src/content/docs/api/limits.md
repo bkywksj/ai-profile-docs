@@ -1,6 +1,6 @@
 ---
 title: "限额：上下文窗口与输出上限"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
+description: "限额 API：TokenLimits 的上下文窗口与输出上限，按用户手填、端点上报、预置逐字段叠加，来源可分辨，未知时不猜。"
 lastUpdated: 2026-09-25
 ---
 # 限额：上下文窗口与输出上限

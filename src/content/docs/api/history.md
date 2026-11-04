@@ -1,7 +1,7 @@
 ---
 title: "历史裁剪与超长重试"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-09-25
+description: "历史裁剪与超长重试：trim_history 按预算裁对话历史且不拆工具调用配对，is_context_overflow 识别各家的上下文超长报错与重试预算。"
+lastUpdated: 2026-11-04
 ---
 # 历史裁剪与超长重试
 
@@ -27,7 +27,7 @@ assistant 的工具调用、工具返回的结果。工具结果往往很大 —
 
 ## 接入：实现 HistoryMessage
 
-消息类型各应用自己定义，只要实现两个方法：
+消息类型各应用自己定义，只要实现两个方法（trait 要求类型本身实现 `Clone`）：
 
 ```rust
 use ai_profile::history::HistoryMessage;
@@ -47,7 +47,7 @@ impl HistoryMessage for ChatMessage {
 ```rust
 use ai_profile::history::{history_budget, trim_history};
 
-// limits 来自 TokenLimits 分层合并（见「连通性验证」一页的限额一节）
+// limits 来自 TokenLimits 分层合并（见「限额」一页）
 let budget = history_budget(limits.as_ref(), max_tokens);   // 窗口 − max_tokens − 8192 余量
 let out = trim_history(messages, budget);                    // budget 为 None 时原样返回
 
@@ -134,4 +134,5 @@ token 数按字符估算并刻意偏保守（约 2 字符 / token）。精确计
 
 ## 相关
 
-- [连通性验证](/api/verify) —— 限额从哪来（用户 > 端点上报 > 预置 > 未知）
+- [限额：上下文窗口与输出上限](/api/limits) —— 限额从哪来（用户 > 端点上报 > 预置 > 未知）
+- [连通性验证](/api/verify) —— 端点上报限额的来源

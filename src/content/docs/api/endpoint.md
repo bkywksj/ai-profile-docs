@@ -1,7 +1,7 @@
 ---
 title: "端点与模型清单"
-description: "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。"
-lastUpdated: 2026-09-25
+description: "端点与模型清单 API：join_api_path 与 join_chat_endpoint 的拼接规则、OpenAI 兼容地址原样使用、Anthropic 补 /v1，以及模型清单清洗。"
+lastUpdated: 2026-11-04
 ---
 # 端点与模型清单
 
@@ -143,7 +143,8 @@ assert!(!ends_with_version_segment("https://v4.example.com"));  // 这是主机�
 
 只认「`v` + 全数字」，所以主机名以 `v4.` 开头的不会被误判。
 
-**端点拼接不用它** —— 保留是为两件事：守住「预置 base_url 必须自带版本段」这条契约，
+OpenAI 兼容一侧的拼接**不用它**，只有 `anthropic_base_url` 用它判断要不要补 `/v1`。
+除此之外保留它是为两件事：守住「预置 base_url 必须自带版本段」这条契约，
 以及给前端「这个地址看着缺版本段」的提醒保持同一口径。
 
 ## 模型清单清洗
