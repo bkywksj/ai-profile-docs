@@ -1,11 +1,59 @@
 {
   "docs": [
     {
-      "text": "手册",
+      "text": "入门",
       "items": [
-        { "text": "快速开始", "id": "manual/getting-started" },
-        { "text": "docs.json 配置项", "id": "manual/configuration" },
-        { "text": "从 VitePress 迁移", "id": "manual/migration" }
+        { "text": "这是什么", "id": "guide/introduction" },
+        { "text": "安装与 feature", "id": "guide/installation" },
+        { "text": "快速开始", "id": "guide/quick-start" },
+        { "text": "按场景查找", "id": "guide/cookbook" },
+        { "text": "用 AI 接入", "id": "guide/ai-assisted" }
+      ]
+    },
+    {
+      "text": "接入实战",
+      "items": [
+        { "text": "Tauri 应用接入", "id": "guide/tauri-integration" },
+        { "text": "前端对接", "id": "guide/frontend" },
+        { "text": "已发布应用的接入迁移", "id": "guide/migration" }
+      ]
+    },
+    {
+      "text": "API · 服务商目录",
+      "items": [
+        { "text": "预置与服务商目录", "id": "api/preset" },
+        { "text": "定制服务商目录", "id": "api/catalog" }
+      ]
+    },
+    {
+      "text": "API · 配置与连接",
+      "items": [
+        { "text": "ai.profile 协议", "id": "api/protocol" },
+        { "text": "端点与模型清单", "id": "api/endpoint" },
+        { "text": "连通性验证", "id": "api/verify" }
+      ]
+    },
+    {
+      "text": "API · 对话辅助",
+      "items": [
+        { "text": "限额：窗口与输出上限", "id": "api/limits" },
+        { "text": "历史裁剪与超长重试", "id": "api/history" },
+        { "text": "流式解码", "id": "api/stream" }
+      ]
+    },
+    {
+      "text": "API · 多模态调用",
+      "items": [{ "text": "生图、视频与配音", "id": "api/media" }]
+    },
+    {
+      "text": "参考",
+      "items": [
+        { "text": "服务商清单", "id": "reference/providers" },
+        { "text": "错误码对照", "id": "reference/errors" },
+        { "text": "更新日志", "id": "reference/changelog" },
+        { "text": "版本策略", "id": "reference/versioning" },
+        { "text": "加一家服务商", "id": "reference/add-provider" },
+        { "text": "规范与多语言实现", "id": "reference/spec" }
       ]
     }
   ]

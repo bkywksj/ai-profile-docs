@@ -1,0 +1,257 @@
+{
+  "cases": [
+    {
+      "expected": {
+        "ids": [
+          "gpt-4o",
+          "gpt-4o-mini"
+        ],
+        "limits": []
+      },
+      "fn": "parse_models_response",
+      "input": {
+        "body": "{\"object\":\"list\",\"data\":[{\"id\":\"gpt-4o\",\"object\":\"model\",\"owned_by\":\"openai\"},{\"id\":\"gpt-4o-mini\",\"object\":\"model\"}]}"
+      },
+      "name": "OpenAI 规范"
+    },
+    {
+      "expected": {
+        "ids": [
+          "gpt-4o",
+          "deepseek-flash"
+        ],
+        "limits": []
+      },
+      "fn": "parse_models_response",
+      "input": {
+        "body": "[\"gpt-4o\",\"deepseek-flash\"]"
+      },
+      "name": "裸数组（字符串）"
+    },
+    {
+      "expected": {
+        "ids": [
+          "a",
+          "b"
+        ],
+        "limits": []
+      },
+      "fn": "parse_models_response",
+      "input": {
+        "body": "[{\"id\":\"a\"},{\"id\":\"b\"}]"
+      },
+      "name": "裸数组（对象）"
+    },
+    {
+      "expected": {
+        "ids": [
+          "deepseek-flash"
+        ],
+        "limits": [
+          {
+            "id": "deepseek-flash",
+            "limits": {
+              "contextWindow": 1048576,
+              "contextWindowSource": "endpoint",
+              "maxOutput": 393216,
+              "maxOutputSource": "endpoint",
+              "source": "endpoint"
+            }
+          }
+        ]
+      },
+      "fn": "parse_models_response",
+      "input": {
+        "body": "{\"data\":[{\"id\":\"deepseek-flash\",\"context_window\":1048576,\"max_output_tokens\":393216}]}"
+      },
+      "name": "DeepSeek 报限额"
+    },
+    {
+      "expected": {
+        "ids": [
+          "anthropic/claude-opus-5"
+        ],
+        "limits": [
+          {
+            "id": "anthropic/claude-opus-5",
+            "limits": {
+              "contextWindow": 200000,
+              "contextWindowSource": "endpoint",
+              "maxOutput": 32000,
+              "maxOutputSource": "endpoint",
+              "source": "endpoint"
+            }
+          }
+        ]
+      },
+      "fn": "parse_models_response",
+      "input": {
+        "body": "{\"data\":[{\"id\":\"anthropic/claude-opus-5\",\"context_length\":1000000,\"top_provider\":{\"context_length\":200000,\"max_completion_tokens\":32000}}]}"
+      },
+      "name": "OpenRouter 取当前服务商"
+    },
+    {
+      "expected": {
+        "ids": [
+          "m"
+        ],
+        "limits": [
+          {
+            "id": "m",
+            "limits": {
+              "contextWindow": 65536,
+              "contextWindowSource": "endpoint",
+              "maxOutput": null,
+              "maxOutputSource": null,
+              "source": "endpoint"
+            }
+          }
+        ]
+      },
+      "fn": "parse_models_response",
+      "input": {
+        "body": "{\"data\":[{\"id\":\"m\",\"context_length\":\"65536\"}]}"
+      },
+      "name": "数字写成字符串"
+    },
+    {
+      "expected": {
+        "ids": [
+          "a",
+          "b"
+        ],
+        "limits": [
+          {
+            "id": "a",
+            "limits": {
+              "contextWindow": 65536,
+              "contextWindowSource": "endpoint",
+              "maxOutput": null,
+              "maxOutputSource": null,
+              "source": "endpoint"
+            }
+          }
+        ]
+      },
+      "fn": "parse_models_response",
+      "input": {
+        "body": "{\"data\":[{\"id\":\"a\",\"context_length\":\" 65536 \"},{\"id\":\"b\",\"context_length\":\"65536.0\"}]}"
+      },
+      "name": "字符串两端空白去掉；带小数点的字符串不认"
+    },
+    {
+      "expected": {
+        "ids": [
+          "a",
+          "b",
+          "c"
+        ],
+        "limits": [
+          {
+            "id": "a",
+            "limits": {
+              "contextWindow": null,
+              "contextWindowSource": null,
+              "maxOutput": 4096,
+              "maxOutputSource": "endpoint",
+              "source": "endpoint"
+            }
+          },
+          {
+            "id": "c",
+            "limits": {
+              "contextWindow": 131072,
+              "contextWindowSource": "endpoint",
+              "maxOutput": null,
+              "maxOutputSource": null,
+              "source": "endpoint"
+            }
+          }
+        ]
+      },
+      "fn": "parse_models_response",
+      "input": {
+        "body": "{\"data\":[{\"id\":\"a\",\"context_length\":0,\"max_tokens\":4096},{\"id\":\"b\",\"context_length\":-1},{\"id\":\"c\",\"context_length\":131072.9}]}"
+      },
+      "name": "0 视为没有；负数不认；浮点取整"
+    },
+    {
+      "expected": {
+        "ids": [
+          "m"
+        ],
+        "limits": [
+          {
+            "id": "m",
+            "limits": {
+              "contextWindow": 200000,
+              "contextWindowSource": "endpoint",
+              "maxOutput": 8192,
+              "maxOutputSource": "endpoint",
+              "source": "endpoint"
+            }
+          }
+        ]
+      },
+      "fn": "parse_models_response",
+      "input": {
+        "body": "{\"data\":[{\"id\":\"m\",\"context_length\":1000000,\"max_completion_tokens\":8192,\"top_provider\":{\"context_length\":200000}}]}"
+      },
+      "name": "top_provider 只报了窗口：输出上限回落到顶层"
+    },
+    {
+      "expected": {
+        "ids": [
+          "m"
+        ],
+        "limits": [
+          {
+            "id": "m",
+            "limits": {
+              "contextWindow": 200,
+              "contextWindowSource": "endpoint",
+              "maxOutput": 20,
+              "maxOutputSource": "endpoint",
+              "source": "endpoint"
+            }
+          }
+        ]
+      },
+      "fn": "parse_models_response",
+      "input": {
+        "body": "{\"data\":[{\"id\":\"m\",\"max_input_tokens\":100,\"context_window\":200,\"max_tokens\":10,\"max_output_tokens\":20}]}"
+      },
+      "name": "同一层多个字段：按表的顺序取第一个有效的"
+    },
+    {
+      "expected": {
+        "ids": [],
+        "limits": []
+      },
+      "fn": "parse_models_response",
+      "input": {
+        "body": "<!doctype html><html></html>"
+      },
+      "name": "不是 JSON"
+    }
+  ],
+  "crateVersion": "0.1.6",
+  "description": "parse_models_response 是两个函数的合并：ids = parse_model_ids，limits = parse_model_limits。ids：{data:[…]} 或裸数组都接受，元素是对象取 id、是字符串取本身。limits：每条模型的上下文窗口按 rules.contextWindowFields、输出上限按 rules.maxOutputFields 取值 —— 先按表的顺序查 top_provider 对象里的字段，都没有再按同样顺序查顶层；两个值各自独立。有效值：正整数；非负浮点取整；字符串去两端空白后按整数解析（带小数点的不认）；0、负数、超出 u32 视为没有。两个值都没有的模型不收录。用例里每项写成 {id, limits}；注意 verify 成功结果里的 modelLimits 线格式是 [id, limits] 二元数组。",
+  "generatedBy": "cargo xtask gen-spec（期望值由 Rust 参考实现算出，请勿手改）",
+  "rules": {
+    "contextWindowFields": [
+      "context_length",
+      "context_window",
+      "max_context_length",
+      "max_input_tokens"
+    ],
+    "maxOutputFields": [
+      "max_completion_tokens",
+      "max_output_tokens",
+      "max_tokens"
+    ],
+    "nestedFirst": "top_provider"
+  },
+  "specVersion": 1,
+  "title": "/models 响应解析"
+}

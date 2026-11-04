@@ -92,99 +92,198 @@ export interface HeadLink {
 }
 
 export const site = {
-  /** 站点全名：出现在 <title> 后缀、og:site_name、JSON-LD WebSite.name */
-  name: 'next-ai-astro 示例站',
-  /** 短名：页头 Logo 文字、移动端空间不够时使用 */
-  shortName: '示例站',
-  /** 一句话定位（首页 H1 下方 + 默认 meta description），写成「X 是 Y」的定义句对 GEO 更友好 */
+  /** 站点全名：出现在 og:site_name、JSON-LD WebSite.name、页脚（旧站 og:site_name 与 siteTitle 都是「ai-profile」） */
+  name: 'ai-profile',
+  /** 短名：页头 Logo 文字 */
+  shortName: 'ai-profile',
+  /** 一句话定位（首页与 llms.txt 用），写成「X 是 Y」的定义句 */
   tagline:
-    'next-ai-astro 是一个 AI 驱动的 Astro 内容站框架，把作品、文章和分类整理成对搜索引擎与 AI 都友好的静态站点。',
-  /** 默认 meta description：页面没传 description 时兜底，建议 70~160 字 */
-  description:
-    'next-ai-astro 示例站：展示作品目录、分类筛选、文章与常见问题的标准写法，默认零 JS、SEO 与 GEO 字段齐全，可直接作为新项目的起点。',
+    'ai-profile 是给桌面应用用的 AI 模型服务配置层（MIT 开源 Rust crate）：服务商预置、地址拼接、零成本验证、限额与跨应用互通的 ai.profile，统一放进一个库。',
+  /** 默认 meta description：页脚简介与没写描述的页面兜底；各页在 frontmatter 里各写一句 */
+  description: 'AI 模型服务配置层。一份预置、一个协议、一套验证，多个应用共用。纯 Rust，默认零重依赖，按 feature 裁剪。',
+  /** 生产域名（不带结尾斜杠）：旧站 config.ts 的 SITE 常量 */
+  url: 'https://ai-profile.ruoyi.plus',
   /**
-   * 生产域名（不带结尾斜杠）。canonical、og:url、sitemap、robots、llms.txt 的绝对地址都基于它。
-   * 🔴 上线前必须改成真实域名，否则所有 canonical 都会指向 example.com。
+   * 网址形态。🔴 上线后不要再改。
+   * 旧站开了 cleanUrls（config.ts）：叶子页 /guide/introduction（产物 guide/introduction.html），canonical 与 sitemap 都是这一套；旧站没有目录首页
    */
-  url: 'https://example.com',
-  /**
-   * 网址形态。astro.config 的 build.format / trailingSlash、lib/seo.ts 的 pagePath() 都读它，站内链接用 pagePath() 生成。
-   * 🔴 上线后不要再改：改了等于全站换网址，旧链接与搜索收录全部失效（迁移旧站时按旧网址选，见 vitepress-migration 技能）
-   */
-  urlFormat: 'directory' as UrlFormat,
-  /** Markdown 兼容模式，见 MarkdownCompat。两种模式都关掉了「智能标点」：技术文档里的 'none'、"x" 被改成弯引号，读者照抄就错了 */
-  markdownCompat: 'none' as MarkdownCompat,
-  /** 文档正文的代码块显示行号（VitePress 的 markdown.lineNumbers）；行号用 CSS 画，不进复制内容 */
+  urlFormat: 'clean' as UrlFormat,
+  /** 旧站正文里有 ::: tip / warning / danger / info / details，正文不改，开 vitepress 由兼容插件还原 */
+  markdownCompat: 'vitepress' as MarkdownCompat,
+  /** 文档正文的代码块显示行号：旧站没开 */
   codeLineNumbers: false,
-  /**
-   * 文档页右侧的手机实时预览（指南 frontmatter 写 preview 时出现）：
-   * origin = 预览站地址（H5 演示站，如 https://m.example.com）；留空 = 预览本站页面。qr = 扫码预览的二维码图（public/ 下路径），留空不显示「扫码预览」
-   */
+  /** 文档页右侧的手机实时预览：本站没有 H5 演示站 */
   mobilePreview: { origin: '', qr: '' },
-  /** <html lang> 与 og:locale */
   locale: 'zh-CN',
-  /** 品牌主色：注入为 CSS 变量 --brand，Tailwind 里用 bg-brand / text-brand */
-  brandColor: '#FF5D2E',
-  author: {
-    name: '示例作者',
-    url: 'https://example.com/about/',
-  },
-  /** 页头标志图（放 public/ 下，正方形）；留空则用品牌色圆点。标志自带底色的直接用，不要再套背景 */
-  logo: '',
-  /** 导航横排的断点：导航项多（6 个以上）时改 'lg'（页头到 1280 才横排），否则平板宽度下会挤出页头 */
-  navBreakpoint: 'md' as 'md' | 'lg',
-  /** 页头页脚的版心宽度，与正文对齐：default = 72rem（Container 默认）；文档站（docs 模块三栏布局）用 wide = 90rem */
-  frameWidth: 'default' as 'default' | 'wide',
-  /** 站点图标（放 public/ 下）：svg / png / ico 都行，BaseLayout 按扩展名输出 type */
-  favicon: '/favicon.svg',
-  /** 站点图标之外、<head> 里成组的图标与 manifest（见 HeadLink），不需要就留空 */
-  headLinks: [] as HeadLink[],
-  /** 默认分享图（放 public/ 下），1200×630 */
-  ogImage: '/og-default.png',
   /**
-   * 允许构建期下载并优化的远程图片域名（astro:assets image.domains）。
-   * 数据源里的封面是外链（如 B 站 i0.hdslb.com）时加进来，构建时会下载转成 WebP 自托管，顺带绕开防盗链。
+   * 品牌主色：靛蓝 #4f46e5（旧站 --vp-c-brand-1，用户定的，不得更改）。
+   * 用法见 src/styles/brand.css 与原型 brand.md：主按钮 #4338ca 实底；#4f46e5 只做链路签、下划线、圆点
    */
+  brandColor: '#4f46e5',
+  author: {
+    // 版权方与 crate 仓库 LICENSE 一致
+    name: '湛江市麻章区湖光镇若依科技工作室',
+    url: 'https://ai-profile.ruoyi.plus',
+  },
+  /** 页头标志图：旧站 docs/public/logo.svg 原文件（逐字节不动） */
+  logo: '/logo.svg',
+  /** 顶栏 5 项（文档是四列大下拉）+ 搜索 + GitHub + crates.io / docs.rs + 快速开始，1024 下挤，改 lg */
+  navBreakpoint: 'lg' as 'md' | 'lg',
+  /** 文档站三栏版心 90rem */
+  frameWidth: 'wide' as 'default' | 'wide',
+  /** 站点图标：旧站 head 第一条（SVG，现代浏览器） */
+  favicon: '/logo.svg',
+  /** 旧站 head 里的其余图标与 manifest，一组照搬（文件逐字节来自旧站 docs/public/） */
+  headLinks: [
+    { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+    { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+    { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+    { rel: 'manifest', href: '/site.webmanifest' },
+  ] as HeadLink[],
+  /** 默认分享图（public/ 下），1200×630，由 pnpm og 从 design/og/og-default.html 渲染 */
+  ogImage: '/og-default.png',
   imageDomains: [] as string[],
   analytics: {
+    // 旧站没有接统计
     provider: 'none' as AnalyticsProvider,
-    /** umami: website-id；baidu: hm.js 后面那串 id */
     id: '',
-    /** umami 自托管脚本地址，provider=umami 时必填 */
     src: '',
   },
+  // 照原型 _src/build.cjs 的页头：为什么 · 文档▾（入门 / API / 参考 / AI 辅助 四列 + 底栏）· 更新日志 · 产品矩阵 · 技术服务
   nav: [
-    { label: '首页', href: '/' },
-    { label: '关于', href: '/about/' },
+    { label: '为什么', href: '/#why', match: '/#why' },
+    {
+      label: '文档',
+      href: '/guide/introduction',
+      match: '/guide/|/api/|/reference/providers|/reference/errors|/reference/versioning|/reference/add-provider|/reference/spec|/public/',
+      drawerLast: true,
+      children: [
+        {
+          label: '入门',
+          href: '/guide/introduction',
+          children: [
+            { label: '这是什么', href: '/guide/introduction', desc: '边界与三条设计约定' },
+            { label: '安装与 feature', href: '/guide/installation', desc: 'chat · client · image · video · tts' },
+            { label: '快速开始', href: '/guide/quick-start', desc: '四步跑通一次真实验证' },
+            { label: 'Tauri 应用接入', href: '/guide/tauri-integration', desc: 'AppState · Command · 错误映射' },
+            { label: '前端对接', href: '/guide/frontend', desc: 'TypeScript 类型与按 code 给动作' },
+            { label: '已发布应用的接入迁移', href: '/guide/migration', desc: '冻结旧规则，存量地址修正' },
+          ],
+        },
+        {
+          label: 'API',
+          href: '/api/preset',
+          children: [
+            { label: '预置与服务商目录', href: '/api/preset', desc: 'preset_by_key · vendors' },
+            { label: '定制服务商目录', href: '/api/catalog', desc: 'PresetCatalog' },
+            { label: 'ai.profile 协议', href: '/api/protocol', desc: 'parse_profiles · to_profile' },
+            { label: '端点与模型清单', href: '/api/endpoint', desc: 'join_chat_endpoint' },
+            { label: '连通性验证', href: '/api/verify', desc: 'Verifier::verify' },
+            { label: '限额与历史裁剪', href: '/api/limits', desc: 'TokenLimits · trim_history' },
+            { label: '流式解码', href: '/api/stream', desc: 'StreamDecoder' },
+            { label: '生图、视频与配音', href: '/api/media', desc: 'media::{image, video, tts}' },
+          ],
+        },
+        {
+          label: '参考',
+          href: '/reference/providers',
+          children: [
+            { label: '服务商清单', href: '/reference/providers', desc: '31 家服务商 · 42 条预置' },
+            { label: '错误码对照', href: '/reference/errors', desc: 'VerifyError 变体与界面动作' },
+            { label: '更新日志', href: '/reference/changelog', desc: '最新 0.1.7 · 2026-10-08' },
+            { label: '版本策略', href: '/reference/versioning', desc: '什么改动算破坏性' },
+            { label: '加一家服务商', href: '/reference/add-provider', desc: '改本库，下游只升版本' },
+            { label: '规范与多语言实现', href: '/reference/spec', desc: 'presets.json · conformance 用例' },
+          ],
+        },
+        {
+          label: 'AI 辅助',
+          href: '/guide/ai-assisted',
+          children: [
+            { label: '用 AI 接入', href: '/guide/ai-assisted', desc: '提示词 · 接入技能 · 文档地址' },
+            { label: 'ai-profile-integration.md', href: '/ai/ai-profile-integration.md', desc: '给 AI 读的接入规则原文' },
+            { label: 'llms-full.txt', href: '/llms-full.txt', desc: '全文文档，让 AI 先读这个' },
+            { label: 'llms.txt', href: '/llms.txt', desc: '目录索引' },
+            { label: 'Context7', href: '/reference/spec#ai', desc: 'context7.json 收录的 12 条规则' },
+          ],
+        },
+      ],
+      footerLinks: [
+        { label: '按场景查找', href: '/guide/cookbook' },
+        { label: 'docs.rs 上的 API', href: 'https://docs.rs/ai-profile' },
+        { label: '规范文件 /spec/', href: '/reference/spec' },
+        { label: '可运行示例', href: 'https://github.com/bkywksj/ai-profile/tree/master/crates/ai-profile/examples' },
+      ],
+    },
+    { label: '更新日志', href: '/reference/changelog' },
+    { label: '产品矩阵', href: '/products' },
+    { label: '技术服务', href: '/services' },
   ] as NavItem[],
-  social: [{ label: 'GitHub', href: 'https://github.com/' }] as SocialLink[],
-  /** 页脚 social 那一栏的标题，留空 =「关注」（开源库的站写「社区」） */
-  socialTitle: '',
-  /**
-   * 页头右侧、主按钮之前的文字链接（开源库站的 crates.io、docs.rs、npm 这类入口）：桌面导航横排时显示，窄屏抽屉底部同样列出；
-   * 站外链接新窗口打开。不需要就留空
-   */
-  headerLinks: [] as NavItem[],
-  /** 备案号（国内服务器必填，显示在页脚；为空则不显示） */
+  /** 页脚「社区」一栏 + 页头 GitHub 图标（旧站 socialLinks 的 GitHub 指 crate 主仓库） */
+  social: [
+    { label: 'GitHub', href: 'https://github.com/bkywksj/ai-profile' },
+    { label: 'crates.io', href: 'https://crates.io/crates/ai-profile' },
+    { label: 'docs.rs', href: 'https://docs.rs/ai-profile' },
+    { label: 'B 站视频介绍', href: 'https://www.bilibili.com/video/BV1dhh16qEvE' },
+  ] as SocialLink[],
+  socialTitle: '社区',
+  /** 页头右侧文字链接：照原型（旧站 nav 里平铺的两个外链） */
+  headerLinks: [
+    { label: 'crates.io', href: 'https://crates.io/crates/ai-profile' },
+    { label: 'docs.rs', href: 'https://docs.rs/ai-profile' },
+  ] as NavItem[],
   icp: '',
-  /**
-   * <title> 后缀：每页是「页名 | 后缀」，留空用站名。
-   * 迁移旧站时填旧站的完整后缀（如「站名 — 一句话定位」），保住搜索结果里已收录的标题；站名本身仍用于页头 / 页脚 / og:site_name
-   */
-  titleSuffix: '',
-  /** 首页 <title>：留空用后缀（或站名）。旧站首页标题是一整句定位、已被收录时填那一句 */
-  homeTitle: '',
-  /** 全站 meta keywords；页面可用 keywords 参数整条替换。为空不输出 */
-  keywords: [] as string[],
-  /** 页头右侧主按钮（如「免费下载」）；null = 不显示 */
-  headerCta: null as NavItem | null,
-  /** 页脚链接分组；为空时退回一栏「站内」列出全部 nav */
-  footerGroups: [] as FooterGroup[],
-  /** 页脚底部说明行（公司 / 业务一句话，可带一个链接）；null = 不显示 */
-  footerNote: null as { text: string; link?: NavItem } | null,
-  /** 版权行署名；留空用 author.name */
-  copyrightName: '',
-  /** 联系方式，见 ContactInfo；null = 不显示任何联系入口 */
+  /** <title> 后缀：旧站每页是「页名 | ai-profile — AI 模型服务配置层」 */
+  titleSuffix: 'ai-profile — AI 模型服务配置层',
+  /** 首页 <title>：旧站首页就是这一句 */
+  homeTitle: 'ai-profile — AI 模型服务配置层',
+  /** 站点关键词：旧站 config.ts head 原值 */
+  keywords: [
+    'ai-profile', 'Rust crate', '模型服务', 'LLM 配置', 'provider 预置', 'ai.profile', 'OpenAI 兼容', 'Anthropic 协议',
+    'Tauri', '生图', '视频生成', '语音合成', 'DeepSeek', '智谱', '火山方舟', 'xAI',
+  ] as string[],
+  headerCta: { label: '快速开始', href: '/guide/quick-start' } as NavItem | null,
+  /** 页脚链接分组：照原型 文档 / API / 规范与 AI（社区一栏由 social 出） */
+  footerGroups: [
+    {
+      title: '文档',
+      items: [
+        { label: '快速开始', href: '/guide/quick-start' },
+        { label: '安装与 feature', href: '/guide/installation' },
+        { label: '按场景查找', href: '/guide/cookbook' },
+        { label: 'Tauri 应用接入', href: '/guide/tauri-integration' },
+        { label: '已发布应用的接入迁移', href: '/guide/migration' },
+      ],
+    },
+    {
+      title: 'API',
+      items: [
+        { label: '预置与服务商目录', href: '/api/preset' },
+        { label: 'ai.profile 协议', href: '/api/protocol' },
+        { label: '连通性验证', href: '/api/verify' },
+        { label: '流式解码', href: '/api/stream' },
+        { label: '生图、视频与配音', href: '/api/media' },
+      ],
+    },
+    {
+      title: '规范与 AI',
+      items: [
+        { label: '服务商清单', href: '/reference/providers' },
+        { label: '规范与多语言实现', href: '/reference/spec' },
+        { label: '/spec/presets.json', href: '/spec/presets.json' },
+        { label: 'ai-profile-integration.md', href: '/ai/ai-profile-integration.md' },
+        { label: 'llms-full.txt', href: '/llms-full.txt' },
+      ],
+    },
+  ] as FooterGroup[],
+  /** 页脚说明行：旧站 footer.message（MIT、欢迎 PR、QQ 交流群）+ 技术服务入口；文档站仓库不链（是否公开以后会变），问题与 PR 走 crate 主仓库 */
+  footerNote: {
+    text: 'MIT License · 问题与建议请到 crate 主仓库提 issue · QQ 交流群 1087715758 · ',
+    link: { label: '技术服务', href: '/services' },
+  } as { text: string; link?: NavItem } | null,
+  /** 版权行署名：与 crate 仓库 LICENSE 一致 */
+  copyrightName: '湛江市麻章区湖光镇若依科技工作室',
+  /** 开源库，不放咨询购买入口；联系方式在技术服务页 */
   contact: null as ContactInfo | null,
 };
 

@@ -1,0 +1,94 @@
+# ai-profile
+
+> AI 模型服务配置层（MIT 开源 Rust crate，crates.io: ai-profile）。一份预置、一个协议、一套验证 —— 多个桌面应用共用。模型 id 变了只改一处，各应用升级依赖即可拿到。
+
+## 它管什么
+
+- 服务商预置：31 家服务商、42 条预置（对话 25、生图 5、视频 8、配音 4），每条带 base_url、默认模型与候选清单、协议、专有字段、申请密钥页；数据随 crate 版本发布，同一份也以 JSON 发在 /spec/presets.json
+- ai.profile：跨应用的配置交换格式（粘贴导入 parse_profiles、分享 to_profile），宽进严出
+- 端点拼接：OpenAI 兼容地址原样使用、不替用户补 /v1（智谱是 /v4、Gemini 是 /v1beta/openai）；Anthropic 协议用 endpoint::join_chat_endpoint(base, "messages")
+- 零成本验证：Verifier 只打 /models，不花生成费用，失败返回结构化的 VerifyError（每个变体对应一个界面动作）
+- 对话辅助：TokenLimits（用户手填 > 端点上报 > 预置，逐字段叠加）、历史裁剪与上下文超长重试、流式解码 StreamDecoder（OpenAI 兼容 / Anthropic SSE → 统一事件，sans-IO）、关思考参数 thinking_off_params
+- 多模态调用：生图、视频、配音（media 模块，要开 client 与对应 feature）
+
+它不是对话 SDK：不替应用发起对话请求、不存密钥、不做任务编排。
+
+## 用法要点
+
+- 依赖：`ai-profile = { version = "0.1", features = [...] }`。默认 feature 只有 chat（纯数据 + 纯函数、零重依赖，能编到 Android / iOS）；验证加 client；生图 / 视频 / 配音再加 image / video / tts。最低 Rust 1.88
+- 公开枚举（VerifyError、ParseError、Kind、Protocol 等）都是 #[non_exhaustive]，match 要带 `_` 分支
+- ServiceConfig 只能用 builder 构造：ServiceConfig::new(protocol, base_url).with_api_key(..).with_model(..)
+- Verifier 建一次、存进全局状态反复用；要代理用 Verifier::from_builder(ai_profile::reqwest::Client::builder().proxy(..))
+- 应用私有的服务商用 PresetCatalog 叠在本库预置上，不要把预置整份抄进应用
+
+## 非 Rust 实现
+
+预置数据读 https://ai-profile.ruoyi.plus/spec/v<版本>/presets.json，规则按同目录 conformance/*.json 的用例实现并全部跑通；不许改用例迁就实现。版本清单见 /spec/versions.json。
+
+## 谁在用
+
+同一作者的 7 个桌面应用：Sigil、Reeve、本地知识库、OneStop、StoryLoom、Prism、AI 标书工作站（全部引用 0.1.7）。
+
+## 出品方
+
+湛江市麻章区湖光镇若依科技工作室，MIT License。源码与 issue：https://github.com/bkywksj/ai-profile ；API 参考：https://docs.rs/ai-profile 。
+
+最后更新：2026-11-04（crate 0.1.7）
+
+## 页面索引（自动生成）
+
+### 入门
+
+- [这是什么](https://ai-profile.ruoyi.plus/guide/introduction)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [安装与 feature](https://ai-profile.ruoyi.plus/guide/installation)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [快速开始](https://ai-profile.ruoyi.plus/guide/quick-start)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [按场景查找](https://ai-profile.ruoyi.plus/guide/cookbook)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [用 AI 接入](https://ai-profile.ruoyi.plus/guide/ai-assisted)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+
+### 接入实战
+
+- [Tauri 应用接入](https://ai-profile.ruoyi.plus/guide/tauri-integration)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [前端对接](https://ai-profile.ruoyi.plus/guide/frontend)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [已发布应用的接入迁移](https://ai-profile.ruoyi.plus/guide/migration)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+
+### API · 服务商目录
+
+- [预置与服务商目录](https://ai-profile.ruoyi.plus/api/preset)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [定制服务商目录](https://ai-profile.ruoyi.plus/api/catalog)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+
+### API · 配置与连接
+
+- [ai.profile 协议](https://ai-profile.ruoyi.plus/api/protocol)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [端点与模型清单](https://ai-profile.ruoyi.plus/api/endpoint)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [连通性验证](https://ai-profile.ruoyi.plus/api/verify)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+
+### API · 对话辅助
+
+- [限额：窗口与输出上限](https://ai-profile.ruoyi.plus/api/limits)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [历史裁剪与超长重试](https://ai-profile.ruoyi.plus/api/history)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [流式解码](https://ai-profile.ruoyi.plus/api/stream)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+
+### API · 多模态调用
+
+- [生图、视频与配音](https://ai-profile.ruoyi.plus/api/media)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+
+### 参考
+
+- [服务商清单](https://ai-profile.ruoyi.plus/reference/providers)：ai-profile 内置的全部服务商预置：每条的 key、能力、Base URL、默认模型与候选数、协议与最终端点、关…
+- [错误码对照](https://ai-profile.ruoyi.plus/reference/errors)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [更新日志](https://ai-profile.ruoyi.plus/reference/changelog)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [版本策略](https://ai-profile.ruoyi.plus/reference/versioning)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [加一家服务商](https://ai-profile.ruoyi.plus/reference/add-provider)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+- [规范与多语言实现](https://ai-profile.ruoyi.plus/reference/spec)：ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音…
+
+### 其他页面与文件
+
+- [给 AI 读的接入规则](https://ai-profile.ruoyi.plus/ai/ai-profile-integration.md)：ai-profile-integration.md 原文：接入时必须遵守的规则，可直接放进项目技能目录
+- [全文文档](https://ai-profile.ruoyi.plus/llms-full.txt)：全部文档页正文拼成一份，给 AI 编程助手一次读完
+- [规范文件](https://ai-profile.ruoyi.plus/spec/versions.json)：presets.json 与 conformance 用例的版本清单；其他语言实现按 /spec/v<版本>/ 读
+- [技术服务](https://ai-profile.ruoyi.plus/services)：把你的应用接进 ai-profile、桌面应用与大模型应用定制开发
+- [产品矩阵](https://ai-profile.ruoyi.plus/products)：同一作者的产品，其中 7 款内置了 ai-profile
+
+## 完整索引
+
+- [sitemap.xml](https://ai-profile.ruoyi.plus/sitemap.xml)：全部页面的完整清单

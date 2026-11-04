@@ -10,11 +10,11 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build && pagefind --site dist",
+    "build": "node scripts/build-icons.mjs && node scripts/build-llms.mjs && astro check && astro build && pagefind --site dist && node scripts/build-llms-full.mjs",
     "cache:clear": "node -e \"for (const d of ['.astro', 'node_modules/.astro']) require('fs').rmSync(d, { recursive: true, force: true })\"",
-    "build:fast": "astro build && pagefind --site dist",
+    "build:fast": "node scripts/build-icons.mjs && node scripts/build-llms.mjs && astro build && pagefind --site dist && node scripts/build-llms-full.mjs",
     "preview": "astro preview",
-    "check": "astro check",
+    "check": "astro check && node scripts/check-facts.mjs && node scripts/check-links.mjs",
     "sync": "node scripts/sync/run.mjs",
     "check:seo": "node scripts/check-seo.mjs",
     "og": "node scripts/render-og.mjs",
@@ -27,7 +27,11 @@
     "icons": "node scripts/build-icons.mjs",
     "llms": "node scripts/build-llms.mjs",
     "indexnow": "node scripts/indexnow.mjs",
-    "check:anchors": "node scripts/check-anchors.mjs"
+    "check:anchors": "node scripts/check-anchors.mjs",
+    "sync-providers": "node scripts/sync-providers.mjs ../ai-profile",
+    "sync-spec": "node scripts/sync-spec.mjs ../ai-profile public/spec",
+    "check:facts": "node scripts/check-facts.mjs",
+    "check:links": "node scripts/check-links.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.1.2",

@@ -1,0 +1,6 @@
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="RuoYi-Plus-UniApp">
+  <!-- 与矩阵里其他产品同规格：120 画布、104 圆角方块（rx 26）、两色渐变底 + 白色单字形，小尺寸也认得出 -->
+  <defs><linearGradient id="ryBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34C38F"/><stop offset="1" stop-color="#0E8A63"/></linearGradient></defs>
+  <rect x="8" y="8" width="104" height="104" rx="26" fill="url(#ryBg)"/>
+  <path fill="#fff" fill-rule="evenodd" d="M38 30h27a19 19 0 0 1 6.5 36.85L86 90H70.5L58.6 69H52v21H38zM52 42v15h12a7.5 7.5 0 0 0 0-15z"/>
+</svg>
