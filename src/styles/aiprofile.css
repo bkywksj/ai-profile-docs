@@ -59,8 +59,8 @@
 .ap input { font: inherit; color: inherit; }
 .ap code, .ap kbd, .ap pre, .ap .mono { font-family: var(--ap-mono); }
 /* 0 特异度复位：不能压过下面的相邻间距规则（:where 也是 0，后写者胜） */
-.ap :where(h1, h2, h3, h4, h5, p, ul, ol, dl, dd, table, pre, figure, blockquote):not(.vp-doc *) { margin: 0; }
-.ap ul:not(.vp-doc *), .ap ol:not(.vp-doc *) { padding-left: 1.3em; }
+.ap :where(h1, h2, h3, h4, h5, p, ul, ol, dl, dd, table, pre, figure, blockquote):where(:not(.vp-doc *)) { margin: 0; }
+.ap ul:where(:not(.vp-doc *)), .ap ol:where(:not(.vp-doc *)) { padding-left: 1.3em; }
 .ap :focus-visible { outline: 2px solid var(--ap-brand-3); outline-offset: 2px; border-radius: 4px; }
 .ap .ico { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 .ap .ico.sm { width: 15px; height: 15px; }
@@ -910,3 +910,4 @@
 .ap .others-more { margin-top: 16px; font-size: 13.5px; color: var(--ap-ink-3); }
 .ap .others-more .sep { margin: 0 8px; color: var(--ap-line-2); }
 .ap .prod .foot { flex-wrap: wrap; }
+.ap.cl-bar .tag { height: auto; min-height: 24px; padding: 3px 9px; white-space: normal; line-height: 1.6; }

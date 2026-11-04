@@ -158,9 +158,12 @@ header [class~='hover:bg-brand/[.06]']:hover {
   background: rgba(255, 255, 255, 0.07);
   box-shadow: none;
 }
-/* 代码组页签：选中项墨色 */
+/* 代码组页签（深色代码窗上）：未选中用原型代码窗的暗字 #9a9ca5，选中白字（框架默认 #8b98ad 带蓝，属于白名单外的颜色） */
+.vp-doc .vp-cg-tabs label {
+  color: #9a9ca5;
+}
 .vp-doc .vp-cg-tabs input:checked + label {
-  color: var(--ink);
+  color: #ffffff;
 }
 
 /* ---------- 文档侧栏：选中项品牌浅底 + #4338ca 字（原型 .side a.on） ---------- */
@@ -169,4 +172,11 @@ header [class~='hover:bg-brand/[.06]']:hover {
   color: var(--brand-ink);
   font-weight: 600;
   box-shadow: none;
+}
+
+/* ---------- 中文正文避免末行孤字：浏览器按整段平衡折行（原型 p, li, dd { text-wrap: pretty }；复审遗留 changelog / spec 的孤字） ---------- */
+.vp-doc p,
+.vp-doc li,
+.vp-doc dd {
+  text-wrap: pretty;
 }

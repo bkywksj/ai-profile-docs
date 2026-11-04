@@ -234,7 +234,7 @@ const demo = [...vendors].sort((a, b) => b.kinds.length - a.kinds.length).slice(
       $('#pv-empty')!.classList.toggle('show', !shown.length);
       for (const x of $$('.pv-desk')) x.style.visibility = shown.length ? '' : 'hidden';
     };
-    const kinds = $$<HTMLButtonElement>('[data-kind]');
+    const kinds = $$<HTMLButtonElement>('#pv .seg button[data-kind]');
     kinds.forEach((b) =>
       b.addEventListener('click', () => {
         st.kind = b.dataset.kind!;
