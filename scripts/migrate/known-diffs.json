@@ -22,7 +22,7 @@
       "reason": "「其他语言实现」改名「规范与多语言实现」（用户定的，title 与 h1 一起改）；下载与「最新版与固定版本」两节换成可切版本的地址框与用例文件表（构建期取自 /spec），并新增「给 AI 读的文件」一节；limits 示例按源码补两个来源字段"
     },
     "reference/changelog.html": {
-      "reason": "0.1.6、0.1.4 的日期改为 crate CHANGELOG.md 的 2026-10-01、2026-09-30（用户定的以 CHANGELOG 为准，标题锚点随之变化）；页首加类型筛选；链接文字改「规范与多语言实现」"
+      "reason": "0.1.6 的日期改为 crate CHANGELOG.md 的 2026-10-01（旧站写 10-02）；0.1.4 保持 crates.io 发布日 2026-10-01，CHANGELOG 原写 09-30 已同步改正（用户 2026-11-04 定：版本日期写发布日）"
     },
     "guide/quick-start.html": {
       "reason": "按原型 quickstart.html 补页首链路签、「环境与依赖」与「完整示例」（代码组 + 运行结果）；按源码修正：check_required_fields 示例改用真实预置 volc_tts、Ollama 输出名称、ModelNotFound 标为预留变体"

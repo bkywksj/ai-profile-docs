@@ -16,7 +16,7 @@
 | 验证：总超时 20 秒、连接 10 秒、禁重定向 | `src/client/mod.rs:147、204-207` |
 | `TokenLimits` 0.1.3 起带 `context_window_source` / `max_output_source` | `src/limits.rs:104-115` |
 | `cargo xtask probe` 探所有非本地、写了地址的预置（当前 32 条） | `xtask/src/main.rs:83-88` |
-| 版本日期以 CHANGELOG.md 为准：0.1.6 = 2026-10-01、0.1.4 = 2026-09-30 | `CHANGELOG.md:35、76` |
+| 版本日期以 CHANGELOG.md 为准：0.1.6 = 2026-10-01、0.1.4 = 2026-10-01（crates.io 发布日；CHANGELOG 原写 09-30，已一并改正） | `CHANGELOG.md:35、76` |
 
 ## 逐页修订
 
@@ -69,9 +69,9 @@ api/catalog、api/limits、guide/cookbook、guide/tauri-integration、guide/migr
 纳入：api 的 preset / catalog / protocol / endpoint / limits / history / stream / media，guide 的 installation / tauri-integration（去掉 Tauri 宏）/ migration / quick-start（含页首完整示例、volc_tts 必填检查）、api/verify 的示例。
 未纳入（故意的片段或伪代码）：版本兼容的 `if env.v > …`、`join_all` 并发片段、tauri command 本体、`default_extra` 数组元素片段。
 
-## 待用户定 / 拿不准
+## 用户已定（2026-11-04，按建议）
 
-1. 0.1.4 的日期：已按用户口径改为 CHANGELOG 的 2026-09-30；crates.io 发布与 downstream.md 记的是 2026-10-01（tag 当天）。如需写发布日，两处要一起改
-2. 0.1.0 一节「六个结构化错误」与 crate CHANGELOG 原文一致（变体实际 7 个，第 7 个 Malformed 是兜底），与别页「七个变体」口径不一，未改
-3. introduction「谁在用」各家「用到的部分」是按 downstream.md 归纳的，措辞可再定
+1. 0.1.4 的日期：写 crates.io 发布日 2026-10-01；crate CHANGELOG 原写 09-30，已一并改正（crate 仓库提交）
+2. 0.1.0 一节「六个结构化错误」保留：那是 0.1.0 当时的事实（第 7 个 Malformed 后来才加），历史版本说明不回改
+3. introduction「谁在用」各家「用到的部分」按 downstream.md 归纳的措辞，用户认可
 4. 原型里的「这篇有帮助吗」反馈按钮与文档页右栏的小卡（让 AI 带你接等）没做：右栏用框架的目录（≥1536 宽显示），页底改为「这一页有错漏？在 crate 仓库提 issue」
