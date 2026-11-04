@@ -1,0 +1,24 @@
+{
+  "framework": "next-ai-astro",
+  "upstream": {
+    "url": "E:/my/AI框架/next-ai-astro",
+    "branch": "master",
+    "initCommit": "3bb744bcd579dc2bd31aa22e42080051021ba621",
+    "initDate": "2026-11-04T16:52:00+08:00"
+  },
+  "site": {
+    "name": "ai-profile",
+    "url": "https://ai-profile.ruoyi.plus",
+    "brandColor": "#4f46e5"
+  },
+  "strippedModules": [
+    "examples",
+    "posts",
+    "works",
+    "faq",
+    "guides"
+  ],
+  "lastSync": null,
+  "lastCommit": "3bb744bcd579dc2bd31aa22e42080051021ba621",
+  "syncs": []
+}

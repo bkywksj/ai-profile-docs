@@ -2,7 +2,6 @@
 import { existsSync } from 'node:fs';
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
-import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { unified } from '@astrojs/markdown-remark';
 import { satteri } from '@astrojs/markdown-satteri';
@@ -87,8 +86,6 @@ export default defineConfig({
   compressHTML: true,
   integrations: [
     react(),
-    // 使用指南（guides 集合）用 MDX：正文里嵌 Steps / Callout / Screenshot 等文档组件
-    mdx(),
     sitemap(withDocsSitemap(sitemapOptions)), // docs 模块：过期页 / 预览页不进站点地图，补 lastmod 与 priority 分档
   ],
   image: {
@@ -96,18 +93,5 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
-    build: {
-      rolldownOptions: {
-        // 每篇 MDX 一条 MODULE_LEVEL_DIRECTIVE：来自 Astro 自己生成的内容代理模块里的
-        // "use astro:head-inject"（astro/dist/content/vite-plugin-content-assets.js）。
-        // 7.3.x 里没有任何地方读这个字符串，样式上提靠模块元数据 propagation 与 __astroPropagation，
-        // 打包时丢掉它不影响结果。只按「代码 + 这条指令」精确放过，别的指令告警照常报
-        onwarn(warning, warn) {
-          if (warning.code === 'MODULE_LEVEL_DIRECTIVE' && warning.message.includes('astro:head-inject'))
-            return;
-          warn(warning);
-        },
-      },
-    },
   },
 });

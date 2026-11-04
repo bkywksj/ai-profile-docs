@@ -142,9 +142,6 @@ export const site = {
   },
   nav: [
     { label: '首页', href: '/' },
-    { label: '作品', href: '/works/' },
-    { label: '文章', href: '/posts/' },
-    { label: '指南', href: '/guide/' },
     { label: '关于', href: '/about/' },
   ] as NavItem[],
   social: [{ label: 'GitHub', href: 'https://github.com/' }] as SocialLink[],
