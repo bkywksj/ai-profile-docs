@@ -1,0 +1,18 @@
+{
+  "Ok": {
+    "icon": "lucide:circle-check",
+    "class": "imark imark-ok"
+  },
+  "No": {
+    "icon": "lucide:circle-x",
+    "class": "imark imark-no"
+  },
+  "Warn": {
+    "icon": "lucide:triangle-alert",
+    "class": "imark imark-warn"
+  },
+  "Ask": {
+    "icon": "lucide:circle-help",
+    "class": "imark imark-ask"
+  }
+}

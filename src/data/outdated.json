@@ -1,0 +1,4 @@
+{
+  "说明": "内容与当前代码不符的旧页：网址保留，DocsLayout 在正文上方显示提示条并输出 noindex，sitemap、llms.txt 与 IndexNow 都跳过。格式：页面 id → { missing: 代码里查不到的写法, see: [{ text, href }] 以哪页为准 }",
+  "pages": {}
+}

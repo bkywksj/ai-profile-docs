@@ -1,0 +1,71 @@
+---
+// 文章详情：Markdown 正文 + Article 结构化数据
+// [...id] 而不是 [id]：glob loader 的 id 可能带子目录（posts/2026/xxx.md → 2026/xxx）
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import { render } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
+import Badge from '@/components/ui/Badge.astro';
+import { articleJsonLd, breadcrumbJsonLd, type Crumb } from '@/lib/seo';
+import { formatDate, isoDate } from '@/lib/format';
+import { getPosts, postPath } from '@/lib/posts';
+
+export const getStaticPaths = (async () => {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { post } = Astro.props as Props;
+const { Content } = await render(post);
+const path = postPath(post.id);
+const crumbs: Crumb[] = [
+  { name: '首页', path: '/' },
+  { name: '全部文章', path: '/posts/' },
+  { name: post.data.title, path },
+];
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  type="article"
+  publishedTime={post.data.date}
+  modifiedTime={post.data.updated}
+  jsonLd={[
+    breadcrumbJsonLd(crumbs),
+    articleJsonLd({
+      title: post.data.title,
+      description: post.data.description,
+      path,
+      datePublished: post.data.date,
+      dateModified: post.data.updated,
+    }),
+  ]}
+>
+  <Container size="narrow" class="py-10 sm:py-14">
+    <Breadcrumbs crumbs={crumbs} />
+    <article class="mt-8">
+      <header class="mb-10 space-y-4 border-b border-line pb-8">
+        <h1 class="text-3xl leading-tight font-semibold tracking-tight text-pretty sm:text-4xl">
+          {post.data.title}
+        </h1>
+        <p class="text-lg leading-8 text-muted">{post.data.description}</p>
+        <div class="flex flex-wrap items-center gap-3 text-sm text-muted">
+          <time datetime={isoDate(post.data.date)}>发布于 {formatDate(post.data.date)}</time>
+          {post.data.updated && (
+            <time datetime={isoDate(post.data.updated)}>更新于 {formatDate(post.data.updated)}</time>
+          )}
+          {post.data.tags.map((tag) => (
+            <Badge>#{tag}</Badge>
+          ))}
+        </div>
+      </header>
+      <div class="prose-content">
+        <Content />
+      </div>
+    </article>
+  </Container>
+</BaseLayout>

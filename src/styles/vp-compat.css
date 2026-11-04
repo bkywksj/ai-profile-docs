@@ -1,0 +1,182 @@
+/* 文档正文的 VitePress 兼容外观：::: 容器、状态标记、代码行号、等宽连字。只作用于文档正文容器（.prose-content / .vp-doc），不影响站点其余页面。
+   颜色走语义令牌；状态标记的绿 / 红 / 琥珀照 VitePress 默认主题，深色模式各自提亮 */
+
+@layer theme, base, components, utilities, docs;
+/* 与 docs 模块的样式同在 docs 层：同层之内照旧按选择器优先级与先后决定（分两层时 docs 整体压过它，行号颜色等几处胜负翻了——ruoyi.plus 同步时截图比对发现）；
+   项目样式与 brand.css 不进层，永远压过这里，不看拆包后的加载顺序 */
+@layer docs {
+/* 旧站正文里手写的 VitePress 主题变量（内联 style、页内 <style>：联系卡、产品矩阵、视频列表等）→ 本站令牌。
+   不定义的话这些变量全是未定义：border 整条声明失效（卡片边框、底色消失），文字色退回继承，迁移后看着「卡片没了、层次没了」。
+   只列各站正文实际用到的几个（2026-11-03 六站统计），按 VitePress 原语义对应 */
+:where(.prose-content, .vp-doc) {
+  --vp-c-text-1: var(--ink);
+  --vp-c-text-2: var(--muted);
+  --vp-c-text-3: color-mix(in oklab, var(--muted) 75%, var(--canvas));
+  --vp-c-divider: var(--line);
+  --vp-c-brand-1: var(--brand-ink, var(--brand));
+  --vp-c-brand-soft: var(--color-brand-soft);
+  --vp-c-bg: var(--canvas);
+  --vp-c-bg-alt: var(--surface);
+  --vp-c-bg-soft: var(--surface);
+}
+/* ::: tip / info / warning / danger / details（remarkVpContainers 输出） */
+:where(.prose-content, .vp-doc) .vp-callout {
+  border-left: 4px solid var(--brand);
+  background: var(--color-brand-soft);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+:where(.prose-content, .vp-doc) .vp-callout > * + * {
+  margin-top: 0.6em;
+}
+:where(.prose-content, .vp-doc) .vp-callout-title {
+  font-weight: 600;
+}
+:where(.prose-content, .vp-doc) .vp-callout-warning {
+  border-color: var(--accent);
+  background: var(--color-accent-soft);
+}
+:where(.prose-content, .vp-doc) .vp-callout-danger {
+  border-color: var(--danger);
+  background: var(--color-danger-soft);
+}
+:where(.prose-content, .vp-doc) .vp-callout-info {
+  border-color: var(--line-strong, var(--line));
+  background: var(--surface);
+}
+:where(.prose-content, .vp-doc) details.vp-callout-details > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* 状态标记与行内图标（remarkVpMarks 生成的内联 SVG） */
+:where(.prose-content, .vp-doc) svg.iconify {
+  display: inline-block;
+  vertical-align: -0.14em;
+}
+:where(.prose-content, .vp-doc) .imark {
+  width: 1.1em;
+  height: 1.1em;
+}
+:where(.prose-content, .vp-doc) .imark-ok {
+  color: #18794e;
+}
+:where(.prose-content, .vp-doc) .imark-no {
+  color: #b8272c;
+}
+:where(.prose-content, .vp-doc) .imark-warn {
+  color: #915930;
+}
+:where(.prose-content, .vp-doc) .imark-ask {
+  color: var(--brand);
+}
+:root.dark :where(.prose-content, .vp-doc) .imark-ok {
+  color: #3dd68c;
+}
+:root.dark :where(.prose-content, .vp-doc) .imark-no {
+  color: #f66f81;
+}
+:root.dark :where(.prose-content, .vp-doc) .imark-warn {
+  color: #f9b44e;
+}
+
+/* 关掉等宽字体的连字：--> 会被画成长箭头、!= 画成 ≠，读者照抄时以为是别的字符（字符本身没变） */
+:where(.prose-content, .vp-doc) :where(pre, code) {
+  font-variant-ligatures: none;
+}
+
+/* 代码行号（site.codeLineNumbers）：CSS 计数器画，不进复制内容、不进迁移比对 */
+.code-line-numbers pre.astro-code > code {
+  counter-reset: line;
+  display: grid;
+}
+.code-line-numbers pre.astro-code > code > .line::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 2.25rem;
+  margin-right: 1rem;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+
+/* VitePress 内置 <Badge>（vue-components.mjs 转成 span.VPBadge）：标题旁的小标签，配色走语气令牌，品牌站可在 brand.css 覆盖 */
+.vp-doc .VPBadge {
+  display: inline-block;
+  margin-left: 2px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 0 10px;
+  line-height: 22px;
+  font-size: 12px;
+  font-weight: 500;
+  vertical-align: middle;
+  transform: translateY(-2px);
+}
+.vp-doc h1 .VPBadge,
+.vp-doc h2 .VPBadge {
+  transform: translateY(-4px);
+}
+.vp-doc .VPBadge.tip {
+  background: color-mix(in srgb, var(--brand) 14%, transparent);
+  color: var(--ink);
+}
+.vp-doc .VPBadge.info {
+  background: var(--surface);
+  color: var(--muted);
+}
+.vp-doc .VPBadge.warning {
+  background: color-mix(in srgb, var(--color-accent, #b45309) 14%, transparent);
+  color: var(--ink);
+}
+.vp-doc .VPBadge.danger {
+  background: color-mix(in srgb, var(--color-danger, #dc2626) 14%, transparent);
+  color: var(--ink);
+}
+}
+
+/* 旧站 BilibiliVideo（vue-components.mjs 的 bilibiliVideo）：标题 + 说明 + 16:9 懒加载播放器 + 兜底链接 */
+.vc-bili {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+}
+.vc-bili-head { margin-bottom: 0.75rem; }
+.vc-bili .vc-bili-title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.vc-bili .vc-bili-desc { margin: 0.25rem 0 0; font-size: 0.875rem; line-height: 1.6; color: var(--muted); }
+/* 16:9：aspect-ratio 撑比例，iframe 铺满 */
+.vc-bili-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background: #000;
+}
+.vc-bili-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.vc-bili-foot { margin-top: 0.625rem; text-align: right; }
+.vc-bili-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-brand-ink, var(--brand));
+  text-decoration: none;
+}
+.vc-bili-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.vc-bili-icon { font-size: 0.7rem; }
+@media (max-width: 640px) {
+  .vc-bili { padding: 0.75rem; }
+}

@@ -1,0 +1,264 @@
+---
+// docs 模块的文档页布局：左侧栏 / 正文（上方一行面包屑）/ 右「页面导航」或手机实时预览，外壳是 BaseLayout。
+// 版心 90rem（文档代码块多，正文需要宽度）；侧栏与目录的吸顶位置 = 起始位置，滚动时一动不动（见下方 aside 注释）。
+// 站点相关的值（TechArticle 字段、编辑链接、FAQ 页、最后更新）都读 src/data/docs.json，本文件在各站逐字节相同。
+// 栏目首页（x/index）可在正文上方加首屏大图：docs.json 的 sectionHero 为 true 且项目提供 src/components/docs/SectionHero.astro
+import type { MarkdownHeading } from 'astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SidebarTree from '@/components/docs/SidebarTree.astro';
+import DocsToc from '@/components/docs/DocsToc.astro';
+import DocsPhonePreview from '@/components/docs/DocsPhonePreview.astro';
+import ImageViewer from '@/components/docs/ImageViewer.astro';
+import ContactDialog from '@/components/docs/ContactDialog.astro';
+import { absoluteUrl, type JsonLd } from '@/lib/seo';
+import { isoDate } from '@/lib/lastmod';
+import { SECTION_LABELS, docPath, prevNextOf, sectionHref, sectionOf, sidebarOf, sidebarTrailOf } from '@/lib/docs';
+import { docsConfig } from '@/lib/docs-config';
+import { site } from '@/site.config';
+import { siteJsonLd, faqJsonLd } from '@/lib/site-jsonld';
+import titleQualifiers from '@/data/title-qualifiers.json';
+import outdated from '@/data/outdated.json';
+import '@/styles/vp-compat.css';
+import '@/styles/docs-theme.css';
+import '@/styles/docs-content.css';
+// 品牌样式最后引入：各站的配色、首屏底、要不要渐变都在这里覆盖（项目文件，框架同步不覆盖）
+import '@/styles/brand.css';
+
+// 栏目首页大图是项目自己的组件（各站首屏内容不同），没有这个文件时 glob 为空、不渲染
+const heroModules = import.meta.glob<{ default: (props: { section: string }) => unknown }>('/src/components/docs/SectionHero.astro', { eager: true });
+const SectionHero = Object.values(heroModules)[0]?.default;
+
+interface Props {
+  id: string;
+  title: string;
+  description: string;
+  /** 最后更新日期（frontmatter lastUpdated）：正文末尾「最后更新」与 TechArticle.dateModified，与 sitemap lastmod 同源；docs.json 的 lastUpdated 为 off 时不显示 */
+  lastUpdated?: Date;
+  /** 本页 meta keywords（frontmatter keywords），不传用全站的 */
+  keywords?: string;
+  headings: MarkdownHeading[];
+  iframe?: boolean;
+  url?: string;
+  aside?: boolean;
+}
+
+const { id, title, description, lastUpdated, keywords, headings, iframe = false, url, aside = true } = Astro.props;
+const updated = docsConfig.lastUpdated !== 'off' && lastUpdated ? isoDate(lastUpdated) : undefined;
+const section = sectionOf(id);
+const sidebar = section ? sidebarOf(section) : [];
+const { prev, next } = prevNextOf(id);
+const isSectionHome = !!section && id === `${section}/index`;
+const showHero = isSectionHome && docsConfig.sectionHero && !!SectionHero;
+const editUrl = docsConfig.editUrl ? docsConfig.editUrl.replace('{id}', id) : '';
+const showPreview = iframe && url;
+const current = docPath(id);
+// 侧栏分组名与栏目名相同时（「入门」分组就在「入门」栏目里）不重复显示：面包屑是「入门 › 快速开始」而不是「入门 › 入门 › 快速开始」
+const trail = sidebarTrailOf(id).filter((t) => !section || t !== SECTION_LABELS[section]);
+// 正文自己已经给二级标题编了号（「一、」「1.」「第一章」）就不再叠 CSS 编号，免得出现「01 一、」
+const selfNumbered = headings.some((h) => h.depth === 2 && /^(\d+[.、．\s]|[一二三四五六七八九十]+[、.．]|第[一二三四五六七八九十\d]+)/.test(h.text));
+// 页面 <title> 重名时只在 <title> 里加区分名（src/data/title-qualifiers.json，页面 id → 区分名），正文 h1 与结构化数据标题不变
+const qualifier = (titleQualifiers as Record<string, string>)[id];
+const pageTitle = qualifier ? `${title} · ${qualifier}` : title;
+const techArticle: JsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: title,
+  ...(description ? { description } : {}),
+  url: absoluteUrl(docPath(id)),
+  ...(updated ? { dateModified: updated } : {}),
+  inLanguage: site.locale,
+  isPartOf: { '@type': 'WebSite', name: site.name, url: site.url },
+  // about / author / publisher 照旧站 transformPageData（docs.json 的 article）：帮 AI 把这些页面关联到产品上
+  about: docsConfig.article.about,
+  proficiencyLevel: docsConfig.article.proficiencyLevel,
+  author: docsConfig.article.author ?? { '@type': 'Organization', name: site.author.name, url: site.url },
+  ...(docsConfig.article.publisher ? { publisher: docsConfig.article.publisher } : {}),
+};
+// 内容与当前代码不符的旧页：网址保留，正文上方提示「以哪页为准」，并且不让搜索引擎收录（sitemap 同样排除，见 astro.config）
+const stale = (outdated.pages as Record<string, { missing: string; see: { text: string; href: string }[] }>)[id];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={description}
+  keywords={keywords}
+  type="article"
+  noindex={!!stale}
+  jsonLd={[...siteJsonLd, techArticle, ...(faqJsonLd && id === docsConfig.faqPage ? [faqJsonLd] : [])]}
+>
+  {SectionHero && showHero && <SectionHero section={section} />}
+  <div class:list={['mx-auto w-full max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8 lg:py-10', site.codeLineNumbers && 'code-line-numbers']}>
+    <div
+      class:list={[
+        'grid gap-10 lg:grid-cols-[16.5rem_minmax(0,1fr)]',
+        showPreview ? 'xl:grid-cols-[16.5rem_minmax(0,1fr)_22.5rem]' : aside && '2xl:grid-cols-[16.5rem_minmax(0,1fr)_14rem]',
+      ]}
+    >
+      {
+        sidebar.length > 0 && (
+          <aside class="hidden lg:block">
+            {/* 吸顶位置 = 起始位置（页头 4rem + 底边线 1px + 内容区上内边距 2.5rem）：滚动时侧栏从第一下起不动；overscroll-contain：侧栏里滚到底不带着整页滚 */}
+            <div class="ry-sidebar sticky top-[calc(4rem+1px+2.5rem)] max-h-[calc(100vh-4rem-1px-2.5rem-1rem)] overflow-y-auto overscroll-contain pr-2 pb-6 text-[13.5px]">
+              <SidebarTree items={sidebar} current={current} />
+            </div>
+          </aside>
+        )
+      }
+
+      <div class:list={['min-w-0', sidebar.length === 0 && 'lg:col-span-2']}>
+        {
+          sidebar.length > 0 && (
+            <details class="ry-card mb-6 !rounded-2xl text-sm lg:hidden">
+              <summary class="cursor-pointer px-4 py-3 font-semibold">本栏目菜单</summary>
+              <div class="ry-sidebar border-t border-line px-2 py-4">
+                <SidebarTree items={sidebar} current={current} />
+              </div>
+            </details>
+          )
+        }
+        {
+          stale && (
+            <aside
+              role="note"
+              class="mx-auto mb-8 max-w-[50rem] rounded-2xl border border-accent/30 bg-accent-soft px-5 py-4 text-[14.5px] leading-7"
+              data-pagefind-ignore
+            >
+              <p class="font-bold text-ink">本页内容早于当前代码，部分写法已不存在</p>
+              <p class="mt-1 text-muted">核对时代码里查不到：{stale.missing}。</p>
+              <p class="mt-1 text-muted">
+                请以
+                {stale.see.map((l, i) => (
+                  <>
+                    {i > 0 && '、'}
+                    <a href={l.href} class="font-semibold text-brand-ink underline underline-offset-4">
+                      {l.text}
+                    </a>
+                  </>
+                ))}
+                为准。
+              </p>
+            </aside>
+          )
+        }
+        {
+          // 面包屑：正文标题上方一行小字，随正文滚动（原先是页头下方整条横带，一滚动就被卷走、还把侧栏往下推，2026-11-02 改）；
+          // 栏目首页有首屏大图时大图里已经写了栏目名，不再重复
+          section && !showHero && (
+            <nav aria-label="所在位置" class="mx-auto mb-3 max-w-[50rem] text-[13px] text-muted" data-pagefind-ignore>
+              <ol class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <li>
+                  <a href={sectionHref(section)} class="hover:text-ink">
+                    {SECTION_LABELS[section]}
+                  </a>
+                </li>
+                {trail.map((t) => (
+                  <li class="flex items-center gap-2">
+                    <span class="text-muted/50" aria-hidden="true">›</span>
+                    {t}
+                  </li>
+                ))}
+                <li class="flex items-center gap-2 text-ink" aria-current="page">
+                  <span class="text-muted/50" aria-hidden="true">›</span>
+                  {title}
+                </li>
+              </ol>
+            </nav>
+          )
+        }
+        <article class:list={['prose-content vp-doc mx-auto max-w-[50rem]', !selfNumbered && 'h2-num']} data-pagefind-body>
+          <slot />
+        </article>
+        <div class="mx-auto max-w-[50rem]">
+          {
+            // 旧站（VitePress lastUpdated）每篇文档末尾都有这一行；不进站内搜索索引
+            updated && (
+              <p class="mt-12 text-right text-[13px] text-muted" data-pagefind-ignore>
+                最后更新：<time datetime={updated} data-last-updated>{updated}</time>
+              </p>
+            )
+          }
+          {
+            (prev || next) && (
+              <nav aria-label="上一篇与下一篇" class:list={['not-prose grid gap-3 text-sm sm:grid-cols-2', updated ? 'mt-4' : 'mt-14']}>
+                {prev?.href ? (
+                  <a href={prev.href} rel="prev" class="ry-card ry-lift group block !rounded-2xl px-5 py-4">
+                    <span class="text-xs text-muted">上一页</span>
+                    <span class="mt-1 flex items-center gap-2 font-semibold text-ink">
+                      <span class="text-brand-ink transition-transform group-hover:-translate-x-0.5" aria-hidden="true">←</span>
+                      {prev.text}
+                    </span>
+                  </a>
+                ) : (
+                  <span />
+                )}
+                {next?.href && (
+                  <a href={next.href} rel="next" class="ry-card ry-lift group block !rounded-2xl px-5 py-4 text-right">
+                    <span class="text-xs text-muted">下一页</span>
+                    <span class="mt-1 flex items-center justify-end gap-2 font-semibold text-ink">
+                      {next.text}
+                      <span class="text-brand-ink transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+                    </span>
+                  </a>
+                )}
+              </nav>
+            )
+          }
+          {
+            // 旧站「在 GitHub 上编辑此页面」（docs.json 的 editUrl 模板）
+            editUrl && (
+              <p class="mt-6 text-sm">
+                <a href={editUrl} target="_blank" rel="noopener" class="text-muted transition-colors hover:text-ink">
+                  在 GitHub 上编辑此页面 ↗
+                </a>
+              </p>
+            )
+          }
+        </div>
+      </div>
+
+      {
+        showPreview ? (
+          <aside class="hidden xl:block">
+            <div class="sticky top-[calc(4rem+1px+2.5rem)]">
+              <DocsPhonePreview url={url} />
+            </div>
+          </aside>
+        ) : (
+          aside && (
+            <aside class="hidden 2xl:block">
+              <div class="ry-sidebar sticky top-[calc(4rem+1px+2.5rem)] max-h-[calc(100vh-4rem-1px-2.5rem-1rem)] overflow-y-auto overscroll-contain">
+                <DocsToc headings={headings} />
+              </div>
+            </aside>
+          )
+        )
+      }
+    </div>
+  </div>
+  <ImageViewer />
+  <ContactDialog />
+</BaseLayout>
+
+<script>
+  // 代码窗右上角的「复制」：只复制代码文字（行号是 CSS 画的，不在文字里）。没有 JS 时不出现按钮，代码照样能选中复制
+  for (const pre of document.querySelectorAll<HTMLPreElement>('.vp-doc pre.astro-code')) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'ry-copy';
+    button.textContent = '复制';
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(pre.querySelector('code')?.innerText ?? pre.innerText);
+        button.textContent = '已复制';
+        button.dataset.done = '';
+      } catch {
+        button.textContent = '复制失败';
+      }
+      setTimeout(() => {
+        button.textContent = '复制';
+        delete button.dataset.done;
+      }, 1600);
+    });
+    pre.append(button);
+  }
+</script>

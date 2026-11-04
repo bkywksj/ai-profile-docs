@@ -1,0 +1,31 @@
+---
+title: 在手机宽度下检查页面
+description: 文档页右侧放手机实时预览：frontmatter 写 preview，就能一边读说明一边看页面在手机上的样子。
+section: 遇到问题
+order: 2
+duration: 约 2 分钟
+updated: 2026-10-30
+preview: /
+---
+
+很多显示问题只在窄屏出现：表格被挤破、按钮换行、导航收不起来。本页右侧就是本站首页在手机宽度下的样子（宽屏才显示）。
+
+## 给一篇指南加预览
+
+在 frontmatter 里写 `preview`：
+
+```yaml
+preview: /pages/grid      # 预览站上的路径，拼在 site.mobilePreview.origin 后面
+# 或者直接写完整地址
+preview: https://m.example.com/pages/grid
+```
+
+`site.mobilePreview.origin` 留空时预览的是本站页面，本页就是这样。
+
+<Callout type="tip">
+  有预览时右侧不再显示「本页内容」目录；预览面板可以收起，收起后正文不变宽，避免读到一半版面跳动。
+</Callout>
+
+## 扫码在真手机上看
+
+`site.mobilePreview.qr` 填一张二维码图（放在 `public/` 下），面板上会多出「扫码预览」。二维码是静态图，预览站地址变了要重新生成。

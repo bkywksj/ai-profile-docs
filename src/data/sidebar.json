@@ -1,0 +1,12 @@
+{
+  "docs": [
+    {
+      "text": "手册",
+      "items": [
+        { "text": "快速开始", "id": "manual/getting-started" },
+        { "text": "docs.json 配置项", "id": "manual/configuration" },
+        { "text": "从 VitePress 迁移", "id": "manual/migration" }
+      ]
+    }
+  ]
+}

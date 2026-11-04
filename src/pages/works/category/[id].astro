@@ -1,0 +1,82 @@
+---
+// 分类落地页：每个分类一个可收录 URL，完整列出该分类全部作品（纯静态、零 JS）
+// 这是长尾关键词的主要承接页，导语（category.description）要写成完整的定义句
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
+import { WorkCard } from '@/components/works/WorkCard';
+import { absoluteUrl, breadcrumbJsonLd, type Crumb } from '@/lib/seo';
+import { categoryPath, countByCategory, getCategories, getWorks, toCardList } from '@/lib/works';
+
+export const getStaticPaths = (async () => {
+  const categories = await getCategories();
+  return categories.map((category) => ({ params: { id: category.id }, props: { category } }));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { category } = Astro.props as Props;
+const [works, categories] = await Promise.all([getWorks(), getCategories()]);
+const inCategory = works.filter((work) => work.data.category.id === category.id);
+const cards = await toCardList(inCategory, categories);
+const counts = countByCategory(works);
+const path = categoryPath(category.id);
+
+const crumbs: Crumb[] = [
+  { name: '首页', path: '/' },
+  { name: '全部作品', path: '/works/' },
+  { name: category.data.name, path },
+];
+const collectionJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: category.data.name,
+  description: category.data.description,
+  url: absoluteUrl(path),
+  numberOfItems: inCategory.length,
+};
+---
+
+<BaseLayout
+  title={`${category.data.name}（${inCategory.length} 条）`}
+  description={category.data.description}
+  jsonLd={[breadcrumbJsonLd(crumbs), collectionJsonLd]}
+>
+  <Container class="py-10 sm:py-14">
+    <Breadcrumbs crumbs={crumbs} />
+    <header class="mt-6 mb-8 max-w-2xl space-y-3">
+      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">{category.data.name}</h1>
+      <p class="leading-7 text-muted">{category.data.description}</p>
+    </header>
+
+    <nav aria-label="其他分类" class="mb-10 flex flex-wrap gap-2">
+      {categories.map((item) => (
+        <a
+          href={categoryPath(item.id)}
+          aria-current={item.id === category.id ? 'page' : undefined}
+          class:list={[
+            'rounded-full border px-3.5 py-1.5 text-sm transition-colors',
+            item.id === category.id
+              ? 'border-transparent bg-ink text-canvas'
+              : 'border-line text-muted hover:border-ink/30 hover:text-ink',
+          ]}
+        >
+          {item.data.name} <span class="tabular-nums opacity-60">{counts.get(item.id) ?? 0}</span>
+        </a>
+      ))}
+    </nav>
+
+    {cards.length > 0 ? (
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        {cards.map((work, index) => (
+          <WorkCard work={work} eager={index < 3} priority={index === 0} headingLevel="h2" />
+        ))}
+      </div>
+    ) : (
+      <p class="rounded-[var(--radius-card)] border border-dashed border-line px-6 py-16 text-center text-muted">
+        这个分类下还没有作品。
+      </p>
+    )}
+  </Container>
+</BaseLayout>

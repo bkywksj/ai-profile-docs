@@ -1,0 +1,19 @@
+---
+// 指南左侧目录：没配 src/data/guide-sidebar.json 时按 section 一层分组（顺序见 src/lib/guide-sections.ts）；
+// 配了就是多层侧栏（分组可折叠、当前篇所在分组自动展开）。渲染统一交给 SidebarTree
+import type { Guide } from '@/lib/guides';
+import { buildGuideTree, guidePath } from '@/lib/guides';
+import SidebarTree from '@/components/docs/SidebarTree.astro';
+
+interface Props {
+  guides: Guide[];
+  currentId?: string;
+}
+
+const { guides, currentId } = Astro.props;
+const tree = buildGuideTree(guides);
+---
+
+<nav aria-label="使用指南目录" class="text-sm">
+  <SidebarTree items={tree} current={currentId ? guidePath(currentId) : ''} />
+</nav>

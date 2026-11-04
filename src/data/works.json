@@ -1,0 +1,67 @@
+[
+  {
+    "id": "sample-01",
+    "title": "示例作品 01：十分钟跑通第一个内容站",
+    "summary": "示例数据。演示作品卡片、详情页、分类与标签的完整链路，孵化新项目后由数据同步脚本或手工数据替换。",
+    "description": "这是一条示例作品数据，用来演示框架的列表、筛选、详情页与结构化数据输出。\n\n孵化新项目后，这个文件会被 scripts/sync 生成的真实数据覆盖，或者由你手工维护。字段含义见 src/content.config.ts。",
+    "category": "getting-started",
+    "tags": ["入门", "Astro"],
+    "date": "2026-09-01",
+    "cover": "/examples/cover-1.svg",
+    "url": "https://example.com/works/sample-01",
+    "featured": true,
+    "metrics": { "views": 12800, "duration": 612 }
+  },
+  {
+    "id": "sample-02",
+    "title": "示例作品 02：分类体系怎么设计才好找",
+    "summary": "示例数据。演示同一分类下的相关推荐，以及标签多选筛选的效果。",
+    "category": "getting-started",
+    "tags": ["入门", "信息架构"],
+    "date": "2026-09-05",
+    "cover": "/examples/cover-2.svg",
+    "featured": true,
+    "metrics": { "views": 5320, "duration": 845 }
+  },
+  {
+    "id": "sample-03",
+    "title": "示例作品 03：静态站也能做好搜索",
+    "summary": "示例数据。演示前端全文检索：几百条数据量级不需要搜索服务，浏览器里即可完成。",
+    "category": "deep-dive",
+    "tags": ["搜索", "性能"],
+    "date": "2026-09-09",
+    "cover": "/examples/cover-3.svg",
+    "featured": true,
+    "metrics": { "views": 23100, "duration": 1320 }
+  },
+  {
+    "id": "sample-04",
+    "title": "示例作品 04：结构化数据与 AI 搜索引用",
+    "summary": "示例数据。演示详情页的面包屑与作品结构化数据输出，以及 llms.txt 的生成方式。",
+    "category": "deep-dive",
+    "tags": ["SEO", "GEO"],
+    "date": "2026-09-14",
+    "cover": "/examples/cover-4.svg",
+    "metrics": { "views": 8760, "duration": 998 }
+  },
+  {
+    "id": "sample-05",
+    "title": "示例作品 05：从外部接口同步数据",
+    "summary": "示例数据。演示构建前数据同步：失败时保留上一版数据，不会把站点构建成空页面。",
+    "category": "case-study",
+    "tags": ["数据同步", "自动化"],
+    "date": "2026-09-18",
+    "cover": "/examples/cover-5.svg",
+    "metrics": { "views": 4410, "duration": 1506 }
+  },
+  {
+    "id": "sample-06",
+    "title": "示例作品 06：一次完整的上线流程",
+    "summary": "示例数据。演示从构建、SEO 验收到 Docker 静态托管部署的完整流程。",
+    "category": "case-study",
+    "tags": ["部署", "Docker"],
+    "date": "2026-09-22",
+    "cover": "/examples/cover-6.svg",
+    "metrics": { "views": 15090, "duration": 2104 }
+  }
+]

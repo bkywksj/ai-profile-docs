@@ -1,0 +1,14 @@
+[
+  {
+    "question": "这个站点是用什么搭建的？",
+    "answer": "本站基于 next-ai-astro 框架构建：Astro 7 生成纯静态页面，Tailwind CSS v4 负责样式，只有搜索筛选这类需要交互的区域才加载 React 组件，其余页面默认零 JavaScript。"
+  },
+  {
+    "question": "作品数据从哪里来？",
+    "answer": "作品数据存放在 src/data/works.json，可以手工维护，也可以由 scripts/sync 下的数据同步脚本在构建前从外部接口拉取生成。同步失败时脚本会保留上一版数据，不会把站点构建成空页面。"
+  },
+  {
+    "question": "为什么说这个站点对 AI 搜索友好？",
+    "answer": "每个页面都输出独立的 canonical、描述与结构化数据，首页和详情页首段采用定义句写法，robots.txt 显式放行主流 AI 爬虫，并且自动生成 llms.txt 站点摘要，方便 AI 搜索引擎理解和引用。"
+  }
+]

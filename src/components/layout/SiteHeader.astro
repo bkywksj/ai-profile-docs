@@ -1,0 +1,435 @@
+---
+// 页头：吸顶毛玻璃条，颜色走语义令牌，深色模式下自动翻转；导航项可带下拉子项（site.nav 的 children）。
+// 子项自己也带 children 时是多列大下拉（每列一组 + footerLinks 底栏，文字直达 href），窄屏抽屉里渲染成手风琴；drawerLast 让它在抽屉里排最后
+// 窄屏（桌面导航收起时）用右侧抽屉：原生模态 <dialog>，焦点约束、背景失活、Esc 关闭由浏览器提供；
+// 抽屉里放手机页头放不下的东西（主按钮、联系按钮、GitHub / Gitee、电话）。导航项、搜索、主按钮、联系方式都取 site.config
+import { ArrowRight, ArrowUpRight, ChevronDown, Menu, Phone, X } from '@lucide/astro';
+import { site, type NavItem } from '@/site.config';
+import ThemeToggle from './ThemeToggle.astro';
+import SearchButton from '@/components/docs/SearchButton.astro';
+import SearchDialog from '@/components/docs/SearchDialog.astro';
+import Container from '@/components/ui/Container.astro';
+
+const current = Astro.url.pathname;
+// file / preserve 网址形态下 href 带 .html，按 match 前缀（或去掉 .html 的 href）判断，才能让一组页面共用一个导航项。
+// match 可用 | 隔开写多个前缀（「文档」覆盖 /guide/、/features/、/faq.html……）
+const matches = (prefixes: string) => prefixes.split('|').some((p) => p && current.startsWith(p));
+const isActive = (item: NavItem): boolean => {
+  // 下拉项本身不对应页面：写了 match 就只按 match 判断（下拉里放了顶栏另有一项的页面时——如「文档」底栏的定价、产品矩阵——不跟着一起高亮）；
+  // 没写 match 时任一子项（含多列下拉的列与底栏）命中就算命中（「开发文档」在前端 / 后端 / 插件……页都高亮）
+  if (item.children) return item.match ? matches(item.match) : [...item.children, ...(item.footerLinks ?? [])].some(isActive);
+  if (item.href === '/') return current === '/' || current === '/index.html';
+  return matches(item.match ?? item.href.replace(/\.html$/, ''));
+};
+// 多列下拉：每个子项自己也带 children（一列一组），下拉按列排、底栏放 footerLinks；此时导航文字本身可点（直达 href），旁边的箭头按钮展开
+const isMega = (item: NavItem) => !!item.children?.length && item.children.every((c) => c.children?.length);
+// 抽屉里的顺序：drawerLast 的排到最后（内容多的大下拉放后面，其余主入口留在第一屏）；桌面顺序不变
+const drawerNav = [...site.nav.filter((i) => !i.drawerLast), ...site.nav.filter((i) => i.drawerLast)];
+// Tailwind 只认完整类名，断点要写成两组字面量，不能拼字符串
+const lg = site.navBreakpoint === 'lg';
+const github = site.social.find((s) => s.label === 'GitHub');
+// 页头右侧主按钮（如「免费下载」「开始使用」），没配不显示
+const start = site.headerCta;
+const gitee = site.social.find((s) => s.label === 'Gitee');
+const contact = site.contact;
+// 抽屉里联系按钮的文字：卖授权的站写「咨询购买」，其余默认「联系作者」
+const contactLabel = contact?.label || '联系作者';
+const isExternal = (href: string) => /^https?:\/\//.test(href);
+---
+
+<header class="sticky top-0 z-40 border-b border-line bg-elevated/75 text-ink backdrop-blur-xl supports-[backdrop-filter]:bg-elevated/65" data-site-header>
+  <Container size={site.frameWidth} class="flex h-16 items-center gap-6">
+    <a href="/" class="flex shrink-0 items-center gap-2.5 text-[15px] font-semibold tracking-tight">
+      {
+        site.logo ? (
+          <img src={site.logo} alt="" width="28" height="28" class="size-7 object-contain" />
+        ) : (
+          <span class="size-2.5 rounded-full bg-brand" aria-hidden="true" />
+        )
+      }
+      <span>{site.shortName}</span>
+    </a>
+
+    <nav aria-label="主导航" class:list={['hidden', lg ? 'xl:block' : 'md:block']}>
+      <ul class="flex items-center gap-0.5 text-[13.5px]">
+        {site.nav.map((item) =>
+          isMega(item) ? (
+            // 多列下拉：文字是链接（直达 href），箭头按钮聚焦即展开（focus-within），悬停同样展开；Esc 收起见下方脚本
+            <li class="group relative" data-nav-mega>
+              <div
+                class:list={[
+                  'inline-flex items-center rounded-lg transition-colors',
+                  isActive(item) ? 'bg-ink/[.06] font-medium text-ink' : 'text-muted hover:bg-ink/[.04] hover:text-ink',
+                ]}
+              >
+                <a href={item.href} class="py-1.5 pr-1 pl-2.5">{item.label}</a>
+                <button
+                  type="button"
+                  aria-haspopup="true"
+                  aria-label={`展开${item.label}菜单`}
+                  class="inline-flex items-center rounded-r-lg py-1.5 pr-2 pl-0.5"
+                >
+                  <ChevronDown class="size-3.5 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" aria-hidden="true" />
+                </button>
+              </div>
+              <div class="invisible absolute top-full -left-4 z-50 pt-2 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                <div class="nav-mega w-max rounded-2xl border border-line bg-elevated shadow-xl">
+                  <div class="grid grid-flow-col auto-cols-[minmax(10.5rem,auto)] gap-2 p-3">
+                    {item.children!.map((col) => (
+                      <div class="min-w-0">
+                        <a href={col.href} class="block px-3 pt-1.5 pb-2 text-[12px] font-semibold tracking-wider text-muted hover:text-ink">{col.label}</a>
+                        <ul class="grid gap-0.5">
+                          {col.children!.map((child) => (
+                            <li>
+                              <a
+                                href={child.href}
+                                aria-current={!child.more && isActive(child) ? 'page' : undefined}
+                                class:list={[
+                                  'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13.5px] whitespace-nowrap transition-colors',
+                                  child.more
+                                    ? 'font-medium text-brand-ink hover:bg-brand/[.06]'
+                                    : isActive(child)
+                                      ? 'bg-brand/[.08] font-medium text-brand-ink'
+                                      : 'text-ink hover:bg-ink/[.04]',
+                                ]}
+                              >
+                                {child.label}
+                                {child.badge && <span class="rounded-full bg-brand/[.1] px-1.5 py-px text-[11px] font-medium text-brand-ink">{child.badge}</span>}
+                                {child.more && <ArrowRight class="size-3.5" aria-hidden="true" />}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                  {item.footerLinks && item.footerLinks.length > 0 && (
+                    <div class="flex flex-wrap items-center gap-x-1 rounded-b-2xl border-t border-line bg-ink/[.02] px-3 py-2 text-[13px]">
+                      {item.footerLinks.map((link) => (
+                        <a href={link.href} class="rounded-lg px-3 py-1.5 text-muted transition-colors hover:bg-ink/[.04] hover:text-ink">{link.label}</a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </li>
+          ) : item.children ? (
+            // 下拉：悬停或键盘聚焦（focus-within）展开，不用 JS；菜单与按钮之间用 pt-2 的透明区连着，鼠标移过去不会断开
+            <li class="group relative">
+              <button
+                type="button"
+                aria-haspopup="true"
+                class:list={[
+                  'inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 transition-colors',
+                  isActive(item) ? 'bg-ink/[.06] font-medium text-ink' : 'text-muted hover:bg-ink/[.04] hover:text-ink',
+                ]}
+              >
+                {item.label}
+                <ChevronDown class="size-3.5 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" aria-hidden="true" />
+              </button>
+              <div class="invisible absolute top-full left-0 z-50 pt-2 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                <ul class="grid w-72 gap-0.5 rounded-2xl border border-line bg-elevated p-2 shadow-xl">
+                  {item.children.map((child) => (
+                    <li>
+                      <a
+                        href={child.href}
+                        aria-current={isActive(child) ? 'page' : undefined}
+                        class:list={[
+                          'block rounded-xl px-3 py-2 transition-colors',
+                          isActive(child) ? 'bg-brand/[.08] text-brand-ink' : 'text-ink hover:bg-ink/[.04]',
+                        ]}
+                      >
+                        <span class="block text-[13.5px] font-semibold">{child.label}</span>
+                        {child.desc && <span class="mt-0.5 block text-[12px] text-muted">{child.desc}</span>}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ) : (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isActive(item) ? 'page' : undefined}
+                class:list={[
+                  'rounded-lg px-2.5 py-1.5 transition-colors',
+                  isActive(item) ? 'bg-ink/[.06] font-medium text-ink' : 'text-muted hover:bg-ink/[.04] hover:text-ink',
+                ]}
+              >
+                {item.label}
+              </a>
+            </li>
+          ),
+        )}
+      </ul>
+    </nav>
+
+    <div class="ml-auto flex items-center gap-1">
+      <SearchButton tone="pill" class="mr-1 hidden w-44 shrink-0 sm:flex" />
+      {
+        github && (
+          <a
+            href={github.href}
+            target="_blank"
+            rel="noopener"
+            aria-label="GitHub"
+            class="hidden size-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-ink/[.04] hover:text-ink md:inline-flex"
+          >
+            <svg viewBox="0 0 16 16" class="size-4" fill="currentColor" aria-hidden="true">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8" />
+            </svg>
+          </a>
+        )
+      }
+      <ThemeToggle />
+      {
+        start && (
+          <a
+            href={start.href}
+            class="btn-brand ml-1 hidden h-8 shrink-0 items-center rounded-full px-4 text-[13px] font-semibold whitespace-nowrap sm:inline-flex"
+          >
+            {start.label}
+          </a>
+        )
+      }
+      <button
+        type="button"
+        class:list={[
+          'inline-flex size-10 items-center justify-center rounded-lg text-muted hover:bg-ink/[.04] hover:text-ink',
+          lg ? 'xl:hidden' : 'md:hidden',
+        ]}
+        aria-label="打开菜单"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        aria-controls="nav-drawer"
+        data-nav-drawer-open
+      >
+        <Menu class="size-5" aria-hidden="true" />
+      </button>
+    </div>
+  </Container>
+</header>
+
+<dialog id="nav-drawer" class="nav-drawer" aria-label="站点菜单" data-nav-drawer data-breakpoint={lg ? '1280' : '768'}>
+  <div class="flex h-full flex-col">
+    <div class="flex h-16 shrink-0 items-center justify-between border-b border-line px-4">
+      <a href="/" class="flex items-center gap-2.5 text-[15px] font-semibold tracking-tight">
+        {site.logo && <img src={site.logo} alt="" width="28" height="28" class="size-7 object-contain" />}
+        <span>{site.shortName}</span>
+      </a>
+      <button
+        type="button"
+        class="inline-flex size-10 items-center justify-center rounded-lg text-muted hover:bg-ink/[.04] hover:text-ink"
+        aria-label="关闭菜单"
+        autofocus
+        data-nav-drawer-close
+      >
+        <X class="size-5" aria-hidden="true" />
+      </button>
+    </div>
+
+    <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4">
+      <SearchButton tone="pill" class="mb-3 w-full pointer-coarse:[&_kbd]:hidden" />
+      <nav aria-label="站点导航">
+        <ul class="grid gap-0.5">
+          {drawerNav.flatMap((item) => (isMega(item) ? [{ ...item, mega: true }] : item.children ? [{ ...item, group: true }, ...item.children] : [item])).map((item) => 'mega' in item ? (
+            // 多列下拉在抽屉里是手风琴（原生 <details>）：默认收起，当前页在里面时展开；每列一个小标题，底栏链接排在最后
+            <li class="mt-2 border-t border-line pt-2">
+              <details class="nav-acc group/acc" open={isActive(item) || undefined}>
+                <summary class="flex cursor-pointer list-none items-center justify-between rounded-xl px-3 py-3 text-[15px] font-semibold text-ink hover:bg-ink/[.04] [&::-webkit-details-marker]:hidden">
+                  {item.label}
+                  <ChevronDown class="size-4 text-muted transition-transform group-open/acc:rotate-180" aria-hidden="true" />
+                </summary>
+                <div class="pb-2">
+                  {item.children!.map((col) => (
+                    <div>
+                      <p class="mt-2 px-3 pb-1 text-[12px] font-semibold tracking-wider text-muted">{col.label}</p>
+                      <ul class="grid gap-0.5">
+                        {col.children!.map((child) => (
+                          <li>
+                            <a
+                              href={child.href}
+                              aria-current={!child.more && isActive(child) ? 'page' : undefined}
+                              class:list={[
+                                'flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-[14.5px]',
+                                child.more ? 'font-medium text-brand' : isActive(child) ? 'bg-ink/[.06] font-semibold text-ink' : 'text-ink/80 hover:bg-ink/[.04] hover:text-ink',
+                              ]}
+                            >
+                              {child.label}
+                              {child.more && <ArrowRight class="size-3.5" aria-hidden="true" />}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                  {item.footerLinks && item.footerLinks.length > 0 && (
+                    <div class="mt-3 flex flex-wrap gap-x-1 border-t border-line px-1 pt-2 text-[13.5px]">
+                      {item.footerLinks.map((link) => (
+                        <a href={link.href} class="rounded-lg px-2 py-2 text-muted hover:text-ink">{link.label}</a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </details>
+            </li>
+          ) : 'group' in item ? (
+            // 下拉项在抽屉里只当分组小标题，子项平铺在它下面
+            <li class="mt-3 px-3 pb-1 text-[12px] font-semibold tracking-wider text-muted">{item.label}</li>
+          ) : (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isActive(item) ? 'page' : undefined}
+                class:list={[
+                  'flex items-center justify-between rounded-xl px-3 py-3 text-[15px]',
+                  isActive(item) ? 'bg-ink/[.06] font-semibold text-ink' : 'text-ink/80 hover:bg-ink/[.04] hover:text-ink',
+                ]}
+              >
+                {item.label}
+                {isExternal(item.href) && (
+                  <>
+                    <ArrowUpRight class="size-4 text-muted" aria-hidden="true" />
+                    <span class="sr-only">（站外）</span>
+                  </>
+                )}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+
+    <div class="shrink-0 border-t border-line px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <div class="grid gap-2">
+        {
+          start && (
+            <a href={start.href} class="btn-brand inline-flex h-11 items-center justify-center rounded-full text-[15px] font-semibold">
+              {start.label}
+            </a>
+          )
+        }
+        {
+          contact && (
+            <button
+              type="button"
+              class="inline-flex h-11 items-center justify-center rounded-full border border-line bg-elevated text-[15px] font-semibold text-ink hover:bg-ink/[.04]"
+              data-contact-open
+              data-nav-drawer-contact
+              aria-haspopup="dialog"
+            >
+              {contactLabel}
+            </button>
+          )
+        }
+      </div>
+      <div class="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[13px] text-muted">
+        {github && <a href={github.href} target="_blank" rel="noopener" class="py-1 hover:text-ink">GitHub</a>}
+        {gitee && <a href={gitee.href} target="_blank" rel="noopener" class="py-1 hover:text-ink">Gitee</a>}
+        {
+          contact && (
+            <a href={`tel:${contact.tel}`} class="inline-flex items-center gap-1 py-1 hover:text-ink">
+              <Phone class="size-3.5" aria-hidden="true" />
+              {contact.phone}
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</dialog>
+<SearchDialog />
+
+<script>
+  // 抽屉开合。Esc 关闭、焦点约束、背景失活由 showModal() 提供，这里只补：
+  // 点遮罩关闭、点抽屉里的链接 / 按钮先收起（搜索与咨询弹窗由各自的全局监听打开，点击冒泡到 document 时抽屉已关）、
+  // 宽度回到桌面导航时自动关闭、按钮的 aria-expanded 跟着走
+  const drawer = document.querySelector<HTMLDialogElement>('[data-nav-drawer]');
+  const opener = document.querySelector<HTMLButtonElement>('[data-nav-drawer-open]');
+  if (drawer && opener) {
+    const close = () => drawer.open && drawer.close();
+    opener.addEventListener('click', () => {
+      drawer.showModal();
+      opener.setAttribute('aria-expanded', 'true');
+    });
+    // 关闭后的焦点交给浏览器还原（回到菜单按钮）；不手动 focus —— 点联系按钮时咨询弹窗先开、抽屉后关，手动拉回会把焦点从弹窗里抢走
+    drawer.addEventListener('close', () => opener.setAttribute('aria-expanded', 'false'));
+    // 点到 dialog 自身 = 点在遮罩上（内容区被内层 div 撑满，点内容时 target 不会是 dialog）
+    drawer.addEventListener('click', (event) => {
+      if (event.target === drawer || (event.target as Element).closest('a, [data-nav-drawer-close], [data-search-open], [data-contact-open]')) close();
+    });
+    // 404 页不挂咨询弹窗：没有就不显示联系按钮，免得按钮点了没反应。
+    // 弹窗本身是第一次点开时才建的，页面上先有的只是它的数据块 #ry-contact-data（docs 模块的 ContactDialog.astro），按它判断；没装 docs 模块时同样没有
+    if (!document.getElementById('ry-contact-data')) drawer.querySelector('[data-nav-drawer-contact]')?.remove();
+    const desktop = matchMedia(`(min-width: ${drawer.dataset.breakpoint}px)`);
+    desktop.addEventListener('change', (e) => e.matches && close());
+  }
+  // 多列下拉靠 focus-within 展开：键盘用户按 Esc 时把焦点还给箭头按钮再移走，下拉随之收起
+  document.querySelectorAll<HTMLElement>('[data-nav-mega]').forEach((mega) => {
+    mega.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      const button = mega.querySelector<HTMLButtonElement>('button');
+      (document.activeElement as HTMLElement | null)?.blur();
+      button?.focus();
+      button?.blur();
+    });
+  });
+</script>
+
+<style>
+  /* 右侧抽屉：贴右、满高，宽度不超过 20rem / 屏宽 88%（左边留一条遮罩，看得出是叠在页面上、点那里能关） */
+  .nav-drawer {
+    position: fixed;
+    inset: 0 0 0 auto;
+    margin: 0;
+    width: min(20rem, 88vw);
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    padding: 0;
+    border: 0;
+    border-left: 1px solid var(--color-line);
+    background: var(--color-elevated);
+    color: var(--color-ink);
+    box-shadow: -24px 0 48px -24px rgb(var(--shadow-tint) / 0.35);
+    transform: translateX(100%);
+    transition:
+      transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1),
+      overlay 0.24s allow-discrete,
+      display 0.24s allow-discrete;
+  }
+  .nav-drawer[open] {
+    transform: none;
+  }
+  @starting-style {
+    .nav-drawer[open] {
+      transform: translateX(100%);
+    }
+  }
+  .nav-drawer::backdrop {
+    background: rgb(var(--shadow-tint) / 0);
+    transition:
+      background 0.24s,
+      overlay 0.24s allow-discrete,
+      display 0.24s allow-discrete;
+  }
+  .nav-drawer[open]::backdrop {
+    background: rgb(var(--shadow-tint) / 0.42);
+  }
+  @starting-style {
+    .nav-drawer[open]::backdrop {
+      background: rgb(var(--shadow-tint) / 0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-drawer,
+    .nav-drawer::backdrop {
+      transition: none;
+    }
+  }
+  /* 抽屉开着时底下的页面不跟着滚 */
+  :global(html:has(.nav-drawer[open])) {
+    overflow: hidden;
+  }
+</style>

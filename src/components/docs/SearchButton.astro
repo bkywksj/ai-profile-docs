@@ -1,0 +1,40 @@
+---
+// 打开站内搜索的按钮（外观像输入框）；真正的弹窗在 SearchDialog，页头里放一次
+import { Search } from '@lucide/astro';
+
+interface Props {
+  /** md = 侧栏 / 页头；lg = 指南首页的大搜索框 */
+  size?: 'md' | 'lg';
+  /** lg 尺寸的占位文案，写几个本站常被搜的词 */
+  placeholder?: string;
+  /** pill = 页头 / 首屏里的胶囊款（毛玻璃底、宽度由调用方给）；light = 侧栏 / 页面里占满父容器的输入框款 */
+  tone?: 'light' | 'pill';
+  class?: string;
+}
+
+const { size = 'md', placeholder = '搜索文档', tone = 'light', class: className } = Astro.props;
+const pill = tone === 'pill';
+---
+
+<button
+  type="button"
+  data-search-open
+  class:list={[
+    // 输入框款占满父容器；胶囊款放在页头这类横排里，宽度由调用方给（w-full 会和调用方的 w-44 打架，把旁边的按钮挤出去）
+    'flex items-center gap-2 border text-left transition-colors',
+    pill
+      ? 'rounded-full border-line bg-elevated/70 text-muted shadow-[inset_0_1px_0_rgba(255,255,255,.8)] hover:border-ink/20 hover:text-ink'
+      : 'w-full rounded-lg border-line bg-elevated text-muted hover:border-brand',
+    size === 'lg' ? 'px-4 py-3 text-[15px] shadow-[var(--shadow-card)]' : pill ? 'px-3 py-1.5 text-[13px]' : 'px-3 py-2 text-sm',
+    className,
+  ]}
+>
+  <Search class={size === 'lg' ? 'size-5' : pill ? 'size-3.5' : 'size-4'} aria-hidden="true" />
+  <span class="flex-1 truncate">{size === 'lg' ? placeholder : '搜索文档'}</span>
+  <kbd
+    class:list={[
+      'rounded border px-1.5 py-0.5 font-mono',
+      pill ? 'border-line text-[10px] text-muted' : 'border-line bg-surface text-xs',
+    ]}>Ctrl K</kbd
+  >
+</button>

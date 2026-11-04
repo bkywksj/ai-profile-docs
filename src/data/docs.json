@@ -1,0 +1,26 @@
+{
+  "$comment": "docs 模块（迁移型文档站）的站点配置：栏目、结构化数据、编辑链接、最后更新、站点地图分档、IndexNow、llms.txt。字段说明见 src/lib/docs-config.ts；用 JSON 是因为 scripts/ 下的 Node 脚本也要读（读不了 .ts）",
+  "sections": [{ "id": "manual", "label": "手册", "home": "manual/getting-started" }],
+  "standalonePages": [],
+  "lastUpdated": "required",
+  "sitemapLastmod": "known",
+  "article": {
+    "about": ["next-ai-astro", "Astro", "文档站", "VitePress 迁移"],
+    "author": null,
+    "publisher": null,
+    "proficiencyLevel": "Beginner"
+  },
+  "editUrl": "",
+  "faqPage": "",
+  "sectionHero": false,
+  "previewHosts": [],
+  "sitemap": {
+    "rules": [
+      { "paths": ["/"], "priority": 1, "changefreq": "daily", "why": "首页" },
+      { "prefixes": ["/manual/"], "priority": 0.8, "changefreq": "monthly", "why": "手册各页" }
+    ],
+    "fallback": { "priority": 0.6, "changefreq": "monthly" }
+  },
+  "indexnow": { "key": "", "alwaysPush": [] },
+  "llms": { "extraPages": [] }
+}

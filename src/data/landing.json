@@ -1,0 +1,4 @@
+{
+  "说明": "营销页登记：页面 id → 版式选项（hero / chapters / sections / kicker / extra），登记过的文档换 LandingLayout（src/lib/markdown/docs-layout.mjs 的 rehypeLanding）",
+  "pages": {}
+}

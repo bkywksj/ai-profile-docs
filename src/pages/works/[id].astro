@@ -1,0 +1,161 @@
+---
+// 作品详情页：每条作品一个可收录 URL（/works/<id>/），是 SEO/GEO 的主力页面
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import { ArrowUpRight } from '@lucide/astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
+import Badge from '@/components/ui/Badge.astro';
+import Button from '@/components/ui/Button.astro';
+import { WorkCard, coverTransitionName } from '@/components/works/WorkCard';
+import { absoluteUrl, breadcrumbJsonLd, truncate, type Crumb } from '@/lib/seo';
+import { resolveCover } from '@/lib/images';
+import { formatCount, formatDate, formatDuration, isoDate } from '@/lib/format';
+import { categoryPath, getCategories, getWorks, relatedWorks, toCardList, workPath } from '@/lib/works';
+import { site } from '@/site.config';
+
+export const getStaticPaths = (async () => {
+  const works = await getWorks();
+  return works.map((work) => ({ params: { id: work.id }, props: { work } }));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { work } = Astro.props as Props;
+const [allWorks, categories] = await Promise.all([getWorks(), getCategories()]);
+const category = categories.find((item) => item.id === work.data.category.id);
+const categoryName = category?.data.name ?? work.data.category.id;
+const cover = await resolveCover(work.data.cover, 1280, 720);
+const related = await toCardList(relatedWorks(allWorks, work), categories);
+const metrics = work.data.metrics ?? {};
+const paragraphs = (work.data.description ?? '')
+  .split(/\n{2,}/)
+  .map((text) => text.trim())
+  .filter(Boolean);
+
+const path = workPath(work.id);
+const crumbs: Crumb[] = [
+  { name: '首页', path: '/' },
+  { name: '全部作品', path: '/works/' },
+  { name: categoryName, path: categoryPath(work.data.category.id) },
+  { name: work.data.title, path },
+];
+
+const creativeWorkJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: work.data.title,
+  description: work.data.summary,
+  url: absoluteUrl(path),
+  image: absoluteUrl(cover.src),
+  datePublished: isoDate(work.data.date),
+  keywords: work.data.tags.join(','),
+  genre: categoryName,
+  author: { '@type': 'Person', name: site.author.name, url: site.author.url },
+  sameAs: work.data.url,
+};
+---
+
+<BaseLayout
+  title={work.data.title}
+  description={truncate(`${work.data.title}：${work.data.summary}`, 160)}
+  image={cover.src}
+  type="article"
+  publishedTime={work.data.date}
+  jsonLd={[breadcrumbJsonLd(crumbs), creativeWorkJsonLd]}
+>
+  <Container class="py-10 sm:py-14">
+    <Breadcrumbs crumbs={crumbs} />
+
+    <article class="mt-8 grid gap-10 lg:grid-cols-12">
+      <div class="lg:col-span-7">
+        <div class="overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface">
+          <img
+            src={cover.src}
+            srcset={cover.srcSet}
+            sizes="(min-width: 1024px) 680px, 100vw"
+            width={cover.width}
+            height={cover.height}
+            alt={`${work.data.title} 封面`}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="aspect-video w-full object-cover"
+            style={`view-transition-name: ${coverTransitionName(work.id)}`}
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-5 lg:col-span-5">
+        <div class="flex flex-wrap items-center gap-2">
+          <Badge tone="brand" href={categoryPath(work.data.category.id)}>
+            {categoryName}
+          </Badge>
+          <time datetime={isoDate(work.data.date)} class="text-sm text-muted">
+            {formatDate(work.data.date)}
+          </time>
+        </div>
+        <h1 class="text-2xl leading-snug font-semibold tracking-tight text-pretty sm:text-3xl">
+          {work.data.title}
+        </h1>
+        <p class="leading-7 text-muted">{work.data.summary}</p>
+
+        {(typeof metrics.duration === 'number' || typeof metrics.views === 'number') && (
+          <dl class="flex gap-8 border-y border-line py-4">
+            {typeof metrics.duration === 'number' && (
+              <div>
+                <dt class="text-xs text-muted">时长</dt>
+                <dd class="mt-1 font-semibold tabular-nums">{formatDuration(metrics.duration)}</dd>
+              </div>
+            )}
+            {typeof metrics.views === 'number' && (
+              <div>
+                <dt class="text-xs text-muted">浏览</dt>
+                <dd class="mt-1 font-semibold tabular-nums">{formatCount(metrics.views)}</dd>
+              </div>
+            )}
+          </dl>
+        )}
+
+        {work.data.url && (
+          <div>
+            <Button href={work.data.url} size="lg" target="_blank" rel="noopener">
+              查看原作品 <ArrowUpRight class="size-4" aria-hidden="true" />
+            </Button>
+          </div>
+        )}
+
+        {work.data.tags.length > 0 && (
+          <ul class="flex flex-wrap gap-2" aria-label="标签">
+            {work.data.tags.map((tag) => (
+              <li>
+                <Badge href={`/works/?tag=${encodeURIComponent(tag)}`}>#{tag}</Badge>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </article>
+
+    {paragraphs.length > 0 && (
+      <section class="prose-content mt-12 max-w-3xl" aria-label="作品介绍">
+        {paragraphs.map((text) => (
+          <p>{text}</p>
+        ))}
+      </section>
+    )}
+
+    {related.length > 0 && (
+      <section class="mt-16" aria-labelledby="related-title">
+        <h2 id="related-title" class="mb-6 text-xl font-semibold">
+          同分类的其他作品
+        </h2>
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {related.map((item) => (
+            <WorkCard work={item} />
+          ))}
+        </div>
+      </section>
+    )}
+  </Container>
+</BaseLayout>

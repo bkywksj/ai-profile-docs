@@ -1,0 +1,19 @@
+/* 品牌样式（项目文件，框架同步不覆盖）：docs 模块的 DocsLayout / LandingLayout 最后引入它，覆盖 docs-theme.css 的中性默认值。
+   这里放本站的视觉选择：中性色带不带主色色相、点缀色、首屏底、代码窗底、投影色温，以及要不要渐变。
+   框架示例站用默认值，这里只留常用变量的写法做参考：
+
+:root:not(.dark) {
+  --canvas: #f8f7fb;            页面底：中性色带一点主色色相，整页统一色温（工作站 brand_palette.js 输出）
+  --surface: #f1eff5;
+  --ink: #120f1f;
+  --muted: #5e5a6e;
+  --line: rgb(18 15 31 / 0.08);
+  --brand-ink: #6e31b6;         品牌色做小字：白底对比度不到 4.5:1 时再压一档
+}
+:root {
+  --ry-cyan: #0d9e96;           点缀色（链接 / 关联的记号）
+  --ry-code-bg: #14111f;        代码窗底
+  --ry-aurora-bg: #f3f0fa;      首屏 / 重点区块的底
+  --shadow-tint: 18 15 31;      投影 / 遮罩底色（RGB 三元组）
+}
+*/

@@ -1,0 +1,42 @@
+---
+// 文章列表页：全部已发布文章，按发布时间倒序
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Breadcrumbs from '@/components/ui/Breadcrumbs.astro';
+import { breadcrumbJsonLd, type Crumb } from '@/lib/seo';
+import { formatDate, isoDate } from '@/lib/format';
+import { getPosts, postPath } from '@/lib/posts';
+import { site } from '@/site.config';
+
+const posts = await getPosts();
+
+const title = '全部文章';
+const description = `${site.name}的全部 ${posts.length} 篇文章，按发布时间倒序排列。`;
+const crumbs: Crumb[] = [
+  { name: '首页', path: '/' },
+  { name: title, path: '/posts/' },
+];
+---
+
+<BaseLayout title={title} description={description} jsonLd={[breadcrumbJsonLd(crumbs)]}>
+  <Container size="narrow" class="py-10 sm:py-14">
+    <Breadcrumbs crumbs={crumbs} />
+    <header class="mt-6 mb-10 space-y-3">
+      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h1>
+      <p class="leading-7 text-muted">{description}</p>
+    </header>
+    <ul class="divide-y divide-line border-y border-line">
+      {posts.map((post) => (
+        <li>
+          <a href={postPath(post.id)} class="group block py-6">
+            <time datetime={isoDate(post.data.date)} class="text-sm text-muted tabular-nums">
+              {formatDate(post.data.date)}
+            </time>
+            <h2 class="mt-1 text-lg font-semibold group-hover:text-brand-ink">{post.data.title}</h2>
+            <p class="mt-2 leading-7 text-muted">{post.data.description}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </Container>
+</BaseLayout>

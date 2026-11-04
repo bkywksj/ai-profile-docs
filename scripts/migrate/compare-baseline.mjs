@@ -1,0 +1,202 @@
+// docs 模块迁移脚本 · 逐页比对：新站清单 vs 旧站基线清单（两份都由 manifest.mjs 生成），列出每页丢了什么、多了什么
+// 用法：node scripts/migrate/compare-baseline.mjs <基线清单> <新站清单> [--details]
+// 判定（任一不满足即该页不通过，退出码 1）：
+//   - 正文：把正文切成短句，旧站有、新站没有的句子数 = 0（多出来的只提示，如新站的「上一页」文案）
+//   - 代码块：数量相等，且逐块内容哈希相等（代码一个字符都不能变）
+//   - 标题：文字序列相等；锚点 id 序列相等（旧书签、站内 #链接 都靠它）
+//   - 图片地址（多重集）相等、表格行数相等
+//   - title / description / canonical 逐字相等（搜索结果里显示的就是它们）；
+//     旧站 canonical 全站写死成同一个地址（工作站官网每页都指首页）时，在 known-diffs.json 的 canonicalFrom 登记它，
+//     新站 canonical 等于本页自己的地址才放行 —— 只接受「修正成本页」这一种变化；
+//     旧站标题后缀 / 全站共用描述里有过时内容、有意换掉时，登记在 metaFrom（titleSuffix / description），只接受「整句换成新的」
+//   - 旧站正文里的链接，新站一个不少（多出来的只提示）；JSON-LD 段数不少于旧站
+import { readFileSync } from 'node:fs';
+import { readSiteMeta } from '../lib/site-meta.mjs';
+
+const [basePath, newPath] = process.argv.slice(2);
+const details = process.argv.includes('--details');
+const base = JSON.parse(readFileSync(basePath, 'utf8')).pages;
+const next = JSON.parse(readFileSync(newPath, 'utf8')).pages;
+// 已核对接受的差异：新站只多出 extra 这些文字（去掉后与旧站逐字相等）才算通过，见 known-diffs.json
+const knownFile = JSON.parse(readFileSync(new URL('./known-diffs.json', import.meta.url), 'utf8'));
+const known = knownFile.pages;
+// 迁移完成后有意修订正文的页（内容修正 T6c）：正文 / 标题 / 代码内容本来就变了，只守住「代码块数量、图片、链接、canonical、JSON-LD 不少」
+const edited = knownFile.edited ?? {};
+const editedSeen = [];
+// 旧站全站写死的 canonical（没有就不放行任何 canonical 差异）
+const canonicalFrom = (knownFile.canonicalFrom ?? '').trim();
+const canonicalFixed = new Set();
+/** canonical 是否等价：逐字相等，或旧站是登记的写死地址、新站正好是本页地址（ai-workstation/index.html → …/ai-workstation/） */
+const canonicalOk = (page, o, n) => {
+  const oc = (o.canonical ?? '').trim(), nc = (n.canonical ?? '').trim();
+  if (oc === nc) return true;
+  if (!canonicalFrom || oc !== canonicalFrom) return false;
+  const self = canonicalFrom.replace(/\/+$/, '') + '/' + page.replace(/(^|\/)index\.html$/, '$1');
+  if (nc !== self) return false;
+  canonicalFixed.add(page);
+  return true;
+};
+// 旧站本来就失效的链接（多为坏锚点）修好后的对照：{ "旧链接": "新链接" }，键值都写解码后的形态（含 .html）。
+// 比对前把旧站这条换成新链接 —— 修的是旧站的错，不算「链接丢了」；没登记的链接照样一条不能少
+const linkFixes = knownFile.linkFixes ?? {};
+// 有意换掉的旧站后缀 / 全站描述（known-diffs.json metaFrom）
+const metaFrom = knownFile.metaFrom ?? {};
+const siteMeta = readSiteMeta(process.cwd());
+const newSuffix = siteMeta.titleSuffix || siteMeta.name;   // 与 lib/seo.ts buildTitle 同口径：没配后缀用站名
+let metaSwapped = 0;
+/** 旧标题的后缀换成当前后缀后是否等于新标题（没登记 metaFrom.titleSuffix 时恒 false） */
+const suffixSwapped = (oldTitle, newTitle) => {
+  const from = metaFrom.titleSuffix;
+  if (!from || !newSuffix || !oldTitle.endsWith(from)) return false;
+  return oldTitle.slice(0, -from.length) + newSuffix === newTitle;
+};
+// 已决定的标题变化：旧站重复的 <title> 在页名后加「 · 区分名」（src/data/title-qualifiers.json，页面 id → 区分名）。
+// 只接受恰好是这一处插入的变化，别的标题差异照样判不通过
+const qualifiers = JSON.parse(readFileSync(new URL('../../src/data/title-qualifiers.json', import.meta.url), 'utf8'));
+const qualifiedTitle = (page, oldTitle) => {
+  const q = qualifiers[page.replace(/\.html$/, '')];
+  return q ? oldTitle.replace(/ \| /, ` · ${q} | `) : null;
+};
+let titleAccepted = 0;
+const squashAll = (t) => t.replace(/\s+/g, '');
+/**
+ * 新站正文去掉允许多出的文字后，是否与旧站逐字相等。
+ * 同一段文字在页面里可能出现多次（别处行内代码里的照常显示），逐个出现位置试删，有一种删法能对上才算接受
+ */
+function acceptedDiff(page, oldText, newText) {
+  const k = known[page];
+  if (!k) return false;
+  const target = squashAll(oldText);
+  const tryRemove = (text, extras) => {
+    if (extras.length === 0) return text === target;
+    const [e, ...rest] = extras;
+    for (let i = text.indexOf(e); i >= 0; i = text.indexOf(e, i + 1)) {
+      if (tryRemove(text.slice(0, i) + text.slice(i + e.length), rest)) return true;
+    }
+    return false;
+  };
+  return tryRemove(squashAll(newText), k.extra);
+}
+
+/**
+ * 正文切句：先去掉全部空白再按句读切。必须先去空白——两站在块级元素之间放的空白不同（VitePress 保留换行、Astro 压缩），
+ * 先切后去会让同一段话在两边切出不同的边界，误报成「丢句子」
+ */
+const sentences = (t) =>
+  t.replace(/\s+/g, '').split(/(?<=[。！？；!?;])/).filter((s) => s.length >= 4);
+
+/** 多重集差：a 里有、b 里不够数的元素 */
+function missing(a, b) {
+  const count = new Map();
+  for (const x of b) count.set(x, (count.get(x) ?? 0) + 1);
+  const out = [];
+  for (const x of a) {
+    const n = count.get(x) ?? 0;
+    if (n > 0) count.set(x, n - 1);
+    else out.push(x);
+  }
+  return out;
+}
+
+const rows = [];
+let failed = 0;
+for (const page of Object.keys(next).sort()) {
+  const o = base[page];
+  const n = next[page];
+  if (!o) continue; // 新站独有的页（如新首页、指南示例），不在比对范围
+  const lostText = missing(sentences(o.text), sentences(n.text));
+  const extraText = missing(sentences(n.text), sentences(o.text));
+  const codeCountOk = o.codes.length === n.codes.length;
+  const codeMismatch = codeCountOk ? o.codes.filter((c, i) => c.hash !== n.codes[i].hash).length : Math.abs(o.codes.length - n.codes.length);
+  const headOk = JSON.stringify(o.headings) === JSON.stringify(n.headings);
+  const anchorDiff = missing(o.anchors ?? [], n.anchors ?? []);
+  // 图片地址：两站对中文文件名的编码不同（/软著.png vs /%E8%BD%AF%E8%91%97.png），解码后再比
+  const src = (imgs) => imgs.map((i) => { try { return decodeURI(i.src); } catch { return i.src; } });
+  const imgLost = missing(src(o.images), src(n.images));
+  const imgExtra = missing(src(n.images), src(o.images));
+  // 链接解码后再比：新站把中文锚点 / 路径编码成 %E5…，浏览器视为同一地址。
+  // 相对链接再按所在页解析成站内绝对路径：旧站写 ./../modules/words.html、新站输出 ../modules/words.html，指向同一页（officia 迁移实录）
+  const dec = (l) => {
+    let s = l;
+    if (/^\.\.?\//.test(s)) { try { const u = new URL(s, `https://site.invalid/${page}`); s = u.pathname + u.search + u.hash; } catch { /* 原样比 */ } }
+    // 站内无扩展名路径补 .html：旧站 cleanUrls 未开，组件里手写的 <a href="/features/mobile"> 实际就是 /features/mobile.html（knowledge-base 迁移实录）
+    s = s.replace(/^(\/[^?#.]*[^/?#.])(?=[?#]|$)/, '$1.html');
+    try { return decodeURI(s); } catch { return s; }
+  };
+  // 新站把演示站链接改指手机外框预览页（/preview.html?url=原地址，见 src/lib/preview.mjs）：还原成原地址再比，链接去处变了但一条不能少
+  const unwrap = (l) => {
+    const m = /^\/preview\.html\?url=([^&#]+)/.exec(l);
+    return m ? decodeURIComponent(m[1]) : l;
+  };
+  // linkFixes 值为 null：旧站把正文里的占位文字自动识别成了链接（如「https://你的网址」→ punycode 假域名），新站有意不做成链接，这条不算丢
+  const linkLost = missing(
+    (o.links ?? []).map(dec).filter((l) => linkFixes[l] !== null).map((l) => linkFixes[l] ?? l),
+    (n.links ?? []).map(unwrap).map(dec),
+  );
+  const qt = qualifiedTitle(page, o.title ?? '');
+  const titleOk = (o.title ?? '') === (n.title ?? '') || (qt === n.title && ++titleAccepted > 0)
+    || ((suffixSwapped(o.title ?? '', n.title ?? '') || (qt !== null && suffixSwapped(qt, n.title ?? ''))) && ++metaSwapped > 0);
+  const od = (o.description ?? '').trim(), nd = (n.description ?? '').trim();
+  const descOk = od === nd || (!!metaFrom.description && od === metaFrom.description.trim() && nd !== '' && nd !== od);
+  // 首尾空白不算差异：新站输出 meta 时会 trim（lib/seo.ts），搜索结果展示同样不带首尾空格；
+  // 旧站自动截取的描述偶尔停在空格上（tauri-docs database/design「{ version = 」），逐字比会误报
+  const metaDiff = [...(titleOk ? [] : ['title']), ...(descOk ? [] : ['description']), ...(canonicalOk(page, o, n) ? [] : ['canonical'])];
+  const jsonLdOk = (n.jsonLd ?? 0) >= (o.jsonLd ?? 0);
+  const r = {
+    page,
+    lost: lostText.length,
+    extra: extraText.length,
+    codes: `${n.codes.length}/${o.codes.length}`,
+    codeMismatch,
+    headings: headOk ? 'ok' : `${n.headings.length}/${o.headings.length}`,
+    anchors: anchorDiff.length,
+    images: imgLost.length + imgExtra.length ? `${n.images.length}/${o.images.length}（缺 ${imgLost.length} 多 ${imgExtra.length}）` : `${n.images.length}/${o.images.length}`,
+    links: linkLost.length ? `缺 ${linkLost.length}` : 'ok',
+    meta: metaDiff.length ? metaDiff.join(',') : 'ok',
+    jsonLd: `${n.jsonLd ?? 0}/${o.jsonLd ?? 0}`,
+    rows: `${n.tableRows}/${o.tableRows}`,
+  };
+  const textOk = r.lost === 0 || acceptedDiff(page, o.text, n.text);
+  if (r.lost > 0 && textOk) r.lost = `0（已核对：${known[page].reason.slice(0, 12)}…）`;
+  if (edited[page]) {
+    // 修订页守的是「不少」（见上方 edited 的说明）：代码块可以多（officia 首页按原型重做后多了示例代码），不能少
+    const keep = n.codes.length >= o.codes.length && imgLost.length === 0 && linkLost.length === 0 && canonicalOk(page, o, n) && jsonLdOk;
+    editedSeen.push(`${page}：${edited[page].reason}（句子 -${r.lost} / +${r.extra}，${keep ? '代码块数 / 图片 / 链接 / canonical / JSON-LD 守住' : '❌ 代码块数 / 图片 / 链接 / canonical / JSON-LD 有缺'}）`);
+    if (!keep) failed++;
+    rows.push({ ...r, pass: keep });
+    continue;
+  }
+  const pass =
+    textOk && codeCountOk && codeMismatch === 0 && headOk && r.anchors === 0 &&
+    imgLost.length === 0 && imgExtra.length === 0 && n.tableRows === o.tableRows &&
+    linkLost.length === 0 && metaDiff.length === 0 && jsonLdOk;
+  if (!pass) failed++;
+  rows.push({ ...r, pass });
+  if (details && !pass) {
+    console.log(`\n── ${page}`);
+    if (lostText.length) console.log('  丢失句子：', lostText.slice(0, 8));
+    if (extraText.length) console.log('  多出句子：', extraText.slice(0, 5));
+    if (!headOk) console.log('  标题 旧：', missing(o.headings, n.headings).slice(0, 5), '\n  标题 新：', missing(n.headings, o.headings).slice(0, 5));
+    if (imgLost.length || imgExtra.length) console.log('  图片 缺：', imgLost.slice(0, 5), ' 多：', imgExtra.slice(0, 5));
+    if (linkLost.length) console.log('  缺链接：', linkLost.slice(0, 8), '\n  新站链接：', (n.links ?? []).slice(0, 8));
+    for (const k of metaDiff) console.log(`  ${k} 旧：${o[k]}\n  ${k} 新：${n[k]}`);
+    if (!jsonLdOk) console.log(`  JSON-LD 段数 旧 ${o.jsonLd} 新 ${n.jsonLd}`);
+    if (anchorDiff.length) console.log('  缺锚点：', anchorDiff.slice(0, 8), '\n  新站多出：', missing(n.anchors ?? [], o.anchors ?? []).slice(0, 8));
+    if (codeMismatch) {
+      const bad = o.codes.map((c, i) => [i, c, n.codes[i]]).filter(([, c, d]) => !d || c.hash !== d.hash).slice(0, 5);
+      console.log('  代码块不一致：', bad.map(([i, c, d]) => `#${i} ${c.lang}/${d?.lang ?? '无'} 行${c.lines}/${d?.lines ?? 0}`));
+    }
+  }
+}
+console.table(rows.map(({ pass, ...r }) => ({ ...r, 结果: pass ? '✅' : '❌' })));
+if (metaSwapped) console.log(`标题后缀按 known-diffs.json metaFrom 换成「${newSuffix}」：${metaSwapped} 页`);
+if (canonicalFixed.size) console.log(`canonical 从旧站写死的 ${canonicalFrom} 修正为本页地址：${canonicalFixed.size} 页（known-diffs.json canonicalFrom）`);
+if (editedSeen.length) console.log(`有意修订的页（known-diffs.json edited）：\n  ${editedSeen.join('\n  ')}`);
+const strayEdited = Object.keys(edited).filter((p) => !next[p]);
+if (strayEdited.length) {
+  console.log(`known-diffs.json edited 登记的页面在新站不存在：${strayEdited.join(', ')}`);
+  failed++;
+}
+if (titleAccepted) console.log(`已接受的标题变化（重复标题加区分名）：${titleAccepted} 页`);
+console.log(`比对 ${rows.length} 页：通过 ${rows.length - failed}，不通过 ${failed}`);
+process.exit(failed ? 1 : 0);
