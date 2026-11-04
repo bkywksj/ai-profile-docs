@@ -186,6 +186,7 @@ const demo = [...vendors].sort((a, b) => b.kinds.length - a.kinds.length).slice(
     <li><b>按地址识别</b>：生图 / 视频 / 配音没有统一协议，调用时由 <code>ImageProtocol::detect</code> 等按地址判断该走哪一套</li>
     <li><b>关思考</b>：只登记官方文档写明了的 {count((p) => !!p.thinkingOff)} 条；其余留空，OpenAI 官方遇到不认识的参数直接 400，查不到的不猜</li>
     <li><b>（用户填写）</b>：Anthropic 官方、Claude Code / Codex 客户端档和各「自定义」档没有预填地址，界面据此显示地址输入框</li>
+    <li><b>谁维护</b>：清单由 crate 里的 <code>preset/*.rs</code> 生成，加一家要遵守的规则写在 crate 的 <a href="https://github.com/bkywksj/ai-profile/blob/master/CLAUDE.md">CLAUDE.md</a>（地址照抄文档原文、默认模型选够用档、核实日期只在真实密钥调通后填）</li>
     <li><b>分组</b>：「Anthropic / 协议档」这一组按客户端模板归类（Claude Code、Codex 客户端档），所以 Codex 档协议是 OpenAI 兼容却归在这一组</li>
   </ul>
   <div class="ap">

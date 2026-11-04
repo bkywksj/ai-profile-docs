@@ -906,3 +906,7 @@
 .vp-doc:has(#pv) + div { max-width: 65rem; }
 .vp-doc .ap .pv-table { table-layout: fixed; }
 .vp-doc .ap .pv-table td, .vp-doc .ap .pv-table th { padding: 12px 14px; }
+/* 产品矩阵：旧站各产品的视频与试用入口（一行小字） */
+.ap .others-more { margin-top: 16px; font-size: 13.5px; color: var(--ap-ink-3); }
+.ap .others-more .sep { margin: 0 8px; color: var(--ap-line-2); }
+.ap .prod .foot { flex-wrap: wrap; }

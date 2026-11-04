@@ -50,9 +50,9 @@ const DESCRIPTION = 'ai-profile 是给应用用的 AI 模型服务配置层（MI
       <span class="s">"model"</span>: <span class="s">"deepseek-flash"</span> &#125; &#125;</code></pre></div>
             <div class="fig-apps">
               <div class="t"><b class="mono" style="color:var(--ink)">04</b> 复制上面这一段，粘进另一个应用</div>
-              <div class="fig-app"><img src="/products/sigil.svg" alt="" width="48" height="48" loading="lazy" /><b>Sigil 掌玺</b><span>粘贴导入 1 条</span></div>
-              <div class="fig-app"><img src="/products/reeve.png" alt="" width="48" height="48" loading="lazy" /><b>Reeve</b><span>粘贴导入 1 条</span></div>
-              <div class="fig-app"><img src="/products/knowledge-base.png" alt="" width="48" height="48" loading="lazy" /><b>本地知识库</b><span>粘贴导入 1 条</span></div>
+              <div class="fig-app"><img src="/products/sigil.svg" alt="Sigil 掌玺" width="48" height="48" loading="lazy" /><b>Sigil 掌玺</b><span>粘贴导入 1 条</span></div>
+              <div class="fig-app"><img src="/products/reeve.png" alt="Reeve" width="48" height="48" loading="lazy" /><b>Reeve</b><span>粘贴导入 1 条</span></div>
+              <div class="fig-app"><img src="/products/knowledge-base.png" alt="本地知识库" width="48" height="48" loading="lazy" /><b>本地知识库</b><span>粘贴导入 1 条</span></div>
             </div>
           </div>
         </div>
@@ -108,7 +108,7 @@ const DESCRIPTION = 'ai-profile 是给应用用的 AI 模型服务配置层（MI
           <li><span class="n">01</span><b><a class="lnk" href="/guide/quick-start">快速开始</a></b><p>四步跑通一次真实验证：列服务商、取预置、验证密钥、处理错误。</p><div class="ap-chain-row"><span class="ap-chain"><span class="on">preset</span><span class="on">endpoint</span><span class="on">verify</span></span></div></li>
           <li><span class="n">02</span><b><a class="lnk" href="/guide/tauri-integration">Tauri 应用接入</a></b><p>Verifier 存进 AppState、包成 Command、把错误结构原样交给前端。</p></li>
           <li><span class="n">03</span><b><a class="lnk" href="/guide/migration">已发布应用的接入迁移</a></b><p>用户手里已经存着配置时先读这篇：冻结旧规则，写存量地址修正。</p></li>
-          <li><span class="n">04</span><b><a class="lnk" href="/guide/ai-assisted">用 AI 接入</a></b><p>本库 2026-09 才发布，AI 的训练数据里没有它。先让 AI 读 llms-full.txt。</p></li>
+          <li><span class="n">04</span><b><a class="lnk" href="/guide/ai-assisted">用 AI 接入</a></b><p>本库 2026-09 才发布，AI 的训练数据里没有它。先让 AI 读 <a class="lnk" href="/llms-full.txt">llms-full.txt</a>。</p></li>
         </ol>
       </div>
     </div>
@@ -119,7 +119,7 @@ const DESCRIPTION = 'ai-profile 是给应用用的 AI 模型服务配置层（MI
       <div class="sec-head">
         <div class="eyebrow">为什么要有这个库</div>
         <h2>同一段配置逻辑，此前在每个应用里各写一遍</h2>
-        <p>模型 id 一变就必然漏改。ai-profile 只收变动最频繁、跨应用差异为零的那部分；密钥存储、数据库、对话请求这些各应用差异大的，不进本库。</p>
+        <p>模型 id 一变就必然漏改。ai-profile 只收变动最频繁、跨应用差异为零的那部分；密钥存储、数据库、对话请求这些各应用差异大的，不进本库。完整说明见<a class="lnk" href="/guide/introduction">这是什么</a>。</p>
       </div>
       <div class="why-grid">
         <div class="story">
@@ -207,16 +207,16 @@ const DESCRIPTION = 'ai-profile 是给应用用的 AI 模型服务配置层（MI
     <div class="wrap">
       <div class="grp-h" style="margin-top:0"><h2>产品矩阵</h2><span>抓蛙师出品，标着「内置 ai-profile」的三款共用本库的预置与验证</span><a class="lnk-arr" href="/products" style="margin-left:auto"><span>看完整介绍</span><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
       <div class="mini-prods">
-        <a href="https://sigil.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/sigil.svg" alt="" width="48" height="48" loading="lazy" /><div><b>Sigil 掌玺</b><span>AI 凭据金库 · 内置 ai-profile</span></div></a>
-        <a href="https://reeve.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/reeve.png" alt="" width="48" height="48" loading="lazy" /><div><b>Reeve</b><span>SSH 运维 · 内置 ai-profile</span></div></a>
-        <a href="https://kb.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/knowledge-base.png" alt="" width="48" height="48" loading="lazy" /><div><b>本地知识库</b><span>双链 · 图谱 · 内置 ai-profile</span></div></a>
-        <a href="https://aicoder.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/aicoder.png" alt="" width="48" height="48" loading="lazy" /><div><b>智码 AiCoder</b><span>AI CLI 的统一工作台</span></div></a>
-        <a href="https://ai-workstation.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/ai-workstation.svg" alt="" width="48" height="48" loading="lazy" /><div><b>AI 全能工作站</b><span>一句话调度 63 个模块</span></div></a>
-        <a href="https://tauri.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/tauri-desktop.svg" alt="" width="48" height="48" loading="lazy" /><div><b>灵动桌面框架</b><span>Tauri 2 · React 19 + Rust</span></div></a>
-        <a href="https://agileshot.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/agileshot.png" alt="" width="48" height="48" loading="lazy" /><div><b>AgileShot</b><span>截图与标注 · MCP</span></div></a>
-        <a href="https://officia.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/officia.svg" alt="" width="48" height="48" loading="lazy" /><div><b>Officia</b><span>零依赖 Java 办公套件</span></div></a>
-        <a href="https://ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/ruoyi-plus-uniapp.svg" alt="" width="48" height="48" loading="lazy" /><div><b>RuoYi-Plus-UniApp</b><span>Spring Boot 3 全栈框架</span></div></a>
-        <a href="https://qt.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/agile-qt.svg" alt="" width="48" height="48" loading="lazy" /><div><b>Agile-Qt</b><span>AI 原生的 C++20 / Qt 6 框架</span></div></a>
+        <a href="https://sigil.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/sigil.svg" alt="Sigil 掌玺" width="48" height="48" loading="lazy" /><div><b>Sigil 掌玺</b><span>AI 凭据金库 · 内置 ai-profile</span></div></a>
+        <a href="https://reeve.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/reeve.png" alt="Reeve" width="48" height="48" loading="lazy" /><div><b>Reeve</b><span>SSH 运维 · 内置 ai-profile</span></div></a>
+        <a href="https://kb.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/knowledge-base.png" alt="本地知识库" width="48" height="48" loading="lazy" /><div><b>本地知识库</b><span>双链 · 图谱 · 内置 ai-profile</span></div></a>
+        <a href="https://aicoder.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/aicoder.png" alt="智码 AiCoder" width="48" height="48" loading="lazy" /><div><b>智码 AiCoder</b><span>AI CLI 的统一工作台</span></div></a>
+        <a href="https://ai-workstation.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/ai-workstation.svg" alt="AI 全能工作站" width="48" height="48" loading="lazy" /><div><b>AI 全能工作站</b><span>一句话调度 63 个模块</span></div></a>
+        <a href="https://tauri.ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/tauri-desktop.svg" alt="灵动桌面框架" width="48" height="48" loading="lazy" /><div><b>灵动桌面框架</b><span>Tauri 2 · React 19 + Rust</span></div></a>
+        <a href="https://agileshot.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/agileshot.png" alt="AgileShot" width="48" height="48" loading="lazy" /><div><b>AgileShot</b><span>截图与标注 · MCP</span></div></a>
+        <a href="https://officia.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/officia.svg" alt="Officia" width="48" height="48" loading="lazy" /><div><b>Officia</b><span>零依赖 Java 办公套件</span></div></a>
+        <a href="https://ruoyi.plus/" target="_blank" rel="noopener"><img src="/products/ruoyi-plus-uniapp.png" alt="RuoYi-Plus-UniApp" width="48" height="48" loading="lazy" /><div><b>RuoYi-Plus-UniApp</b><span>Spring Boot 3 全栈框架</span></div></a>
+        <a href="https://qt.ruoyi.plus" target="_blank" rel="noopener"><img src="/products/agile-qt.svg" alt="Agile-Qt" width="48" height="48" loading="lazy" /><div><b>Agile-Qt</b><span>AI 原生的 C++20 / Qt 6 框架</span></div></a>
       </div>
       <div class="community"><span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/></svg>B 站视频介绍 <a class="lnk" href="https://www.bilibili.com/video/BV1dhh16qEvE" target="_blank" rel="noopener">BV1dhh16qEvE</a></span><span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>QQ 交流群 <b>1087715758</b> · 接入问题、新服务商需求、Bug 反馈都可以提</span></span></div>
     </div>

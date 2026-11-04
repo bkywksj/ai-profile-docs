@@ -95,7 +95,7 @@ const extraHeadings = [
                 {v.files.map((f) => (
                   <tr>
                     <td>
-                      <a class="lnk mono" href={`/spec/v${v.version}/conformance/${f.file}`} target="_blank" rel="noopener" data-case-link={`conformance/${f.file}`}>{f.file}</a>
+                      <a class="lnk mono" href={v.version === latest.version ? `/spec/conformance/${f.file}` : `/spec/v${v.version}/conformance/${f.file}`} target="_blank" rel="noopener" data-case-link={`conformance/${f.file}`}>{f.file}</a>
                       <span class="sub">{f.title}</span>
                     </td>
                     <td><div class="fn-tags">{(FNS[f.file] ?? ['—']).map((x) => <span class="tag mono">{x}</span>)}</div></td>
