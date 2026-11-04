@@ -92,7 +92,14 @@ for (const id of ids) {
   const file = join(ROOT, 'src/content/docs', `${id}.md`);
   if (!existsSync(file)) continue;
   const url = `${SITE}/${id}.md`;
-  const md = `---\nurl: ${url}\n---\n${toLlmsMarkdown(readFileSync(file, 'utf8'))}\n`;
+  const src = readFileSync(file, 'utf8');
+  let body = toLlmsMarkdown(src);
+  // 页面自己出一级标题的文档（src/pages 下的独立页，.md 正文里不写 # 标题）：按 frontmatter 的 title 补回
+  if (!/^# /m.test(body.replace(/^(```|~~~)[\s\S]*?^\1/gm, ''))) {
+    const title = JSON.parse((src.match(/^title:\s*(".*")\s*$/m) ?? [null, '""'])[1]);
+    body = `# ${title}\n\n${body}`;
+  }
+  const md = `---\nurl: ${url}\n---\n${body}\n`;
   mkdirSync(dirname(join(DIST, `${id}.md`)), { recursive: true });
   writeFileSync(join(DIST, `${id}.md`), md);
   pages.push(md);

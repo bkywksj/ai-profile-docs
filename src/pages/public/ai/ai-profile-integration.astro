@@ -1,0 +1,28 @@
+---
+// 旧网址 /public/ai/ai-profile-integration：VitePress 把 docs/public/ai/ai-profile-integration.md 也当成页面渲染了，旧 sitemap 里有这一条，网址保住。
+// 正文就是 public/ai/ai-profile-integration.md 那一份（内容集合 integration 直接读它，见 src/content.config.ts），不另存副本；
+// 原始文件仍以 /ai/ai-profile-integration.md 原样提供（对外契约，crate 的 README 与 AI 编程助手按这个地址读）
+import { getEntry, render } from 'astro:content';
+import DocsLayout from '@/layouts/DocsLayout.astro';
+import pageDates from '@/data/page-dates.json';
+
+const entry = await getEntry('integration', 'ai-profile-integration');
+if (!entry) throw new Error('[integration] public/ai/ai-profile-integration.md 不存在');
+const { Content, headings } = await render(entry);
+const TITLE = '接入 ai-profile';
+const DESCRIPTION = '给 AI 编程助手读的 ai-profile 接入规则（技能文件原文）：加依赖、必须遵守的规则、已发布应用先做存量修正、常用做法速查，可直接放进项目的技能目录。';
+---
+
+<DocsLayout
+  id="public/ai/ai-profile-integration"
+  title={TITLE}
+  description={DESCRIPTION}
+  lastUpdated={new Date(pageDates.pages['public/ai/ai-profile-integration'])}
+  headings={headings}
+>
+  <div class="vp-callout vp-callout-tip" data-pagefind-ignore>
+    <p class="vp-callout-title">这是一份技能文件的原文</p>
+    <p>写给 AI 编程助手读：把原始文件 <a href="/ai/ai-profile-integration.md">/ai/ai-profile-integration.md</a> 放进项目的技能目录（如 <code>.claude/skills/ai-profile-integration/SKILL.md</code>），或在对话里把这个地址交给它。怎么用见<a href="/guide/ai-assisted">用 AI 接入</a>。</p>
+  </div>
+  <Content />
+</DocsLayout>

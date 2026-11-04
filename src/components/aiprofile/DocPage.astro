@@ -1,0 +1,43 @@
+---
+// 带组件块的文档页（docs.json 的 standalonePages：快速开始、连通性验证、服务商清单、规范与多语言实现、更新日志）：
+// 版式仍是框架的 DocsLayout（侧栏、面包屑、目录、上下篇、最后更新与 TechArticle 都与其他文档页同源），
+// 只多两件事：正文前后可以插构建期从 public/spec 算出来的组件（slot），以及挂上 .ap 组件的交互脚本（复制、页签、下拉）。
+// body = false 时不渲染 .md 正文（服务商清单：网页由数据渲染，.md 是同一份数据的文字版，给 llms-full.txt 与逐页 .md 用）
+import type { MarkdownHeading } from 'astro';
+import { getEntry, render } from 'astro:content';
+import DocsLayout from '@/layouts/DocsLayout.astro';
+import PageScript from '@/components/aiprofile/PageScript.astro';
+
+interface Props {
+  /** 文档 id（src/content/docs 下的相对路径，不含 .md） */
+  id: string;
+  /** 右侧目录：不传用正文的标题；正文由数据渲染时传自己的 */
+  headings?: MarkdownHeading[];
+  /** 是否渲染 .md 正文，默认 true */
+  body?: boolean;
+  /** 页面自己出的一级标题（HTML，可带文字记号）；给了它，.md 正文就不写 # 标题（逐页 .md 与 llms-full.txt 由 build-llms-full 按 title 补回） */
+  h1?: string;
+  /** 正文之前的组件块里的二级标题，排在右侧目录最前面 */
+  extraHeadings?: MarkdownHeading[];
+}
+
+const { id, headings, body = true, h1, extraHeadings = [] } = Astro.props;
+const entry = await getEntry('docs', id);
+if (!entry) throw new Error(`[DocPage] 文档不存在：${id}`);
+const { Content, headings: mdHeadings } = await render(entry);
+---
+
+<DocsLayout
+  id={entry.id}
+  title={entry.data.title}
+  description={entry.data.description}
+  lastUpdated={entry.data.lastUpdated}
+  keywords={entry.data.keywords}
+  headings={headings ?? [...extraHeadings, ...mdHeadings]}
+>
+  {h1 && <h1 set:html={h1} />}
+  <slot name="before" />
+  {body && <Content />}
+  <slot />
+  <div data-pagefind-ignore><PageScript /></div>
+</DocsLayout>

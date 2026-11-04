@@ -1,0 +1,176 @@
+---
+// 规范与多语言实现（旧网址 /reference/spec，用户定的改名；照工作站原型 spec.html）：
+// 页首文件地址框（最新版 / 固定版本切换）与用例文件表由构建期数据渲染（src/lib/spec-data.ts 读 public/spec），正文其余各节仍在 .md；
+// 末尾「给 AI 读的文件」是首页与页头下拉链到的 #ai。用例数、版本号不手写
+import DocPage from '@/components/aiprofile/DocPage.astro';
+import { icon } from '@/lib/ap-icons.mjs';
+import { latestVersion, specVersions } from '@/lib/spec-data';
+import { breakUrl as brk } from '@/lib/ap-format';
+import { FNS, LINK, chain, max, prompt } from '@/lib/spec-page';
+
+const SITE = 'https://ai-profile.ruoyi.plus';
+const latest = specVersions.find((v) => v.version === latestVersion) ?? specVersions[0];
+const extraHeadings = [
+  { depth: 2, slug: 'files', text: '文件地址' },
+  { depth: 2, slug: 'cases', text: '用例文件' },
+];
+---
+
+<DocPage id="reference/spec" h1={'别的语言照用例写，<span class="ap-hl">跑通用例</span>就与 Rust 版一致'} extraHeadings={extraHeadings}>
+  <Fragment slot="before">
+    <p class="ap-lead">
+      ai-profile 目前只有 Rust 实现，但它的价值大半与语言无关：预置数据是一份 JSON，地址拼接、错误判定、模型清洗、<code>ai.profile</code> 解析是一组规则。所以我们把这两样单独发布出来 —— 别的语言<b>不用重抄数据、不用凭文字猜规则</b>：数据直接拿，规则照用例写，跑通用例就与 Rust 版行为一致。
+    </p>
+    <div class="ap ap-meta">
+      <span>全部由 <code>cargo xtask gen-spec</code> 从 Rust 参考实现生成</span>
+      <span>守卫测试 <code>spec_files_in_sync</code></span>
+      <span>specVersion 1 · 当前版本 {latestVersion}</span>
+    </div>
+
+    <h2 id="files">文件地址</h2>
+    <div class="ap" id="spec-box">
+      <div class="addr">
+        <div class="addr-hd">
+          <span class="t">下载</span>
+          <div class="sel" id="spec-ver">
+            <button class="sel-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><small>版本</small><b>最新版</b><Fragment set:html={icon('chev')} /></button>
+            <ul class="sel-list" role="listbox">
+              <li role="option" data-value="latest" data-label="最新版" aria-selected="true">最新版<small>跟着发版变</small></li>
+              {
+                specVersions.map((v) => (
+                  <li role="option" data-value={v.version} data-label={`v${v.version}`} aria-selected="false">
+                    v{v.version}
+                    <small>{v.total} 条</small>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+          <span class="addr-note">最新版跟着发版变；选具体版本得到发布后不再改动的固定地址</span>
+        </div>
+        {
+          [
+            ['预置数据', 'presets.json'],
+            ['用例（以端点拼接为例）', 'conformance/endpoint.json'],
+          ].map(([label, rest]) => (
+            <div class="addr-row">
+              <span class="lbl">{label}</span>
+              <span class="u" data-spec-url={rest} set:html={brk(`${SITE}/spec/${rest}`)} />
+              <span class="acts">
+                <button type="button" data-copy={`${SITE}/spec/${rest}`} aria-label="复制" set:html={icon('copy', 'sm')} />
+                <a href={`/spec/${rest}`} target="_blank" rel="noopener" aria-label="打开" set:html={icon('ext', 'sm')} />
+              </span>
+            </div>
+          ))
+        }
+        <div class="addr-row">
+          <span class="lbl">已有版本清单</span>
+          <span class="u" set:html={brk(`${SITE}/spec/versions.json`)} />
+          <span class="acts">
+            <button type="button" data-copy={`${SITE}/spec/versions.json`} aria-label="复制" set:html={icon('copy', 'sm')} />
+            <a href="/spec/versions.json" target="_blank" rel="noopener" aria-label="打开" set:html={icon('ext', 'sm')} />
+          </span>
+        </div>
+      </div>
+      <div class="callout tip">
+        <Fragment set:html={icon('info')} />
+        <div>
+          <b class="t">最新版还是固定版本</b>
+          <p><code>/spec/presets.json</code> 跟着 crate 发版变；<code>/spec/v{latestVersion}/presets.json</code> 发布后不再改动，自动下载、写进构建脚本时用它。最稳妥的做法是把整个目录复制进你的仓库（<code>spec/</code>），记下来源版本 —— 构建不依赖网络，升级时整体替换、看哪些用例红了，红掉的就是这次规则变化的全部内容。</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="cases">用例文件</h2>
+    <p>当前选中：<b id="case-ver">最新版（= v{latestVersion}）</b> · <span id="case-total">{latest.files.length} 个文件 · {latest.total} 条用例</span>。链路一栏标出每组用例测的是哪一段。</p>
+    <div class="ap">
+      {
+        specVersions.map((v) => (
+          <div class="tbl-wrap case-tbl" data-ver={v.version} hidden={v.version !== latest.version}>
+            <table class="tbl pv-table">
+              <thead>
+                <tr><th>文件</th><th>要实现的函数（用例里的 fn）</th><th>链路</th><th>用例数</th></tr>
+              </thead>
+              <tbody>
+                {v.files.map((f) => (
+                  <tr>
+                    <td>
+                      <a class="lnk mono" href={`/spec/v${v.version}/conformance/${f.file}`} target="_blank" rel="noopener" data-case-link={`conformance/${f.file}`}>{f.file}</a>
+                      <span class="sub">{f.title}</span>
+                    </td>
+                    <td><div class="fn-tags">{(FNS[f.file] ?? ['—']).map((x) => <span class="tag mono">{x}</span>)}</div></td>
+                    <td set:html={chain(LINK[f.file] ?? '')} />
+                    <td><span class="case-n">{f.cases}</span> <span class="case-bar" style={`width:${Math.max(4, Math.round((f.cases / max(v)) * 48))}px`} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))
+      }
+      <div class="callout">
+        <Fragment set:html={icon('alert')} />
+        <div>
+          <b class="t">先读每个文件的 description 和 rules</b>
+          <p><code>description</code> 是完整规则（处理顺序、边界值），用例只是抽样；<code>rules</code> 是规则用到的数据表。第一次外部试写就是对着用例凑：用例全过，凑出来的词表却把 <code>FLUX.1-dev</code> 判成了对话模型。</p>
+        </div>
+      </div>
+    </div>
+  </Fragment>
+
+  <h2 id="ai">给 AI 读的文件</h2>
+  <p>前三份和规范文件一样是对外契约：crate 的 README、Context7、AI 编程助手都按固定地址读取，改版不改路径。</p>
+  <div class="ap">
+    <div class="ai-files">
+      <div class="ai-file">
+        <div class="h"><Fragment set:html={icon('file')} /><b>/ai/ai-profile-integration.md</b></div>
+        <p>接入规则的技能文件原文：加依赖、必须遵守的规则、已发布应用先做存量修正、常用做法速查。可以直接放进项目的技能目录。</p>
+        <div class="url-row"><span>/ai/ai-profile-integration.md</span><button type="button" data-copy={`${SITE}/ai/ai-profile-integration.md`} aria-label="复制" set:html={icon('copy', 'sm')} /></div>
+      </div>
+      <div class="ai-file">
+        <div class="h"><Fragment set:html={icon('list')} /><b>/llms.txt · /llms-full.txt</b></div>
+        <p>构建时按正文生成的索引与全文，产品矩阵不收录。本库 2026-09 才发布，AI 的训练数据里没有它，先让它读全文。</p>
+        <div class="url-row"><span>/llms-full.txt</span><button type="button" data-copy={`${SITE}/llms-full.txt`} aria-label="复制" set:html={icon('copy', 'sm')} /></div>
+      </div>
+      <div class="ai-file">
+        <div class="h"><Fragment set:html={icon('bot')} /><b>context7.json</b></div>
+        <p>Context7 收录的 12 条 rules：依赖写法、不要再写服务商清单、不要补 /v1、match 带 <code>_ =&gt;</code> 分支、只用 builder、非 Rust 项目读 presets.json 并跑通用例…</p>
+        <div class="chips c7-chips"><span class="tag mono">folders: src/content/docs, public/ai</span><span class="tag mono">excludeFiles: products.md</span></div>
+      </div>
+      <div class="ai-file">
+        <div class="h"><Fragment set:html={icon('term')} /><b class="plain">让 AI 照用例实现</b></div>
+        <p>把这段连同用例文件交给它。第 3 条最要紧：AI 遇到过不去的用例，最省事的做法就是改用例。</p>
+        <button class="btn sec sm ai-prompt" type="button" data-copy={prompt}><Fragment set:html={icon('copy', 'sm')} /><span>复制提示词</span></button>
+      </div>
+    </div>
+  </div>
+</DocPage>
+
+<script>
+  // 版本切换：地址框里的地址与复制内容、用例表（每个版本一张，构建期都渲染好）随选中版本变化
+  const SITE = 'https://ai-profile.ruoyi.plus';
+  const sel = document.querySelector<HTMLElement>('#spec-ver');
+  if (sel) {
+    const latest = sel.querySelectorAll('li')[1]?.getAttribute('data-value') ?? '';
+    const apply = (ver: string) => {
+      const pin = ver !== 'latest';
+      const real = pin ? ver : latest;
+      const base = pin ? `/spec/v${ver}/` : '/spec/';
+      for (const el of document.querySelectorAll<HTMLElement>('[data-spec-url]')) {
+        const rest = el.dataset.specUrl!;
+        el.innerHTML = `${SITE}${pin ? `/spec/<em>v${ver}</em>/` : '/spec/'}${rest}`.replace(/(?<!<)\/(?!\/)/g, '/<wbr>');
+        const row = el.closest('.addr-row');
+        row?.querySelector<HTMLElement>('[data-copy]')?.setAttribute('data-copy', SITE + base + rest);
+        row?.querySelector('a')?.setAttribute('href', base + rest);
+      }
+      let total = '';
+      for (const t of document.querySelectorAll<HTMLElement>('.case-tbl')) {
+        t.hidden = t.dataset.ver !== real;
+        if (!t.hidden) total = `${t.querySelectorAll('tbody tr').length} 个文件 · ${[...t.querySelectorAll('.case-n')].reduce((a, n) => a + Number(n.textContent), 0)} 条用例`;
+      }
+      document.querySelector('#case-ver')!.textContent = pin ? `v${ver}` : `最新版（= v${latest}）`;
+      document.querySelector('#case-total')!.textContent = total;
+    };
+    sel.addEventListener('change', (e) => apply((e as CustomEvent<string>).detail));
+  }
+</script>

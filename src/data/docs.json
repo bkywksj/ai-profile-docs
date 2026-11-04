@@ -1,43 +1,147 @@
 {
   "$comment": "docs 模块的本站配置（字段说明见 src/lib/docs-config.ts）。栏目照旧站 nav（指南 / API / 参考）；旧站 sitemap 没有分档，这里按页面角色分",
   "sections": [
-    { "id": "guide", "label": "指南", "home": "guide/introduction" },
-    { "id": "api", "label": "API", "home": "api/preset" },
-    { "id": "reference", "label": "参考", "home": "reference/providers" }
+    {
+      "id": "guide",
+      "label": "指南",
+      "home": "guide/introduction"
+    },
+    {
+      "id": "api",
+      "label": "API",
+      "home": "api/preset"
+    },
+    {
+      "id": "reference",
+      "label": "参考",
+      "home": "reference/providers"
+    }
   ],
-  "standalonePages": [],
+  "standalonePages": [
+    "reference/providers",
+    "reference/spec",
+    "reference/changelog"
+  ],
   "lastUpdated": "required",
   "sitemapLastmod": "known",
   "article": {
-    "about": ["ai-profile", "Rust crate", "AI 模型服务配置", "LLM 服务商预置", "ai.profile", "Tauri"],
-    "author": { "@type": "Organization", "name": "湛江市麻章区湖光镇若依科技工作室", "url": "https://ai-profile.ruoyi.plus" },
+    "about": [
+      "ai-profile",
+      "Rust crate",
+      "AI 模型服务配置",
+      "LLM 服务商预置",
+      "ai.profile",
+      "Tauri"
+    ],
+    "author": {
+      "@type": "Organization",
+      "name": "湛江市麻章区湖光镇若依科技工作室",
+      "url": "https://ai-profile.ruoyi.plus"
+    },
     "publisher": null,
     "proficiencyLevel": "Expert"
   },
-  "editUrl": "",
+  "editUrl": "https://github.com/bkywksj/ai-profile/issues/new?title=%E6%96%87%E6%A1%A3%EF%BC%9A{title}&body=%E9%A1%B5%E9%9D%A2%EF%BC%9Ahttps%3A%2F%2Fai-profile.ruoyi.plus%2F{id}",
+  "editLabel": "这一页有错漏？在 crate 仓库提 issue",
   "faqPage": "",
   "sectionHero": false,
   "previewHosts": [],
   "sitemap": {
     "rules": [
-      { "paths": ["/"], "priority": 1, "changefreq": "weekly", "why": "首页：品牌词「ai-profile」唯一落地页" },
-      { "paths": ["/guide/introduction", "/guide/quick-start", "/guide/installation", "/reference/providers"], "priority": 0.9, "changefreq": "monthly", "why": "选型与上手：这是什么、怎么装、怎么跑通、支持哪些服务商" },
-      { "prefixes": ["/api/"], "priority": 0.8, "changefreq": "monthly", "why": "API 参考：接入时按函数名搜过来" },
-      { "paths": ["/reference/changelog", "/reference/spec", "/reference/errors"], "priority": 0.8, "changefreq": "monthly", "why": "更新日志、多语言规范、错误码" },
-      { "prefixes": ["/guide/", "/reference/"], "priority": 0.7, "changefreq": "monthly", "why": "其余指南与参考" },
-      { "paths": ["/products", "/services", "/public/ai/ai-profile-integration"], "priority": 0.5, "changefreq": "monthly", "why": "产品矩阵、技术服务、接入技能原文" }
+      {
+        "paths": [
+          "/"
+        ],
+        "priority": 1,
+        "changefreq": "weekly",
+        "why": "首页：品牌词「ai-profile」唯一落地页"
+      },
+      {
+        "paths": [
+          "/guide/introduction",
+          "/guide/quick-start",
+          "/guide/installation",
+          "/reference/providers"
+        ],
+        "priority": 0.9,
+        "changefreq": "monthly",
+        "why": "选型与上手：这是什么、怎么装、怎么跑通、支持哪些服务商"
+      },
+      {
+        "prefixes": [
+          "/api/"
+        ],
+        "priority": 0.8,
+        "changefreq": "monthly",
+        "why": "API 参考：接入时按函数名搜过来"
+      },
+      {
+        "paths": [
+          "/reference/changelog",
+          "/reference/spec",
+          "/reference/errors"
+        ],
+        "priority": 0.8,
+        "changefreq": "monthly",
+        "why": "更新日志、多语言规范、错误码"
+      },
+      {
+        "prefixes": [
+          "/guide/",
+          "/reference/"
+        ],
+        "priority": 0.7,
+        "changefreq": "monthly",
+        "why": "其余指南与参考"
+      },
+      {
+        "paths": [
+          "/products",
+          "/services",
+          "/public/ai/ai-profile-integration"
+        ],
+        "priority": 0.5,
+        "changefreq": "monthly",
+        "why": "产品矩阵、技术服务、接入技能原文"
+      }
     ],
-    "fallback": { "priority": 0.6, "changefreq": "monthly" }
+    "fallback": {
+      "priority": 0.6,
+      "changefreq": "monthly"
+    }
   },
-  "indexnow": { "key": "", "alwaysPush": [] },
+  "indexnow": {
+    "key": "",
+    "alwaysPush": []
+  },
   "llms": {
     "extraHeading": "### 其他页面与文件",
     "extraPages": [
-      { "text": "给 AI 读的接入规则", "path": "/ai/ai-profile-integration.md", "brief": "ai-profile-integration.md 原文：接入时必须遵守的规则，可直接放进项目技能目录" },
-      { "text": "全文文档", "path": "/llms-full.txt", "brief": "全部文档页正文拼成一份，给 AI 编程助手一次读完" },
-      { "text": "规范文件", "path": "/spec/versions.json", "brief": "presets.json 与 conformance 用例的版本清单；其他语言实现按 /spec/v<版本>/ 读" },
-      { "text": "技术服务", "path": "/services", "brief": "把你的应用接进 ai-profile、桌面应用与大模型应用定制开发" },
-      { "text": "产品矩阵", "path": "/products", "brief": "同一作者的产品，其中 7 款内置了 ai-profile" }
+      {
+        "text": "给 AI 读的接入规则",
+        "path": "/ai/ai-profile-integration.md",
+        "brief": "ai-profile-integration.md 原文：接入时必须遵守的规则，可直接放进项目技能目录"
+      },
+      {
+        "text": "全文文档",
+        "path": "/llms-full.txt",
+        "brief": "全部文档页正文拼成一份，给 AI 编程助手一次读完"
+      },
+      {
+        "text": "规范文件",
+        "path": "/spec/versions.json",
+        "brief": "presets.json 与 conformance 用例的版本清单；其他语言实现按 /spec/v<版本>/ 读"
+      },
+      {
+        "text": "技术服务",
+        "path": "/services",
+        "brief": "把你的应用接进 ai-profile、桌面应用与大模型应用定制开发"
+      },
+      {
+        "text": "产品矩阵",
+        "path": "/products",
+        "brief": "同一作者的产品，其中 7 款内置了 ai-profile"
+      }
     ]
   }
 }

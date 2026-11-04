@@ -1,0 +1,61 @@
+---
+// 更新日志（旧网址 /reference/changelog；照工作站原型 changelog.html 的标题区与筛选）：版本正文仍在 .md，日期以 crate 仓库 CHANGELOG.md 为准（用户定的）。
+// 筛选在浏览器里按正文结构做：每个版本（h2）下的小节（h3：新增 / 修复 / 说明 / 能力……）按类型显示或隐藏，一个都不剩的版本整段隐藏；没有 JS 时全部可见
+import DocPage from '@/components/aiprofile/DocPage.astro';
+import { latestVersion } from '@/lib/spec-data';
+---
+
+<DocPage id="reference/changelog" h1="更新日志">
+  <Fragment slot="before">
+    <p class="ap-lead">
+      面向使用者的版本说明：每个版本带来了什么、升级时要不要改代码。开发过程的完整记录见仓库里的 <a href="https://github.com/bkywksj/ai-profile/blob/master/CHANGELOG.md">CHANGELOG.md</a>。
+    </p>
+    <div class="ap cl-bar">
+      <div class="seg" id="cl-seg" role="group" aria-label="按改动类型筛选">
+        <button type="button" data-t="all" aria-pressed="true">全部</button>
+        <button type="button" data-t="new" aria-pressed="false">新增</button>
+        <button type="button" data-t="fix" aria-pressed="false">修复</button>
+        <button type="button" data-t="break" aria-pressed="false">行为变化</button>
+        <button type="button" data-t="note" aria-pressed="false">说明</button>
+      </div>
+      <span class="tag">当前 {latestVersion} · 0.1.x 的补丁升级：<code>cargo update -p ai-profile</code></span>
+    </div>
+  </Fragment>
+</DocPage>
+
+<script>
+  // 小节标题 → 类型（与原型同四类）：新增 / 能力 = new，修复 = fix，标题里有「行为」的 = break，其余 = note
+  const typeOf = (text: string) => (/新增|能力/.test(text) ? 'new' : /修复/.test(text) ? 'fix' : /行为/.test(text) ? 'break' : 'note');
+  const article = document.querySelector('.vp-doc');
+  const seg = document.querySelector('#cl-seg');
+  if (article && seg) {
+    // 把正文切成「版本 → 小节」：h2 到下一个 h2 是一个版本，其中 h3 到下一个 h3 是一个小节；版本里没有小节的整段算「说明」
+    const versions: { els: HTMLElement[]; groups: { type: string; els: HTMLElement[] }[] }[] = [];
+    for (const el of Array.from(article.children) as HTMLElement[]) {
+      if (el.tagName === 'H2') versions.push({ els: [el], groups: [] });
+      else if (!versions.length || el.closest('[data-pagefind-ignore]') || el.classList.contains('ap')) continue;
+      else if (el.tagName === 'H3') versions.at(-1)!.groups.push({ type: typeOf(el.textContent ?? ''), els: [el] });
+      else {
+        const v = versions.at(-1)!;
+        (v.groups.at(-1)?.els ?? v.els).push(el);
+      }
+    }
+    for (const v of versions) if (!v.groups.length) v.groups.push({ type: 'note', els: [] });
+    const btns = Array.from(seg.querySelectorAll<HTMLButtonElement>('button'));
+    btns.forEach((b) =>
+      b.addEventListener('click', () => {
+        btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        const t = b.dataset.t!;
+        for (const v of versions) {
+          let any = false;
+          for (const g of v.groups) {
+            const show = t === 'all' || g.type === t;
+            any ||= show;
+            g.els.forEach((e) => (e.hidden = !show));
+          }
+          v.els.forEach((e) => (e.hidden = !any));
+        }
+      }),
+    );
+  }
+</script>

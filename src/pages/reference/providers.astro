@@ -1,0 +1,288 @@
+---
+// 服务商清单（旧网址 /reference/providers；照工作站原型 providers.html）：统计、可筛选的预置总表、按服务商的第二张表、口径与红线。
+// 🔴 数据全部构建期取自 public/spec/presets.json（src/lib/spec-data.ts），页面上不手写任何数字；改预置请改 crate 的 preset/*.rs，发版后 pnpm sync-spec。
+// 表格在服务端渲染全部 42 行（没有 JS 也能看全、站内搜索也能搜到），脚本只做筛选与排序（切换行的 hidden）。
+// 同一份数据的文字版是 src/content/docs/reference/providers.md（pnpm sync-providers 从 crate 的 docs/providers.md 同步），给 llms-full.txt 与逐页 .md 用，本页不渲染它
+import DocPage from '@/components/aiprofile/DocPage.astro';
+import { icon } from '@/lib/ap-icons.mjs';
+import { breakUrl } from '@/lib/ap-format';
+import { count, crateVersion, presets, vendors, type PresetKind, type PresetType } from '@/lib/spec-data';
+
+const KIND: Record<PresetKind, string> = { chat: '对话', image: '生图', video: '视频', tts: '配音' };
+const TYPE: Record<PresetType, string> = { cloud: '云端', custom: '自定义端点', local: '本地服务' };
+const PROTO: Record<string, string> = { openai_compatible: 'OpenAI 兼容', anthropic: 'Anthropic' };
+const protoOf = (p: (typeof presets)[number]) => (p.kind === 'chat' ? (PROTO[p.protocol] ?? p.protocol) : '按地址识别');
+/** 长网址只在 / 处折行（复审遗留：原来按字符折，域名被拦腰拆开） */
+const media = presets.length - count((p) => p.kind === 'chat');
+const kindTitle = `生图 ${count((p) => p.kind === 'image')} · 视频 ${count((p) => p.kind === 'video')} · 配音 ${count((p) => p.kind === 'tts')}`;
+const VD_OPEN = 12;
+const headings = [
+  { depth: 2, slug: 'presets', text: '全部预置' },
+  { depth: 2, slug: 'vendors', text: '按服务商：同一家共用一个密钥' },
+  { depth: 2, slug: 'rules', text: '这张表的几条口径' },
+];
+// 第二张表前的示例卡：能力最多的两家（同一个密钥横跨多种能力）
+const demo = [...vendors].sort((a, b) => b.kinds.length - a.kinds.length).slice(0, 2);
+---
+
+<DocPage id="reference/providers" body={false} headings={headings}>
+  <h1>服务商清单</h1>
+  <p class="ap-lead">本库内置的全部预置。<code>base_url</code> 一律是服务商文档里的原文（含版本段、不含端点后缀），OpenAI 兼容一侧原样使用，不做任何推断。</p>
+  <div class="ap ap-meta">
+    <span class="ap-chain"><span class="on">preset</span><span>endpoint</span><span>verify</span></span>
+    <span>生成自 <code>/spec/presets.json</code> · crate {crateVersion}</span>
+    <span class="ap-red" set:html={`${icon('ban')}不要手改本页`} />
+    <span>改预置请改 crate 的 <code>preset/*.rs</code></span>
+  </div>
+
+  <div class="ap">
+    <div class="pv-stats">
+      <div><b>{vendors.length}</b><span>家服务商</span></div>
+      <div><b>{presets.length}</b><span>条预置配置</span></div>
+      <div><b>{count((p) => p.kind === 'chat')}</b><span>条对话预置</span></div>
+      <div title={kindTitle}><b>{media}</b><span>条多模态预置</span></div>
+      <div><b>{count((p) => !!p.verifiedAt)}</b><span>条经真实密钥核实</span></div>
+    </div>
+  </div>
+
+  <h2 id="presets">全部预置</h2>
+  <div class="ap" id="pv">
+    <div class="filters" role="search" aria-label="筛选预置">
+      <div class="seg" role="group" aria-label="能力">
+        <button type="button" data-kind="all" aria-pressed="false">全部<span class="c">{presets.length}</span></button>
+        {
+          (['chat', 'image', 'video', 'tts'] as PresetKind[]).map((k) => (
+            <button type="button" data-kind={k} aria-pressed={k === 'chat' ? 'true' : 'false'}>
+              {KIND[k]}
+              <span class="c">{count((p) => p.kind === k)}</span>
+            </button>
+          ))
+        }
+      </div>
+      <div class="sel" id="pv-type">
+        <button class="sel-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><small>类型</small><b>全部</b><Fragment set:html={icon('chev')} /></button>
+        <ul class="sel-list" role="listbox">
+          <li role="option" data-value="all" data-label="全部" aria-selected="true">全部<small>{presets.length}</small></li>
+          <li role="option" data-value="cloud" data-label="云端" aria-selected="false">云端<small>{count((p) => p.type === 'cloud')}</small></li>
+          <li role="option" data-value="custom" data-label="自定义端点" aria-selected="false">自定义端点<small>{count((p) => p.type === 'custom')}</small></li>
+          <li role="option" data-value="local" data-label="本地" aria-selected="false">本地，需先启动服务<small>{count((p) => p.type === 'local')}</small></li>
+        </ul>
+      </div>
+      <label class="f-search"><Fragment set:html={icon('search', 'sm')} /><input id="pv-q" type="text" placeholder="key、名称、地址或模型" aria-label="搜索预置" /></label>
+      <div class="sel" id="pv-mark">
+        <button class="sel-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><small>标记</small><b>不限</b><Fragment set:html={icon('chev')} /></button>
+        <ul class="sel-list" role="listbox">
+          <li role="option" data-value="all" data-label="不限" aria-selected="true">不限<small>{presets.length}</small></li>
+          <li role="option" data-value="ver" data-label="已核实" aria-selected="false">经真实密钥核实<small>{count((p) => !!p.verifiedAt)}</small></li>
+          <li role="option" data-value="think" data-label="可关思考" aria-selected="false">登记了关思考参数<small>{count((p) => !!p.thinkingOff)}</small></li>
+        </ul>
+      </div>
+      <div class="f-right">
+        <div class="sel" id="pv-sort">
+          <button class="sel-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><small>排序</small><b>预置顺序</b><Fragment set:html={icon('chev')} /></button>
+          <ul class="sel-list" role="listbox">
+            <li role="option" data-value="default" data-label="预置顺序" aria-selected="true">预置顺序<small>与下拉一致</small></li>
+            <li role="option" data-value="key" data-label="按 key" aria-selected="false">按 key</li>
+            <li role="option" data-value="verified" data-label="核实日期" aria-selected="false">核实日期，新的在前</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="pv-cap">
+      <span class="f-count" id="pv-count" aria-live="polite">共 {presets.length} 条预置</span>
+      <span>「（用户填写）」表示预置没有预填地址，界面据此显示地址输入框；鼠标停在「可关思考」上可看并入请求体的字段</span>
+    </div>
+    <div class="tbl-wrap pv-desk">
+      <table class="tbl pv-table">
+        <colgroup><col style="width:200px" /><col style="width:96px" /><col /><col style="width:180px" /><col style="width:150px" /><col style="width:112px" /></colgroup>
+        <thead><tr><th>预置 key / 名称</th><th>能力 · 类型</th><th>Base URL</th><th>默认模型</th><th>协议</th><th>核实于</th></tr></thead>
+        <tbody id="pv-body">
+          {
+            presets.map((p, i) => (
+              <tr data-i={i} data-kind={p.kind} data-type={p.type} data-ver={p.verifiedAt ?? ''} data-think={p.thinkingOff ? '1' : ''} data-q={[p.key, p.label, p.vendor, p.baseUrl ?? '', p.model ?? ''].join(' ').toLowerCase()} data-key={p.key}>
+                <td><span class="pk">{p.key}</span><span class="nm">{p.label}</span></td>
+                <td><span class:list={['kind', p.kind]}>{KIND[p.kind]}</span><span class="sub">{TYPE[p.type]}</span></td>
+                <td class="url">{p.baseUrl ? <Fragment set:html={breakUrl(p.baseUrl, true)} /> : <span class="muted">（用户填写）</span>}</td>
+                <td>
+                  <span class="mdl">{p.model ?? <span class="muted">—</span>}</span>
+                  <span class="sub">{p.models ? `候选 ${p.models} 个` : '无候选'}{p.extra.length > 0 && ` · 必填 ${p.extra.join('、')}`}</span>
+                </td>
+                <td>
+                  {protoOf(p)}
+                  {p.kind === 'chat' && <span class="sub ep">→ {p.protocol === 'anthropic' ? '/v1/messages' : '/chat/completions'}</span>}
+                  {p.thinkingOff && <span class="sub"><span class="tag b" title={p.thinkingOff}>可关思考</span></span>}
+                </td>
+                <td>{p.verifiedAt ? <span class="ver">{p.verifiedAt}</span> : <span class="ver no">未核实</span>}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="pv-cards" id="pv-cards">
+      {
+        presets.map((p, i) => (
+          <div class="pv-card" data-i={i}>
+            <div class="top"><span class="pk">{p.key}</span>{p.verifiedAt ? <span class="ver">{p.verifiedAt}</span> : <span class="ver no">未核实</span>}</div>
+            <div class="nm">{p.label}</div>
+            <dl>
+              <dt>能力</dt><dd><span class:list={['kind', p.kind]}>{KIND[p.kind]}</span> · {TYPE[p.type]}</dd>
+              <dt>地址</dt><dd>{p.baseUrl ? <Fragment set:html={breakUrl(p.baseUrl, true)} /> : '（用户填写）'}</dd>
+              <dt>模型</dt><dd>{p.model ?? '—'}</dd>
+              <dt>协议</dt><dd>{protoOf(p)}{p.thinkingOff && ` · 关思考 ${p.thinkingOff}`}</dd>
+            </dl>
+          </div>
+        ))
+      }
+    </div>
+    <div class="empty" id="pv-empty">
+      <b>没有符合条件的预置</b>
+      <p>试试放宽条件：清掉关键词，或把分段、类型、标记改回「全部」「不限」。</p>
+      <button class="btn sec sm" type="button" id="pv-reset">清除全部筛选</button>
+    </div>
+  </div>
+
+  <div class="ap"><span class="eyebrow-ln">第二张表 · 设置页下拉用这一层</span></div>
+  <h2 id="vendors">按服务商：同一家共用一个密钥</h2>
+  <div class="ap">
+    <ul class="vd-demo" aria-label="同一家多种能力的例子">
+      {
+        demo.map((v) => (
+          <li>
+            <b>{v.label}</b>
+            <span>{v.kinds.map((k) => <span class:list={['kind', k]}>{KIND[k]}</span>)}</span>
+            <small>{v.presets} 条预置 · 1 个密钥</small>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+  <p>设置页的下拉用的是这一层（<code>vendors(&amp;[Kind::Chat])</code>）。火山方舟、硅基流动这类同一个 host 横跨多种能力，用户配一次密钥就能全部启用。</p>
+  <div class="ap">
+    <div class="tbl-wrap">
+      <table class="tbl pv-table">
+        <thead><tr><th>服务商</th><th>能力</th><th>Host</th><th>分组</th></tr></thead>
+        <tbody id="vd-body">
+          {
+            vendors.map((v, i) => (
+              <tr data-more={i >= VD_OPEN ? '1' : undefined}>
+                <td><b>{v.label}</b></td>
+                <td><span class="kinds">{v.kinds.map((k) => <span class:list={['kind', k]}>{KIND[k]}</span>)}</span></td>
+                <td class="url">{v.host ?? <span class="muted">（用户填写）</span>}</td>
+                <td>{v.group}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="vd-more-row"><button class="btn sec sm" type="button" id="vd-more" hidden>展开全部 {vendors.length} 家</button></div>
+  </div>
+
+  <h2 id="rules">这张表的几条口径</h2>
+  <ul>
+    <li><b>核实于</b>：<code>verified_at</code> 只在用真实密钥调通后填写。地址都经 <code>cargo xtask probe</code> 实测可达，但 model id 没经真实密钥验证的一律留「未核实」</li>
+    <li><b>按地址识别</b>：生图 / 视频 / 配音没有统一协议，调用时由 <code>ImageProtocol::detect</code> 等按地址判断该走哪一套</li>
+    <li><b>关思考</b>：只登记官方文档写明了的 {count((p) => !!p.thinkingOff)} 条；其余留空，OpenAI 官方遇到不认识的参数直接 400，查不到的不猜</li>
+    <li><b>（用户填写）</b>：Anthropic 官方、Claude Code / Codex 客户端档和各「自定义」档没有预填地址，界面据此显示地址输入框</li>
+    <li><b>分组</b>：「Anthropic / 协议档」这一组按客户端模板归类（Claude Code、Codex 客户端档），所以 Codex 档协议是 OpenAI 兼容却归在这一组</li>
+  </ul>
+  <div class="ap">
+    <div class="callout red">
+      <Fragment set:html={icon('ban')} />
+      <div>
+        <b class="t">红线：在应用里再写一份服务商清单</b>
+        <p>本库存在的全部理由就是消掉这些副本。只属于某个应用的私有服务商，用 <code>PresetCatalog::new().extend(&amp;LOCAL)</code> 加在应用里；公共的服务商改本库，见<a class="lnk" href="/reference/add-provider">加一家服务商</a>。</p>
+      </div>
+    </div>
+  </div>
+</DocPage>
+
+<script>
+  // 服务商总表的筛选与排序：按能力分段 / 类型 / 标记 / 关键词切换行与卡片的 hidden；默认只看「对话」（42 条全列太长）
+  const $ = <T extends Element = HTMLElement>(s: string) => document.querySelector<T>(s);
+  const $$ = <T extends Element = HTMLElement>(s: string) => Array.from(document.querySelectorAll<T>(s));
+  const body = $('#pv-body');
+  if (body) {
+    const rows = $$<HTMLTableRowElement>('#pv-body tr');
+    const cards = $$<HTMLElement>('#pv-cards .pv-card');
+    const st = { kind: 'chat', type: 'all', q: '', ver: false, think: false, sort: 'default' };
+    const draw = () => {
+      const k = st.q.trim().toLowerCase();
+      const shown = rows.filter((r) => {
+        const d = r.dataset;
+        return (st.kind === 'all' || d.kind === st.kind) && (st.type === 'all' || d.type === st.type) && (!st.ver || !!d.ver) && (!st.think || !!d.think) && (!k || d.q!.includes(k));
+      });
+      const set = new Set(shown.map((r) => r.dataset.i));
+      const order = [...rows];
+      if (st.sort === 'key') order.sort((a, b) => a.dataset.key!.localeCompare(b.dataset.key!));
+      else if (st.sort === 'verified') order.sort((a, b) => (b.dataset.ver ?? '').localeCompare(a.dataset.ver ?? '') || Number(a.dataset.i) - Number(b.dataset.i));
+      else order.sort((a, b) => Number(a.dataset.i) - Number(b.dataset.i));
+      for (const r of order) {
+        r.hidden = !set.has(r.dataset.i);
+        body.appendChild(r);
+      }
+      const cardBox = $('#pv-cards')!;
+      for (const r of order) {
+        const c = cards.find((x) => x.dataset.i === r.dataset.i)!;
+        c.hidden = !set.has(c.dataset.i);
+        cardBox.appendChild(c);
+      }
+      $('#pv-count')!.textContent = `显示 ${shown.length} / ${rows.length} 条预置`;
+      $('#pv-empty')!.classList.toggle('show', !shown.length);
+      for (const x of $$('.pv-desk')) x.style.visibility = shown.length ? '' : 'hidden';
+    };
+    const kinds = $$<HTMLButtonElement>('[data-kind]');
+    kinds.forEach((b) =>
+      b.addEventListener('click', () => {
+        st.kind = b.dataset.kind!;
+        kinds.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        draw();
+      }),
+    );
+    $('#pv-type')!.addEventListener('change', (e) => {
+      st.type = (e as CustomEvent<string>).detail;
+      draw();
+    });
+    $('#pv-sort')!.addEventListener('change', (e) => {
+      st.sort = (e as CustomEvent<string>).detail;
+      draw();
+    });
+    $('#pv-mark')!.addEventListener('change', (e) => {
+      const v = (e as CustomEvent<string>).detail;
+      st.ver = v === 'ver';
+      st.think = v === 'think';
+      draw();
+    });
+    const q = $<HTMLInputElement>('#pv-q')!;
+    q.addEventListener('input', () => {
+      st.q = q.value;
+      draw();
+    });
+    $('#pv-reset')!.addEventListener('click', () => {
+      Object.assign(st, { kind: 'all', type: 'all', q: '', ver: false, think: false });
+      q.value = '';
+      $$<HTMLElement>('#pv-mark .sel-list li')[0]?.click();
+      $$<HTMLElement>('#pv-type .sel-list li')[0]?.click();
+      kinds.forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.kind === 'all')));
+      draw();
+    });
+    draw();
+
+    // 第二张表默认只露前 12 家，「展开全部」与下一节标题之间留出段落间距（复审遗留）
+    const more = $<HTMLButtonElement>('#vd-more');
+    const extra = $$<HTMLTableRowElement>('#vd-body tr[data-more]');
+    if (more && extra.length) {
+      const label = more.textContent;
+      extra.forEach((r) => (r.hidden = true));
+      more.hidden = false;
+      more.addEventListener('click', () => {
+        const open = more.dataset.open === '1';
+        extra.forEach((r) => (r.hidden = open));
+        more.dataset.open = open ? '0' : '1';
+        more.textContent = open ? label : '收起';
+      });
+    }
+  }
+</script>
