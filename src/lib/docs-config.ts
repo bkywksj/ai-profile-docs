@@ -55,8 +55,13 @@ export interface DocsConfig {
     publisher: Record<string, unknown> | null;
     proficiencyLevel: string;
   };
-  /** 「在 GitHub 上编辑此页面」链接模板，{id} 换成页面 id；留空不显示 */
+  /** 「在 GitHub 上编辑此页面」链接模板，{id} 换成页面 id、{title} 换成页面标题（已做 URL 编码）；留空不显示 */
   editUrl: string;
+  /**
+   * 页底那条链接的文字，默认「在 GitHub 上编辑此页面」。
+   * 文档站仓库不公开、改为指向主仓库 issue 的站写「在 GitHub 上反馈这一页」之类（editUrl 写 issues/new?title=… 模板）
+   */
+  editLabel?: string;
   /** 常见问题页的文档 id：这一页额外输出 FAQPage 结构化数据（问答取 src/lib/site-jsonld.ts 的 faqJsonLd）；留空没有 */
   faqPage: string;
   /** 栏目首页（x/index）正文上方加首屏大图：需要项目自己提供 src/components/docs/SectionHero.astro */

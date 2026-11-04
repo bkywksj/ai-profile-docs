@@ -48,7 +48,7 @@ description: docs 模块（迁移型文档站骨架）：.md 原样迁入、Docs
 | `lastUpdated` | `required` 每篇必填、页底显示 / `optional` / `off`（ruoyi.plus） | |
 | `sitemapLastmod` | `strict` 缺一个日期构建失败（独立页登记 `page-dates.json`）/ `known` / `off` | |
 | `article` | 每页 TechArticle 的 `about` / `author` / `publisher` / `proficiencyLevel`（照旧站 transformPageData） | |
-| `editUrl` | 「在 GitHub 上编辑此页面」模板，`{id}` 换页面 id；空 = 不显示 | ruoyi.plus |
+| `editUrl` / `editLabel` | 「在 GitHub 上编辑此页面」模板，`{id}` 换页面 id、`{title}` 换标题；空 = 不显示。`editLabel` 改链接文字（文档站仓库不公开、改指主仓库 issue 的站用） | ruoyi.plus；ai-profile 指 crate 的 issues/new |
 | `faqPage` | 这一页加 FAQPage（问答在 `site-jsonld.ts` 的 `faqJsonLd`，必须与页面可见内容一致） | 知识库 `faq` |
 | `sectionHero` | 栏目首页正文上方加大图（项目提供 `components/docs/SectionHero.astro`） | ruoyi.plus |
 | `previewHosts` | H5 演示站域名：正文链接改指本站手机外框预览页 | ruoyi.plus `uni.ruoyi.plus` |
