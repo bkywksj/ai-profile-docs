@@ -10,9 +10,9 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/build-icons.mjs && node scripts/build-llms.mjs && astro check && astro build && pagefind --site dist && node scripts/build-llms-full.mjs",
+    "build": "node scripts/build-icons.mjs && node scripts/build-llms.mjs && astro check && astro build && node scripts/build-llms-full.mjs && pagefind --site dist",
     "cache:clear": "node -e \"for (const d of ['.astro', 'node_modules/.astro']) require('fs').rmSync(d, { recursive: true, force: true })\"",
-    "build:fast": "node scripts/build-icons.mjs && node scripts/build-llms.mjs && astro build && pagefind --site dist && node scripts/build-llms-full.mjs",
+    "build:fast": "node scripts/build-icons.mjs && node scripts/build-llms.mjs && astro build && node scripts/build-llms-full.mjs && pagefind --site dist",
     "preview": "astro preview",
     "check": "astro check && node scripts/check-facts.mjs && node scripts/check-links.mjs",
     "sync": "node scripts/sync/run.mjs",

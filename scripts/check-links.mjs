@@ -47,8 +47,8 @@ for (const file of files) {
   const text = readFileSync(join(DIST, file), 'utf8');
   const refs = [];
   if (isHtml) {
-    // 代码块里的示例 HTML 不算链接：先去掉 <pre>…</pre> 与 <code>…</code>
-    const html = text.replace(/<pre[\s\S]*?<\/pre>/g, '').replace(/<code[\s\S]*?<\/code>/g, '');
+    // 内联脚本里的模板字符串、代码块里的示例 HTML 不算链接：先去掉 <script>、<pre>、<code>
+    const html = text.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<pre[\s\S]*?<\/pre>/g, '').replace(/<code[\s\S]*?<\/code>/g, '');
     for (const m of html.matchAll(ATTR)) {
       if (m[1]) refs.push(m[1]);
       else for (const part of m[2].split(',')) refs.push(part.trim().split(/\s+/)[0]);

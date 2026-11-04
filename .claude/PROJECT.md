@@ -23,7 +23,7 @@
 | 文档页（.md + 三栏） | `src/pages/[...slug].astro` + `src/layouts/DocsLayout.astro` + `src/lib/docs.ts`（配置 `src/data/docs.json`、侧栏 `src/data/sidebar.json`） |
 | 营销页（首页、产品矩阵、技术服务） | `src/pages/index.astro`、`src/pages/products.astro`、`src/pages/services.astro`；样式 `src/styles/aiprofile.css`（全部挂在 `.ap` 作用域下），交互 `src/components/aiprofile/PageScript.astro` |
 | 数据驱动的文档页（服务商清单） | `src/pages/reference/providers.astro`（数据 `src/lib/spec-data.ts` 读 `public/spec/`） |
-| llms.txt / llms-full.txt / 逐页 .md | `scripts/build-llms.mjs` + `src/data/llms-facts.md`（产物 `public/llms.txt`）；`scripts/build-llms-full.mjs`（构建后写进 dist） |
+| llms.txt / llms-full.txt / 逐页 .md（原生成型端点 src/pages/llms.txt.ts，本站不用） | `scripts/build-llms.mjs` + `src/data/llms-facts.md`（产物 `public/llms.txt`）；`scripts/build-llms-full.mjs`（构建后写进 dist） |
 | robots / sitemap / 结构化数据 | `src/pages/robots.txt.ts`、`src/data/ai-crawlers.json`、`src/data/docs.json` 的 `sitemap`、独立页日期 `src/data/page-dates.json`、`src/lib/site-jsonld.ts` |
 
 ## 外部依赖本站的文件（crate 仓库的技能会读写）

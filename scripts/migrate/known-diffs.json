@@ -1,5 +1,47 @@
 {
   "说明": "（项目文件，框架同步不覆盖）已人工核对、接受的正文差异。pages：只允许「新站比旧站多出 extra 这段文字」，去掉后两边正文必须逐字相等；edited：迁移完成后有意修订正文的页（只守住代码块数量不少、图片、链接、canonical、JSON-LD 不少），每条写 reason。键是 xxx.html",
+  "metaFrom": {
+    "description": "ai-profile 是给桌面应用用的 AI 模型服务配置层：对话 25 家与生图 / 视频 / 配音预置、生图视频配音调用、ai.profile 跨应用互通协议、端点拼接、连通性验证与限额。纯 Rust，默认零重依赖，按 feature 裁剪。",
+    "reason": "旧站全站 26 页共用 config.ts 的这一条 description（check:seo 不许重复），新站每页各写一句；这一条原文仍保留在 SoftwareSourceCode.description 里"
+  },
   "pages": {},
-  "edited": {}
+  "edited": {
+    "index.html": {
+      "reason": "首页按工作站原型 index.html 重做（用户 2026-11-04 确认）：旧首页 VitePress hero + features 换成图 1、30 秒上手、为什么、九项能力索引、谁在用（补 Prism 与 AI 标书工作站到 7 家）、对外契约、产品与交流、深色收尾；产品矩阵小卡补 Agile-Qt"
+    },
+    "products.html": {
+      "reason": "产品矩阵按原型 products.html 重做：旧站 AProductCard 的彩色标语卡改成墨色卡片 + 各产品 Logo；补 Agile-Qt（用户定的）；内置 ai-profile 的三款单列"
+    },
+    "public/ai/ai-profile-integration.html": {
+      "reason": "这一页的正文就是 public/ai/ai-profile-integration.md 原文（新站直接渲染 public 那份，不另存副本）；页首加一段说明（这是给 AI 读的技能文件原文、原始地址、怎么用）"
+    },
+    "reference/providers.html": {
+      "reason": "服务商清单按原型 providers.html 改为数据驱动：统计、可筛选的预置总表（含协议对应的最终端点、关思考、核实日期）、按服务商的第二张表全部构建期取自 /spec/presets.json；crate 生成的 providers.md 文字版仍在（逐页 .md 与 llms-full.txt），口径一节补 Codex 档分组说明（用户定的）"
+    },
+    "reference/spec.html": {
+      "reason": "「其他语言实现」改名「规范与多语言实现」（用户定的，title 与 h1 一起改）；下载与「最新版与固定版本」两节换成可切版本的地址框与用例文件表（构建期取自 /spec），并新增「给 AI 读的文件」一节；limits 示例按源码补两个来源字段"
+    },
+    "reference/changelog.html": {
+      "reason": "0.1.6、0.1.4 的日期改为 crate CHANGELOG.md 的 2026-10-01、2026-09-30（用户定的以 CHANGELOG 为准，标题锚点随之变化）；页首加类型筛选；链接文字改「规范与多语言实现」"
+    },
+    "guide/quick-start.html": {
+      "reason": "按原型 quickstart.html 补页首链路签、「环境与依赖」与「完整示例」（代码组 + 运行结果）；按源码修正：check_required_fields 示例改用真实预置 volc_tts、Ollama 输出名称、ModelNotFound 标为预留变体"
+    },
+    "api/verify.html": {
+      "reason": "按原型 verify.html 补页首链路签与「一次验证做了什么」四步卡；按源码修正：TokenLimits 补两个来源字段、纯函数表补 diagnose_success / parse_model_limits、probe 条数、check_required_fields 示例改用 volc_tts"
+    },
+    "api/endpoint.html": { "reason": "源码核对：ends_with_version_segment 实际被 anthropic_base_url 用来判断要不要补 /v1（endpoint.rs:70-78）" },
+    "api/history.html": { "reason": "源码核对：HistoryMessage 要求类型实现 Clone（history.rs:68）；限额改指独立的限额页" },
+    "api/media.html": { "reason": "源码核对：视频示例的 use 补 explain_error（media/video.rs:1280）" },
+    "api/preset.html": { "reason": "源码核对：顺序规则改「同一能力内同一分组连续」、字段表补 default_extra、补 ProviderPreset::endpoint()（preset/mod.rs）" },
+    "api/protocol.html": { "reason": "源码核对：InvalidJson 也覆盖顶层不是对象与字段类型不对（protocol.rs:307-339）；链接文字改「规范与多语言实现」" },
+    "api/stream.html": { "reason": "链接文字「其他语言实现」改「规范与多语言实现」（用户定的）" },
+    "guide/ai-assisted.html": { "reason": "下游从五个应用更新为七个（docs/downstream.md）；链接文字改「规范与多语言实现」" },
+    "guide/frontend.html": { "reason": "源码核对：TS 的 TokenLimits 补 contextWindowSource / maxOutputSource（limits.rs:112-115），camelCase 一行补 VerifyOk / TokenLimits / ParsedProfile" },
+    "guide/installation.html": { "reason": "源码核对：chat 组合补限额、历史裁剪、流式解码（lib.rs、stream.rs）" },
+    "guide/introduction.html": { "reason": "源码核对：「不做流式解析」已过时（0.1.4 起 stream 在库里），边界表补流式解码；谁在用补 Prism 与 AI 标书工作站（用户定的，依据 docs/downstream.md），各家补流式解码" },
+    "reference/add-provider.html": { "reason": "源码核对：预置字面量补 thinking_off、测试补 --all-features、probe 条数、分组连续规则（preset/mod.rs、docgen.rs、xtask）" },
+    "reference/errors.html": { "reason": "源码核对：malformed 与 missing_extra_field 的触发条件（client/mod.rs:202-213、359-420、473-488）" },
+    "reference/versioning.html": { "reason": "源码核对：补 0.x 阶段的版本位换算与发版前检查三条（crate docs/versioning.md）" }
+  }
 }
