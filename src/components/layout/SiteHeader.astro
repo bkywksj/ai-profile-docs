@@ -9,6 +9,7 @@ import ThemeToggle from './ThemeToggle.astro';
 import SearchButton from '@/components/docs/SearchButton.astro';
 import SearchDialog from '@/components/docs/SearchDialog.astro';
 import Container from '@/components/ui/Container.astro';
+import { siteOption } from '@/lib/site-options';
 
 const current = Astro.url.pathname;
 // file / preserve 网址形态下 href 带 .html，按 match 前缀（或去掉 .html 的 href）判断，才能让一组页面共用一个导航项。
@@ -34,6 +35,8 @@ const gitee = site.social.find((s) => s.label === 'Gitee');
 const contact = site.contact;
 // 抽屉里联系按钮的文字：卖授权的站写「咨询购买」，其余默认「联系作者」
 const contactLabel = contact?.label || '联系作者';
+// 页头右侧的文字链接（开源库站的 crates.io、docs.rs 等）：与桌面导航同一断点出现，窄屏列在抽屉底部
+const headerLinks = siteOption('headerLinks');
 const isExternal = (href: string) => /^https?:\/\//.test(href);
 ---
 
@@ -183,6 +186,19 @@ const isExternal = (href: string) => /^https?:\/\//.test(href);
         )
       }
       <ThemeToggle />
+      {headerLinks.map((link) => (
+        <a
+          href={link.href}
+          target={isExternal(link.href) ? '_blank' : undefined}
+          rel={isExternal(link.href) ? 'noopener' : undefined}
+          class:list={[
+            'hidden h-9 shrink-0 items-center rounded-lg px-2 text-[13px] whitespace-nowrap text-muted transition-colors hover:bg-ink/[.04] hover:text-ink',
+            lg ? 'xl:inline-flex' : 'md:inline-flex',
+          ]}
+        >
+          {link.label}
+        </a>
+      ))}
       {
         start && (
           <a
@@ -327,6 +343,11 @@ const isExternal = (href: string) => /^https?:\/\//.test(href);
       <div class="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[13px] text-muted">
         {github && <a href={github.href} target="_blank" rel="noopener" class="py-1 hover:text-ink">GitHub</a>}
         {gitee && <a href={gitee.href} target="_blank" rel="noopener" class="py-1 hover:text-ink">Gitee</a>}
+        {headerLinks.map((link) => (
+          <a href={link.href} target={isExternal(link.href) ? '_blank' : undefined} rel={isExternal(link.href) ? 'noopener' : undefined} class="py-1 hover:text-ink">
+            {link.label}
+          </a>
+        ))}
         {
           contact && (
             <a href={`tel:${contact.tel}`} class="inline-flex items-center gap-1 py-1 hover:text-ink">

@@ -12,6 +12,7 @@
         "src/lib/seo.ts",
         "src/lib/search.ts",
         "src/lib/format.ts",
+        "src/lib/site-options.ts",
         "src/lib/images.ts",
         "src/styles/global.css",
         "src/pages/robots.txt.ts",

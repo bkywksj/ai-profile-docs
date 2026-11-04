@@ -80,6 +80,17 @@ export interface SocialLink {
   href: string;
 }
 
+/**
+ * <head> 里站点图标之外的一组 <link>：PNG 兜底图标、apple-touch-icon、Web App Manifest。
+ * VitePress 迁来的站常在 head 里成组写这些，照搬才能让收藏夹、手机主屏图标、Safari 标签图标不变
+ */
+export interface HeadLink {
+  rel: string;
+  href: string;
+  type?: string;
+  sizes?: string;
+}
+
 export const site = {
   /** 站点全名：出现在 <title> 后缀、og:site_name、JSON-LD WebSite.name */
   name: 'next-ai-astro 示例站',
@@ -126,6 +137,8 @@ export const site = {
   frameWidth: 'default' as 'default' | 'wide',
   /** 站点图标（放 public/ 下）：svg / png / ico 都行，BaseLayout 按扩展名输出 type */
   favicon: '/favicon.svg',
+  /** 站点图标之外、<head> 里成组的图标与 manifest（见 HeadLink），不需要就留空 */
+  headLinks: [] as HeadLink[],
   /** 默认分享图（放 public/ 下），1200×630 */
   ogImage: '/og-default.png',
   /**
@@ -145,6 +158,13 @@ export const site = {
     { label: '关于', href: '/about/' },
   ] as NavItem[],
   social: [{ label: 'GitHub', href: 'https://github.com/' }] as SocialLink[],
+  /** 页脚 social 那一栏的标题，留空 =「关注」（开源库的站写「社区」） */
+  socialTitle: '',
+  /**
+   * 页头右侧、主按钮之前的文字链接（开源库站的 crates.io、docs.rs、npm 这类入口）：桌面导航横排时显示，窄屏抽屉底部同样列出；
+   * 站外链接新窗口打开。不需要就留空
+   */
+  headerLinks: [] as NavItem[],
   /** 备案号（国内服务器必填，显示在页脚；为空则不显示） */
   icp: '',
   /**
