@@ -38,6 +38,8 @@ const contactLabel = contact?.label || '联系作者';
 // 页头右侧的文字链接（开源库站的 crates.io、docs.rs 等）：与桌面导航同一断点出现，窄屏列在抽屉底部
 const headerLinks = siteOption('headerLinks');
 const isExternal = (href: string) => /^https?:\/\//.test(href);
+// 站外链接新标签页打开（产品官网、演示站等，读者点完还能回到本站）
+const ext = (href: string) => (isExternal(href) ? { target: '_blank', rel: 'noopener' } : {});
 ---
 
 <header class="sticky top-0 z-40 border-b border-line bg-elevated/75 text-ink backdrop-blur-xl supports-[backdrop-filter]:bg-elevated/65" data-site-header>
@@ -65,7 +67,7 @@ const isExternal = (href: string) => /^https?:\/\//.test(href);
                   isActive(item) ? 'bg-ink/[.06] font-medium text-ink' : 'text-muted hover:bg-ink/[.04] hover:text-ink',
                 ]}
               >
-                <a href={item.href} class="py-1.5 pr-1 pl-2.5">{item.label}</a>
+                <a href={item.href} {...ext(item.href)} class="py-1.5 pr-1 pl-2.5">{item.label}</a>
                 <button
                   type="button"
                   aria-haspopup="true"
@@ -80,7 +82,7 @@ const isExternal = (href: string) => /^https?:\/\//.test(href);
                   <div class="grid grid-flow-col auto-cols-[minmax(10.5rem,auto)] gap-2 p-3">
                     {item.children!.map((col) => (
                       <div class="min-w-0">
-                        <a href={col.href} class="block px-3 pt-1.5 pb-2 text-[12px] font-semibold tracking-wider text-muted hover:text-ink">{col.label}</a>
+                        <a href={col.href} {...ext(col.href)} class="block px-3 pt-1.5 pb-2 text-[12px] font-semibold tracking-wider text-muted hover:text-ink">{col.label}</a>
                         <ul class="grid gap-0.5">
                           {col.children!.map((child) => (
                             <li>
@@ -109,7 +111,7 @@ const isExternal = (href: string) => /^https?:\/\//.test(href);
                   {item.footerLinks && item.footerLinks.length > 0 && (
                     <div class="flex flex-wrap items-center gap-x-1 rounded-b-2xl border-t border-line bg-ink/[.02] px-3 py-2 text-[13px]">
                       {item.footerLinks.map((link) => (
-                        <a href={link.href} class="rounded-lg px-3 py-1.5 text-muted transition-colors hover:bg-ink/[.04] hover:text-ink">{link.label}</a>
+                        <a href={link.href} {...ext(link.href)} class="rounded-lg px-3 py-1.5 text-muted transition-colors hover:bg-ink/[.04] hover:text-ink">{link.label}</a>
                       ))}
                     </div>
                   )}
@@ -283,7 +285,7 @@ const isExternal = (href: string) => /^https?:\/\//.test(href);
                   {item.footerLinks && item.footerLinks.length > 0 && (
                     <div class="mt-3 flex flex-wrap gap-x-1 border-t border-line px-1 pt-2 text-[13.5px]">
                       {item.footerLinks.map((link) => (
-                        <a href={link.href} class="rounded-lg px-2 py-2 text-muted hover:text-ink">{link.label}</a>
+                        <a href={link.href} {...ext(link.href)} class="rounded-lg px-2 py-2 text-muted hover:text-ink">{link.label}</a>
                       ))}
                     </div>
                   )}
@@ -321,7 +323,7 @@ const isExternal = (href: string) => /^https?:\/\//.test(href);
       <div class="grid gap-2">
         {
           start && (
-            <a href={start.href} class="btn-brand inline-flex h-11 items-center justify-center rounded-full text-[15px] font-semibold">
+            <a href={start.href} {...ext(start.href)} class="btn-brand inline-flex h-11 items-center justify-center rounded-full text-[15px] font-semibold">
               {start.label}
             </a>
           )
