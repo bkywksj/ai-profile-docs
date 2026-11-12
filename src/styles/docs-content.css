@@ -251,6 +251,11 @@
 .ry-sidebar:hover {
   scrollbar-color: var(--line-strong, rgb(0 0 0 / 0.18)) transparent;
 }
+/* 侧栏与目录是 fixed（DocsLayout），滚到页底时页脚要压在它们上面，否则菜单会叠在页脚文字上 */
+[data-site-footer] {
+  position: relative;
+  z-index: 1;
+}
 .ry-sidebar a[aria-current='page'] {
   background: var(--ink);
   color: var(--canvas);

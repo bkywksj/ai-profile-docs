@@ -1,6 +1,6 @@
 ---
 // docs 模块的文档页布局：左侧栏 / 正文（上方一行面包屑）/ 右「页面导航」或手机实时预览，外壳是 BaseLayout。
-// 版心 90rem（文档代码块多，正文需要宽度）；侧栏与目录的吸顶位置 = 起始位置，滚动时一动不动（见下方 aside 注释）。
+// 版心 90rem（文档代码块多，正文需要宽度）；侧栏与目录固定在起始位置，滚动时一动不动，滚到页底由页脚盖过（见下方 aside 注释）。
 // 站点相关的值（TechArticle 字段、编辑链接、FAQ 页、最后更新）都读 src/data/docs.json，本文件在各站逐字节相同。
 // 栏目首页（x/index）可在正文上方加首屏大图：docs.json 的 sectionHero 为 true 且项目提供 src/components/docs/SectionHero.astro
 import type { MarkdownHeading } from 'astro';
@@ -98,8 +98,9 @@ const stale = (outdated.pages as Record<string, { missing: string; see: { text: 
       {
         sidebar.length > 0 && (
           <aside class="hidden lg:block">
-            {/* 吸顶位置 = 起始位置（页头 4rem + 底边线 1px + 内容区上内边距 2.5rem）：滚动时侧栏从第一下起不动；overscroll-contain：侧栏里滚到底不带着整页滚 */}
-            <div class="ry-sidebar sticky top-[calc(4rem+1px+2.5rem)] max-h-[calc(100vh-4rem-1px-2.5rem-1rem)] overflow-y-auto overscroll-contain pr-2 pb-6 text-[13.5px]">
+            {/* 固定位置 = 起始位置（页头 4rem + 底边线 1px + 内容区上内边距 2.5rem）：滚动时侧栏从第一下起不动；overscroll-contain：侧栏里滚到底不带着整页滚。
+                用 fixed 不用 sticky：sticky 出不了网格行，正文一到底就被行底边推着、随页脚一起往上滚走；fixed 不写 left，水平位置沿用这一栏，aside 只占宽，页脚从上面盖过去（docs-content.css） */}
+            <div class="ry-sidebar fixed top-[calc(4rem+1px+2.5rem)] w-[16.5rem] max-h-[calc(100vh-4rem-1px-2.5rem-1rem)] overflow-y-auto overscroll-contain pr-2 pb-6 text-[13.5px]">
               <SidebarTree items={sidebar} current={current} />
             </div>
           </aside>
@@ -227,7 +228,8 @@ const stale = (outdated.pages as Record<string, { missing: string; see: { text: 
         ) : (
           aside && (
             <aside class="hidden 2xl:block">
-              <div class="ry-sidebar sticky top-[calc(4rem+1px+2.5rem)] max-h-[calc(100vh-4rem-1px-2.5rem-1rem)] overflow-y-auto overscroll-contain">
+              {/* 与左侧栏同理用 fixed，宽度 = 这一栏的 14rem */}
+              <div class="ry-sidebar fixed top-[calc(4rem+1px+2.5rem)] w-[14rem] max-h-[calc(100vh-4rem-1px-2.5rem-1rem)] overflow-y-auto overscroll-contain">
                 <DocsToc headings={headings} />
               </div>
             </aside>
