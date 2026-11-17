@@ -138,7 +138,7 @@ for p in chat:                       # 保持原数组顺序 = 分组顺序
 ```json
 {
   "specVersion": 1,
-  "crateVersion": "0.1.7",
+  "crateVersion": "0.1.8",
   "title": "端点拼接",
   "description": "规则摘要",
   "generatedBy": "cargo xtask gen-spec …",
@@ -234,7 +234,7 @@ test.each(spec.cases)('$fn $input', (c) => {
 
 规范与用例：
 - 实现说明：https://ai-profile.ruoyi.plus/reference/spec.md
-- 用例文件已放在本仓库 spec/ 目录（来自 https://ai-profile.ruoyi.plus/spec/v0.1.7/）
+- 用例文件已放在本仓库 spec/ 目录（来自 https://ai-profile.ruoyi.plus/spec/v0.1.8/）
 
 要求：
 1. 先读实现说明的「实现范围」与「测试连接的网络层」两节，再动手

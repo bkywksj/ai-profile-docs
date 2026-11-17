@@ -36,7 +36,7 @@ const CHECKS = [
   ['src/pages/products.astro', /<li>\d+ 家服务商 · (\d+) 条预置/g, presets.length, '产品矩阵：预置数'],
   ['src/pages/products.astro', /(\d+) 组 \d+ 条一致性用例/g, caseFiles.length, '产品矩阵：用例文件数'],
   ['src/pages/products.astro', /\d+ 组 (\d+) 条一致性用例/g, cases, '产品矩阵：用例数'],
-  ['src/pages/products.astro', /引用同一个版本 (\d+\.\d+\.\d+)/g, latest, '产品矩阵：当前版本'],
+  ['src/pages/products.astro', /共用，当前版本 (\d+\.\d+\.\d+)/g, latest, '产品矩阵：当前版本'],
   ['src/pages/services.astro', /spec\/v(\d+\.\d+\.\d+)\//g, latest, '技术服务：固定版本示例'],
   ['src/pages/services.astro', /<span>(\d+) 个文件<\/span>/g, caseFiles.length, '技术服务：用例文件数'],
   ['src/pages/services.astro', /<span>(\d+) 条全过<\/span>/g, cases, '技术服务：用例数'],

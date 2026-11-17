@@ -190,7 +190,7 @@ export const site = {
           children: [
             { label: '服务商清单', href: '/reference/providers', desc: '31 家服务商 · 42 条预置' },
             { label: '错误码对照', href: '/reference/errors', desc: 'VerifyError 变体与界面动作' },
-            { label: '更新日志', href: '/reference/changelog', desc: '最新 0.1.7 · 2026-10-08' },
+            { label: '更新日志', href: '/reference/changelog', desc: '最新 0.1.8 · 2026-11-17' },
             { label: '版本策略', href: '/reference/versioning', desc: '什么改动算破坏性' },
             { label: '加一家服务商', href: '/reference/add-provider', desc: '改本库，下游只升版本' },
             { label: '规范与多语言实现', href: '/reference/spec', desc: 'presets.json · conformance 用例' },

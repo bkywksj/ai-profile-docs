@@ -1,7 +1,7 @@
 ---
 title: "错误码对照"
 description: "错误码对照：VerifyError 每个变体的 code、触发条件与该给的界面动作，auth_failed、not_found、unreachable、missing_extra_field 等。"
-lastUpdated: 2026-11-04
+lastUpdated: 2026-11-17
 ---
 # 错误码对照
 
@@ -45,6 +45,8 @@ if e.is_actionable() {
 可以安全地写进日志。
 
 界面上把它挂到密钥输入框，而不是弹一个全局提示 —— 用户需要知道是**哪个字段**有问题。
+
+403 也归到这里，但它不一定是密钥坏了：地区限制（Anthropic 对不支持的地区直接回 403）、账号没开通该接口都会这样。界面文案别只写「密钥无效」，把 `detail` 原文一起显示出来；0.1.8 起错误自带的文字是「鉴权失败（密钥无效、已过期，或账号 / 地区无权访问）：…」。
 
 
 <div class="vp-callout vp-callout-tip"><p class="vp-callout-title">probe 里 401 反而是成功信号</p>
