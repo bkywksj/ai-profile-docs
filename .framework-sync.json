@@ -18,7 +18,7 @@
     "faq",
     "guides"
   ],
-  "lastSync": "2026-11-04T18:00:00+08:00",
+  "lastSync": "2026-11-26T18:24:58+08:00",
   "lastCommit": "8cb8ceffed263db44993e7d4a20f5cb5bd765b9c",
   "syncs": [
     {
@@ -32,6 +32,18 @@
       ],
       "skipped": [],
       "note": "三条都是本站迁移时修在框架的（headLinks / headerLinks / socialTitle、editLabel、copyrightPrefix），本站以 feat(framework) 同步（b2ebbf3、4eb9e02、56bea6f）"
+    },
+    {
+      "date": "2026-11-26T18:24:58+08:00",
+      "from": "8cb8ceffed263db44993e7d4a20f5cb5bd765b9c",
+      "to": "6f8cd49863622a4b507dad7e165a25d30c1331bf",
+      "merged": [
+        "23b893d",
+        "3266ebb",
+        "6f8cd49"
+      ],
+      "skipped": [],
+      "note": "选择性合并：只取深色对比度相关的 3 个提交；lastCommit 不前移，其余框架提交留待下次完整同步"
     }
   ]
 }

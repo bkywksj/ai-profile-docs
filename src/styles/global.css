@@ -40,8 +40,9 @@
   --ink: #f2f2f4;
   --muted: #a3a3ad;
   --line: #27272d;
-  /* 深色背景上原色本身就够亮 */
-  --brand-ink: var(--brand);
+  /* 深色背景上的品牌色文字：原色不一定够亮（紫 #7F46CA 在 #0b0b0d 上只有约 3.4:1，知识库实录），
+   * 混入 40% 白再用；深蓝 #1e3a8a 这类很深的品牌色混完也有约 6:1，亮色品牌色混完照样可读 */
+  --brand-ink: color-mix(in oklab, var(--brand) 60%, white);
   --accent: #f59e0b;
   --danger: #f87171;
   --success: #4ade80;

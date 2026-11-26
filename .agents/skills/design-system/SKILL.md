@@ -37,7 +37,7 @@ description: 设计令牌与视觉规范：global.css 语义令牌、品牌色�
 | `--brand` | 来自 `site.brandColor` | 同左 | 装饰性色块 | `bg-brand` |
 | `--color-brand-soft` | brand 12% 透明 | 同左 | 浅色强调底 | `bg-brand-soft` |
 | `--color-brand-strong` | brand 混 22% 黑 | 同左 | **主按钮底色**（白字） | `bg-brand-strong` |
-| `--brand-ink` | brand 混 22% 黑 | brand 原色 | **品牌色文字**（链接、强调） | `text-brand-ink` |
+| `--brand-ink` | brand 混 22% 黑 | brand 混 40% 白 | **品牌色文字**（链接、强调） | `text-brand-ink` |
 
 其他 `@theme` 令牌：`--font-sans`（系统中文字体栈）、`--font-mono`、`--radius-card: 1rem`、
 `--shadow-card` / `--shadow-card-hover`、`--ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1)`。
@@ -101,7 +101,7 @@ Tailwind v4 会按命名空间把 `@theme` 变量自动生成工具类（`--radi
 
 WCAG 2.x AA 要求正文对比度 ≥ 4.5:1（大字号 ≥ 3:1）。默认品牌色 `#FF5D2E` 在白底上对比度约 3:1，
 **做小字号文字或白字按钮底色都不达标**。所以：
-- `--brand-ink`：浅色主题下把品牌色混入 22% 黑色（oklab 空间），做文字用；深色主题下原色在深底上已足够亮，直接用原色。
+- `--brand-ink`：浅色主题下把品牌色混入 22% 黑色（oklab 空间），做文字用；深色主题下混入 40% 白色——原色不一定够亮（紫 `#7F46CA` 在深底上只有约 3.4:1，知识库实录）。
 - `--color-brand-strong`：同样加深，做白字按钮底色，两种主题下都用它。
 
 换品牌色后必须重新核对对比度（浏览器 DevTools 的对比度检查，或 WebAIM Contrast Checker），
@@ -231,6 +231,8 @@ scope 写 `framework`（见 CLAUDE.md「框架核心 vs 业务代码」）。
 |------|------|------|
 | 刷新时先白后黑闪一下 | 主题判断放进了打包脚本 / island | 保持 `ThemeScript` 的 `is:inline` 同步执行 |
 | 深色模式下某块是白底 | 用了 `bg-white` 或只在 `:root` 定义了新变量 | 改语义令牌；`.dark` 补定义 |
+| 深色模式下浅底上的字看不清（底色仍近白、文字翻成浅色） | 淡色底写成 `color-mix(..., white)`：混白的结果不随主题变，文字却跟着 `--ink` 翻了（知识库首页对比表实录） | 混色基底用变量（浅色 `#fff`、`.dark` 下 `var(--elevated)`）；`pnpm test:e2e` 的 `contrast.spec.ts` 会报出来 |
+| 深色模式下深色区块变成白底白字 | 深色区块写成 `background: var(--ink)` + 白字：深色主题下 `--ink` 是近白 | 「两种主题都深底白字」的区块单独定义一个变量，`.dark` 下给深色值；只想反色的胶囊 / 按钮用 `bg-ink text-canvas` |
 | 改了 `global.css` 的 `--brand` 没生效 | 真实值来自 `<html style>` 注入，优先级更高 | 改 `site.config.ts` |
 | `bg-brand/40` 不生效 | 类名是拼接出来的，Tailwind 扫描不到 | 写完整类名 |
 | 品牌色链接看不清 | 用了 `text-brand` | `text-brand-ink` |

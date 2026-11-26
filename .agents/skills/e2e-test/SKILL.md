@@ -269,7 +269,7 @@ pnpm build:fast && pnpm test:e2e
 - 模拟慢网络用 `page.route('**/_astro/*.js', …)` 给脚本加延迟（「水合前输入不丢」那条用例的做法）
 - 只在某个视口有意义的用例用 `test.skip(({ isMobile }) => !isMobile)` 过滤
 - 新页面上线时至少补一条冒烟：可访问、h1 唯一、canonical 正确
-- 现有用例：`tests/e2e/smoke.spec.ts` 放与模块无关的全站行为（h1 唯一、暗色模式）；`tests/e2e/works.spec.ts` 放作品模块（首页入口、搜索与分类筛选同步 URL、分享链接还原筛选、水合前输入保留（慢网络回归）、详情页结构）
+- 现有用例：`tests/e2e/smoke.spec.ts` 放与模块无关的全站行为（h1 唯一、暗色模式）；`tests/e2e/contrast.spec.ts` 遍历站点地图每一页、浅色深色各扫一遍文字对比度（WCAG AA，模拟系统偏好切主题），有意固定配色的区域给容器加 `data-contrast-ignore`；`tests/e2e/works.spec.ts` 放作品模块（首页入口、搜索与分类筛选同步 URL、分享链接还原筛选、水合前输入保留（慢网络回归）、详情页结构）
 - 🔴 模块专属用例写进 `tests/e2e/<模块>.spec.ts`，不要加进 `smoke.spec.ts`：`module-strip` 裁模块时只删模块自己的 spec
 - 派生站自己的页面核对（旧网址、标题后缀、下载卡、FAQ 条数）写 `tests/e2e/site.spec.ts`，别改模块的 spec——框架同步会覆盖模块文件
 - 在 spec 里 import JSON 要带导入属性：`import data from '../../src/data/x.json' with { type: 'json' }`，否则 Playwright 报 `needs an import attribute`
