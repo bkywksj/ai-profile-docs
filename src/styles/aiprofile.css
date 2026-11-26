@@ -838,6 +838,15 @@
 :root.dark .ap .btn.pri { background: #4338ca; color: #ffffff; }
 :root.dark .ap .btn.pri:hover { background: #4f46e5; }
 :root.dark .ap .ap-chain > span.on { color: #17181c; }
+/* 代码窗与收尾区在两种主题下都是深底：上面的白字原本借用 --ap-white，深色下它翻成卡片底 #1b1b1f，
+   字就成了近黑压近黑（约 1.05:1，收尾区标题、命令行、GitHub 按钮、代码页签都看不见）。这里固定回白字 */
+:root.dark .ap .code-tab[aria-selected="true"],
+:root.dark .ap .copy:hover,
+:root.dark .ap .code .em,
+:root.dark .ap .cta h2,
+:root.dark .ap .cta .cmd,
+:root.dark .ap .cta .cmd button:hover,
+:root.dark .ap .cta .btn.sec { color: #ffffff; }
 /* 营销页外层：页面自己的底色与字体，不压文档正文（:not(.vp-doc *)） */
 .ap.page:not(.vp-doc *) { display: block; }
 /* 文档正文里的组件块：与上下正文的间距交给 .vp-doc 的块间距；块内相邻文本照原型 14px */
