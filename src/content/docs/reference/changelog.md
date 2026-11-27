@@ -1,8 +1,50 @@
 ---
 title: "更新日志"
 description: "ai-profile 各版本的更新说明：带来了什么、升级要不要改代码，日期与 crate 仓库 CHANGELOG.md 一致；0.1.x 补丁升级只需 cargo update。"
-lastUpdated: 2026-11-17
+lastUpdated: 2026-11-27
 ---
+## 0.1.9 · 2026-11-27
+
+**升级只需 `cargo update -p ai-profile`，不用改代码。** 两件事：新增[采样参数约束](/api/sampling)
+（选 Kimi 的 `kimi-k3` 对话一律 400）；逐家核对模型清单，换掉 9 条已被服务商下线的默认模型。
+
+### 新增
+
+- **`sampling` 模块**：有的模型把采样参数锁死了，传别的值直接 400。用户反馈选 `kimi-k3`「测试连接」一律失败 ——
+  应用发 `temperature: 0`，Moonshot 回 `invalid temperature: only 1 is allowed for this model`。
+  2026-11-27 用真实密钥实测，Moonshot K 系（`kimi-k2.5` / `kimi-k2.6` / `kimi-k3` / `kimi-k3.1-pro`）在 OpenAI 兼容接口上
+  `temperature` 只能是 1、`top_p` 只能是 0.95、两个 penalty 只能是 0
+- 两道防线：发送前 `sampling::temperature_for(model, t)` / `fixed_sampling(model)` 换成唯一接受的值；
+  表外的模型被拒时 `sampling::is_sampling_rejected(status, body)` 为真就**去掉全部采样参数重发一次**
+- [多语言规范](/reference/spec)新增 `sampling.json`。**已有用例一条未改**
+
+### 预置数据
+
+**以下默认模型已被服务商下线，新建档一选就报错，本版换掉**（已存配置里的 model 不会被改，要用户自己换）：
+
+| 预置 | 旧默认（下线日期） | 新默认 |
+|---|---|---|
+| `volcengine_ark` | `doubao-seed-1-6-251015`（09-21） | `doubao-seed-2-0-lite-260428` |
+| `qianfan` | `ernie-4.5-turbo-128k`（10-29） | `deepseek-v4.1-flash` |
+| `mimo` | `mimo-v2-flash`（06-30） | `mimo-v2.6-flash` |
+| `groq` | `llama-3.3-70b-versatile`（08-16） | `openai/gpt-oss-120b` |
+| `together` | `meta-llama/Llama-3.3-70B-Instruct-Turbo`（10-22） | `zai-org/GLM-5.3-Flash` |
+| `seedream_image` | `doubao-seedream-4-0-250828`（11-24） | `doubao-seedream-5-0-flash-260915` |
+| `seedance` | `doubao-seedance-1-0-pro-250528`（11-24） | `doubao-seedance-2-0-mini-260615` |
+| `openai_image` | `gpt-image-1`（10-23） | `gpt-image-2.6-flare` |
+| `siliconflow_video` | `Wan-AI/Wan2.2-I2V-A14B`（11-10） | `MiniMaxAI/MiniMax-H3` |
+
+- 换代：`siliconflow`、`tencent_tokenhub`、`minimax`（`base_url` 改为官方现行的 `https://api.minimax.cn/v1`，旧地址照样认得出）、`stepfun`
+- 新增候选：Claude Fable 5.2 / Haiku 5.5、GPT-6.1 / 6.2、`kimi-k3.1-pro`、通义 `qwen3.8-flash` 等；删除已下线的候选
+- 刻意没换：OpenAI 官方默认仍是 `gpt-5.6-terra` —— `gpt-6.1-terra` 更便宜，但调工具必须走 Responses API
+- 硅基流动四种能力与 Kimi 已用真实密钥调通。MiniMax-H3 视频用现有请求体即可，首帧生效
+- 模型清洗补特征词 `minimax-h3`，「获取模型」里这个视频模型不再混进对话下拉
+
+### 提醒
+
+- 硅基生图默认在图上加可见的「AI 生成」水印，关掉要带请求头 `X-Enable-Watermark: 0`，要不要关由应用决定
+- OpenAI 配音的 `tts-1` / `tts-1-hd` / `gpt-4o-mini-tts` 全部于 2027-01-06 停服，官方替代只走 Realtime API
+
 ## 0.1.8 · 2026-11-17
 
 **升级只需 `cargo update -p ai-profile`，不用改代码；只有一处提示文字变化，线格式不变。**

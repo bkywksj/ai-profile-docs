@@ -8,6 +8,7 @@
   "rules": [
     "依赖写 ai-profile = { version = \"0.1\", features = [...] }；只要预置与纯函数用默认 feature，「获取模型」验证加 client，生图 / 视频 / 配音再加 image / video / tts。最低 Rust 1.88",
     "不要在应用里再写服务商清单、模型列表、协议映射或地址拼接 —— 一律用本库的 preset_by_key / vendors / endpoint；只属于本应用的私有服务商用 PresetCatalog::new().extend(&LOCAL)",
+    "发 temperature / top_p 前过 sampling::temperature_for 或 fixed_sampling（Kimi K 系锁死 temperature=1、top_p=0.95）；请求被拒且 sampling::is_sampling_rejected(status, body) 为真时去掉全部采样参数重发一次",
     "OpenAI 兼容地址原样使用，不要替用户补 /v1（智谱是 /v4、Gemini 是 /v1beta/openai）；Anthropic 协议也不要手动补 /v1，用 endpoint::join_chat_endpoint(base, \"messages\")，本库会按约定补",
     "match 本库的公开枚举（VerifyError、ParseError、Kind、Protocol 等）必须带 `_` 分支：它们都是 #[non_exhaustive]",
     "ServiceConfig 只能用 builder 构造：ServiceConfig::new(protocol, base_url).with_api_key(..).with_model(..)；不能写结构体字面量",

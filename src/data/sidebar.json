@@ -38,7 +38,8 @@
       "items": [
         { "text": "限额：窗口与输出上限", "id": "api/limits" },
         { "text": "历史裁剪与超长重试", "id": "api/history" },
-        { "text": "流式解码", "id": "api/stream" }
+        { "text": "流式解码", "id": "api/stream" },
+        { "text": "采样参数约束", "id": "api/sampling" }
       ]
     },
     {

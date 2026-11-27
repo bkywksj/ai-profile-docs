@@ -27,13 +27,13 @@
 
 ## 谁在用
 
-同一作者的 7 个桌面应用：Sigil、Reeve、本地知识库、一站通、StoryLoom、Prism、AI 标书工作站（当前版本 0.1.8；一站通已升，其余六个引用 0.1.7，补丁位升级只需 cargo update）。
+同一作者的 7 个桌面应用：Sigil、Reeve、本地知识库、一站通、StoryLoom、Prism、AI 标书工作站（当前版本 0.1.9，七个应用均已升级；补丁位升级只需 cargo update）。
 
 ## 出品方
 
 湛江市麻章区湖光镇若依科技工作室，MIT License。源码与 issue：https://github.com/bkywksj/ai-profile ；API 参考：https://docs.rs/ai-profile 。
 
-最后更新：2026-11-17（crate 0.1.8）
+最后更新：2026-11-27（crate 0.1.9）
 
 ## 页面索引（自动生成）
 
@@ -67,6 +67,7 @@
 - [限额：窗口与输出上限](https://ai-profile.ruoyi.plus/api/limits)：限额 API：TokenLimits 的上下文窗口与输出上限，按用户手填、端点上报、预置逐字段叠加，来源可分辨，未知时不…
 - [历史裁剪与超长重试](https://ai-profile.ruoyi.plus/api/history)：历史裁剪与超长重试：trim_history 按预算裁对话历史且不拆工具调用配对，is_context_overflow…
 - [流式解码](https://ai-profile.ruoyi.plus/api/stream)：流式解码 API：StreamDecoder 把 OpenAI 兼容与 Anthropic 的 SSE 字节解成统一事件…
+- [采样参数约束](https://ai-profile.ruoyi.plus/api/sampling)：采样参数约束：fixed_sampling 查出锁死 temperature / top_p 的模型及其唯一接受的值，i…
 
 ### API · 多模态调用
 

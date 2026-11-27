@@ -1,0 +1,289 @@
+{
+  "cases": [
+    {
+      "expected": {
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "temperature": 1.0,
+        "topP": 0.95
+      },
+      "fn": "fixed_sampling",
+      "input": {
+        "model": "kimi-k3"
+      }
+    },
+    {
+      "expected": {
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "temperature": 1.0,
+        "topP": 0.95
+      },
+      "fn": "fixed_sampling",
+      "input": {
+        "model": "kimi-k3.1-pro"
+      }
+    },
+    {
+      "expected": {
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "temperature": 1.0,
+        "topP": 0.95
+      },
+      "fn": "fixed_sampling",
+      "input": {
+        "model": "kimi-k2.5"
+      }
+    },
+    {
+      "expected": {
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "temperature": 1.0,
+        "topP": 0.95
+      },
+      "fn": "fixed_sampling",
+      "input": {
+        "model": "KIMI-K3"
+      }
+    },
+    {
+      "expected": {
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "temperature": 1.0,
+        "topP": 0.95
+      },
+      "fn": "fixed_sampling",
+      "input": {
+        "model": "  kimi-k3  "
+      }
+    },
+    {
+      "expected": {
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "temperature": 1.0,
+        "topP": 0.95
+      },
+      "fn": "fixed_sampling",
+      "input": {
+        "model": "moonshotai/kimi-k3"
+      }
+    },
+    {
+      "expected": {
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "temperature": 1.0,
+        "topP": 0.95
+      },
+      "fn": "fixed_sampling",
+      "input": {
+        "model": "Pro/moonshotai/Kimi-K2.5"
+      }
+    },
+    {
+      "expected": null,
+      "fn": "fixed_sampling",
+      "input": {
+        "model": "kimi-k2-0711-preview"
+      }
+    },
+    {
+      "expected": null,
+      "fn": "fixed_sampling",
+      "input": {
+        "model": "kimi-k2-thinking"
+      }
+    },
+    {
+      "expected": null,
+      "fn": "fixed_sampling",
+      "input": {
+        "model": "my-kimi-k3"
+      }
+    },
+    {
+      "expected": null,
+      "fn": "fixed_sampling",
+      "input": {
+        "model": "deepseek-flash"
+      }
+    },
+    {
+      "expected": null,
+      "fn": "fixed_sampling",
+      "input": {
+        "model": ""
+      }
+    },
+    {
+      "expected": null,
+      "fn": "fixed_sampling",
+      "input": {
+        "model": "moonshotai/"
+      }
+    },
+    {
+      "expected": 1.0,
+      "fn": "temperature_for",
+      "input": {
+        "model": "kimi-k3",
+        "requested": 0.0
+      },
+      "name": "锁死的模型：换成唯一接受的值"
+    },
+    {
+      "expected": 1.0,
+      "fn": "temperature_for",
+      "input": {
+        "model": "kimi-k3",
+        "requested": 0.7
+      },
+      "name": "锁死的模型：换成唯一接受的值"
+    },
+    {
+      "expected": null,
+      "fn": "temperature_for",
+      "input": {
+        "model": "kimi-k3",
+        "requested": null
+      },
+      "name": "调用方本来不发：仍然不发"
+    },
+    {
+      "expected": 0.7,
+      "fn": "temperature_for",
+      "input": {
+        "model": "deepseek-flash",
+        "requested": 0.7
+      },
+      "name": "不受限：原样返回"
+    },
+    {
+      "expected": null,
+      "fn": "temperature_for",
+      "input": {
+        "model": "deepseek-flash",
+        "requested": null
+      },
+      "name": "不受限且不发"
+    },
+    {
+      "expected": true,
+      "fn": "is_sampling_rejected",
+      "input": {
+        "body": "{\"error\":{\"message\":\"invalid temperature: only 1 is allowed for this model\",\"type\":\"invalid_request_error\"}}",
+        "status": 400
+      },
+      "name": "Moonshot temperature"
+    },
+    {
+      "expected": true,
+      "fn": "is_sampling_rejected",
+      "input": {
+        "body": "{\"error\":{\"message\":\"invalid top_p: only 0.95 is allowed for this model\",\"type\":\"invalid_request_error\"}}",
+        "status": 400
+      },
+      "name": "Moonshot top_p"
+    },
+    {
+      "expected": true,
+      "fn": "is_sampling_rejected",
+      "input": {
+        "body": "{\"error\":{\"message\":\"Unsupported value: 'temperature' does not support 0.2 with this model. Only the default (1) value is supported.\",\"type\":\"invalid_request_error\",\"param\":\"temperature\",\"code\":\"unsupported_value\"}}",
+        "status": 400
+      },
+      "name": "OpenAI 推理模型"
+    },
+    {
+      "expected": true,
+      "fn": "is_sampling_rejected",
+      "input": {
+        "body": "{\"detail\":\"Temperature must be 1 for this model\"}",
+        "status": 422
+      },
+      "name": "422 同样检查，大小写不敏感"
+    },
+    {
+      "expected": false,
+      "fn": "is_sampling_rejected",
+      "input": {
+        "body": "{\"error\":{\"message\":\"invalid temperature\"}}",
+        "status": 401
+      },
+      "name": "状态码不是 400 / 422"
+    },
+    {
+      "expected": false,
+      "fn": "is_sampling_rejected",
+      "input": {
+        "body": "temperature",
+        "status": 500
+      },
+      "name": "服务端错误"
+    },
+    {
+      "expected": false,
+      "fn": "is_sampling_rejected",
+      "input": {
+        "body": "{\"error\":{\"message\":\"model not found\"}}",
+        "status": 400
+      },
+      "name": "没提采样参数"
+    },
+    {
+      "expected": false,
+      "fn": "is_sampling_rejected",
+      "input": {
+        "body": "{\"error\":{\"message\":\"maximum context length is 8192 tokens (temperature=0.7)\"}}",
+        "status": 400
+      },
+      "name": "上下文超长优先：要裁历史，去掉 temperature 没用"
+    }
+  ],
+  "crateVersion": "0.1.9",
+  "description": "有的模型只接受固定的采样参数（如 Moonshot K 系 temperature 只能是 1），传别的值直接 400。fixed_sampling：模型 id 去掉两端空白，取最后一个 / 之后的部分并 ASCII 小写；为空 → null；否则按 rules.fixedSampling 的顺序找第一个 prefix 是它前缀的条目，返回其 sampling（不受限的项为 null），找不到 → null。temperature_for：requested 为 null → null；否则 fixed_sampling 有 temperature 就返回它，没有就返回 requested。is_sampling_rejected：状态码不是 400 或 422 → false；是上下文超长（见 history.json 的 is_context_overflow）→ false；否则响应体 ASCII 小写后包含 rules.params 任一子串 → true，否则 false。被拒时调用方应去掉全部采样参数重发一次。数值写进请求体时要按十进制原样输出（0.95 不能变成 0.949999988…）。",
+  "generatedBy": "cargo xtask gen-spec（期望值由 Rust 参考实现算出，请勿手改）",
+  "rules": {
+    "fixedSampling": [
+      {
+        "prefix": "kimi-k3",
+        "sampling": {
+          "frequencyPenalty": 0.0,
+          "presencePenalty": 0.0,
+          "temperature": 1.0,
+          "topP": 0.95
+        }
+      },
+      {
+        "prefix": "kimi-k2.5",
+        "sampling": {
+          "frequencyPenalty": 0.0,
+          "presencePenalty": 0.0,
+          "temperature": 1.0,
+          "topP": 0.95
+        }
+      },
+      {
+        "prefix": "kimi-k2.6",
+        "sampling": {
+          "frequencyPenalty": 0.0,
+          "presencePenalty": 0.0,
+          "temperature": 1.0,
+          "topP": 0.95
+        }
+      }
+    ],
+    "params": [
+      "temperature",
+      "top_p",
+      "presence_penalty",
+      "frequency_penalty"
+    ]
+  },
+  "specVersion": 1,
+  "title": "采样参数约束"
+}

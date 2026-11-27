@@ -1,7 +1,7 @@
 ---
 title: "服务商清单"
 description: "ai-profile 内置的全部服务商预置：每条的 key、能力、Base URL、默认模型与候选数、协议与最终端点、关思考参数与真实密钥核实日期，同一家共用一个密钥。"
-lastUpdated: 2026-09-25
+lastUpdated: 2026-11-27
 ---
 <!-- 🔴 本页由 scripts/sync-providers.mjs 从 ai-profile 仓库的 docs/providers.md 同步而来。
      那份文件又由 `cargo xtask gen-docs` 从 Rust 源码生成。
@@ -39,7 +39,7 @@ lastUpdated: 2026-09-25
 | 硅基流动 SiliconFlow | 对话 / 生图 / 视频 / 配音 | `api.siliconflow.cn` | 云端 |
 | 火山方舟（豆包） | 对话 / 生图 / 视频 | `ark.cn-beijing.volces.com` | 云端 |
 | 腾讯 TokenHub | 对话 | `tokenhub.tencentmaas.com` | 云端 |
-| MiniMax（稀宇科技） | 对话 | `api.minimax.chat` | 自定义端点 |
+| MiniMax（稀宇科技） | 对话 | `api.minimax.cn` | 自定义端点 |
 | 百度千帆 | 对话 | `qianfan.baidubce.com` | 自定义端点 |
 | 阶跃星辰 | 对话 | `api.stepfun.com` | 自定义端点 |
 | 百川智能 | 对话 | `api.baichuan-ai.com` | 自定义端点 |
@@ -71,21 +71,21 @@ lastUpdated: 2026-09-25
 | `deepseek` | DeepSeek | `https://api.deepseek.com/v1` | `deepseek-flash` | OpenAI 兼容 | 2026-09-17 |
 | `zhipu` | 智谱 GLM | `https://open.bigmodel.cn/api/paas/v4` | `glm-5.3` | OpenAI 兼容 | 未核实 |
 | `qwen` | 通义千问（阿里云百炼） | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus` | OpenAI 兼容 | 未核实 |
-| `moonshot` | 月之暗面 Kimi | `https://api.moonshot.cn/v1` | `kimi-k3` | OpenAI 兼容 | 未核实 |
-| `siliconflow` | 硅基流动 SiliconFlow | `https://api.siliconflow.cn/v1` | `deepseek-ai/DeepSeek-V3` | OpenAI 兼容 | 未核实 |
-| `volcengine_ark` | 火山方舟（豆包） | `https://ark.cn-beijing.volces.com/api/v3` | `doubao-seed-1-6-251015` | OpenAI 兼容 | 未核实 |
-| `tencent_tokenhub` | 腾讯 TokenHub | `https://tokenhub.tencentmaas.com/v1` | `hy3-preview` | OpenAI 兼容 | 未核实 |
-| `minimax` | MiniMax（稀宇科技） | `https://api.minimax.chat/v1` | `MiniMax-M1` | OpenAI 兼容 | 未核实 |
-| `qianfan` | 百度千帆 | `https://qianfan.baidubce.com/v2` | `ernie-4.5-turbo-128k` | OpenAI 兼容 | 未核实 |
-| `stepfun` | 阶跃星辰 | `https://api.stepfun.com/v1` | `step-1-flash` | OpenAI 兼容 | 未核实 |
+| `moonshot` | 月之暗面 Kimi | `https://api.moonshot.cn/v1` | `kimi-k3` | OpenAI 兼容 | 2026-11-27 |
+| `siliconflow` | 硅基流动 SiliconFlow | `https://api.siliconflow.cn/v1` | `deepseek-ai/DeepSeek-V4.1-Flash` | OpenAI 兼容 | 2026-11-27 |
+| `volcengine_ark` | 火山方舟（豆包） | `https://ark.cn-beijing.volces.com/api/v3` | `doubao-seed-2-0-lite-260428` | OpenAI 兼容 | 未核实 |
+| `tencent_tokenhub` | 腾讯 TokenHub | `https://tokenhub.tencentmaas.com/v1` | `hy3` | OpenAI 兼容 | 未核实 |
+| `minimax` | MiniMax（稀宇科技） | `https://api.minimax.cn/v1` | `MiniMax-M3.1-Flash` | OpenAI 兼容 | 未核实 |
+| `qianfan` | 百度千帆 | `https://qianfan.baidubce.com/v2` | `deepseek-v4.1-flash` | OpenAI 兼容 | 未核实 |
+| `stepfun` | 阶跃星辰 | `https://api.stepfun.com/v1` | `step-3.5-flash` | OpenAI 兼容 | 未核实 |
 | `baichuan` | 百川智能 | `https://api.baichuan-ai.com/v1` | `Baichuan4-Turbo` | OpenAI 兼容 | 未核实 |
-| `mimo` | 小米 MiMo | `https://api.xiaomimimo.com/v1` | `mimo-v2-flash` | OpenAI 兼容 | 未核实 |
+| `mimo` | 小米 MiMo | `https://api.xiaomimimo.com/v1` | `mimo-v2.6-flash` | OpenAI 兼容 | 未核实 |
 | `openai_official` | OpenAI 官方 | `https://api.openai.com/v1` | `gpt-5.6-terra` | OpenAI 兼容 | 未核实 |
 | `openrouter` | OpenRouter | `https://openrouter.ai/api/v1` | `anthropic/claude-sonnet-5` | OpenAI 兼容 | 未核实 |
 | `gemini` | Google Gemini（OpenAI 兼容层） | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-3.8-flash` | OpenAI 兼容 | 未核实 |
-| `groq` | Groq | `https://api.groq.com/openai/v1` | `llama-3.3-70b-versatile` | OpenAI 兼容 | 未核实 |
+| `groq` | Groq | `https://api.groq.com/openai/v1` | `openai/gpt-oss-120b` | OpenAI 兼容 | 未核实 |
 | `xai` | xAI Grok | `https://api.x.ai/v1` | `grok-4.5` | OpenAI 兼容 | 未核实 |
-| `together` | Together AI | `https://api.together.xyz/v1` | `meta-llama/Llama-3.3-70B-Instruct-Turbo` | OpenAI 兼容 | 未核实 |
+| `together` | Together AI | `https://api.together.xyz/v1` | `zai-org/GLM-5.3-Flash` | OpenAI 兼容 | 未核实 |
 | `ollama` | Ollama（本地） | `http://localhost:11434/v1` | `qwen3:8b` | OpenAI 兼容 | 未核实 |
 | `lmstudio` | LM Studio（本地） | `http://localhost:1234/v1` | `—` | OpenAI 兼容 | 未核实 |
 | `vllm` | vLLM / 自建推理服务 | `http://localhost:8000/v1` | `—` | OpenAI 兼容 | 未核实 |
@@ -95,20 +95,20 @@ lastUpdated: 2026-09-25
 
 | 预置 key | 名称 | Base URL | 默认模型 | 协议 | 核实于 |
 |---|---|---|---|---|---|
-| `seedream_image` | 即梦 Seedream（火山方舟） | `https://ark.cn-beijing.volces.com/api/v3` | `doubao-seedream-4-0-250828` | 按地址识别 | 未核实 |
+| `seedream_image` | 即梦 Seedream（火山方舟） | `https://ark.cn-beijing.volces.com/api/v3` | `doubao-seedream-5-0-flash-260915` | 按地址识别 | 未核实 |
 | `wan_image` | 通义万相（阿里百炼） | `https://dashscope.aliyuncs.com/api/v1` | `wan2.2-t2i-flash` | 按地址识别 | 未核实 |
-| `siliconflow_image` | 硅基流动 生图 | `https://api.siliconflow.cn/v1` | `Kwai-Kolors/Kolors` | 按地址识别 | 未核实 |
-| `openai_image` | OpenAI 生图 | `https://api.openai.com/v1` | `gpt-image-1` | 按地址识别 | 未核实 |
+| `siliconflow_image` | 硅基流动 生图 | `https://api.siliconflow.cn/v1` | `Kwai-Kolors/Kolors` | 按地址识别 | 2026-11-27 |
+| `openai_image` | OpenAI 生图 | `https://api.openai.com/v1` | `gpt-image-2.6-flare` | 按地址识别 | 未核实 |
 | `custom_image` | 自定义生图端点 | `—` | `—` | 按地址识别 | 未核实 |
 
 ## 视频
 
 | 预置 key | 名称 | Base URL | 默认模型 | 协议 | 核实于 |
 |---|---|---|---|---|---|
-| `seedance` | 即梦 Seedance（火山方舟） | `https://ark.cn-beijing.volces.com/api/v3` | `doubao-seedance-1-0-pro-250528` | 按地址识别 | 未核实 |
+| `seedance` | 即梦 Seedance（火山方舟） | `https://ark.cn-beijing.volces.com/api/v3` | `doubao-seedance-2-0-mini-260615` | 按地址识别 | 未核实 |
 | `minimax_video` | 海螺 MiniMax 视频 | `https://api.minimaxi.com/v1` | `MiniMax-Hailuo-02` | 按地址识别 | 未核实 |
 | `vidu_video` | Vidu 视频（阿里百炼） | `https://dashscope.aliyuncs.com/api/v1` | `vidu/viduq3-turbo_img2video` | 按地址识别 | 未核实 |
-| `siliconflow_video` | 硅基流动 视频 Wan | `https://api.siliconflow.cn/v1` | `Wan-AI/Wan2.2-I2V-A14B` | 按地址识别 | 未核实 |
+| `siliconflow_video` | 硅基流动 视频 | `https://api.siliconflow.cn/v1` | `MiniMaxAI/MiniMax-H3` | 按地址识别 | 2026-11-27 |
 | `zhipu_video` | 智谱 CogVideoX | `https://open.bigmodel.cn/api/paas/v4` | `cogvideox-flash` | 按地址识别 | 未核实 |
 | `ai302_minimax_video` | 302.AI 视频·海螺 | `https://api.302.ai/minimaxi/v1` | `MiniMax-Hailuo-02` | 按地址识别 | 未核实 |
 | `ai302_zhipu_video` | 302.AI 视频·智谱 | `https://api.302.ai/zhipu/api/paas/v4` | `cogvideox-flash` | 按地址识别 | 未核实 |
@@ -119,7 +119,7 @@ lastUpdated: 2026-09-25
 | 预置 key | 名称 | Base URL | 默认模型 | 协议 | 核实于 |
 |---|---|---|---|---|---|
 | `volc_tts` | 字节豆包 配音（火山语音） | `https://openspeech.bytedance.com/api/v1/tts` | `volcano_tts` | 按地址识别 | 未核实 |
-| `siliconflow_tts` | 硅基流动 配音 CosyVoice | `https://api.siliconflow.cn/v1` | `FunAudioLLM/CosyVoice2-0.5B` | 按地址识别 | 未核实 |
+| `siliconflow_tts` | 硅基流动 配音 CosyVoice | `https://api.siliconflow.cn/v1` | `FunAudioLLM/CosyVoice2-0.5B` | 按地址识别 | 2026-11-27 |
 | `openai_tts` | OpenAI 配音 | `https://api.openai.com/v1` | `tts-1` | 按地址识别 | 未核实 |
 | `custom_tts` | 自定义配音端点 | `—` | `—` | 按地址识别 | 未核实 |
 

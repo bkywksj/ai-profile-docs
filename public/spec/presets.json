@@ -1,5 +1,5 @@
 {
-  "crateVersion": "0.1.8",
+  "crateVersion": "0.1.9",
   "description": "全部服务商预置（对话 / 生图 / 视频 / 配音）与按厂商聚合的目录。字段含义见 https://ai-profile.ruoyi.plus/api/preset",
   "generatedBy": "cargo xtask gen-spec（期望值由 Rust 参考实现算出，请勿手改）",
   "presets": [
@@ -48,6 +48,12 @@
         },
         {
           "contextWindow": null,
+          "label": "claude-fable-5-2",
+          "maxOutput": null,
+          "value": "claude-fable-5-2"
+        },
+        {
+          "contextWindow": null,
           "label": "claude-fable-5-1",
           "maxOutput": null,
           "value": "claude-fable-5-1"
@@ -60,9 +66,9 @@
         },
         {
           "contextWindow": null,
-          "label": "claude-haiku-4-5",
+          "label": "claude-haiku-5-5",
           "maxOutput": null,
-          "value": "claude-haiku-4-5"
+          "value": "claude-haiku-5-5"
         },
         {
           "contextWindow": null,
@@ -123,6 +129,12 @@
         },
         {
           "contextWindow": null,
+          "label": "claude-fable-5-2",
+          "maxOutput": null,
+          "value": "claude-fable-5-2"
+        },
+        {
+          "contextWindow": null,
           "label": "claude-fable-5-1",
           "maxOutput": null,
           "value": "claude-fable-5-1"
@@ -135,9 +147,9 @@
         },
         {
           "contextWindow": null,
-          "label": "claude-haiku-4-5",
+          "label": "claude-haiku-5-5",
           "maxOutput": null,
-          "value": "claude-haiku-4-5"
+          "value": "claude-haiku-5-5"
         },
         {
           "contextWindow": null,
@@ -172,6 +184,30 @@
       "matchHosts": [],
       "model": "gpt-5.6-terra",
       "models": [
+        {
+          "contextWindow": null,
+          "label": "gpt-6.2-sol",
+          "maxOutput": null,
+          "value": "gpt-6.2-sol"
+        },
+        {
+          "contextWindow": null,
+          "label": "gpt-6.2-astra",
+          "maxOutput": null,
+          "value": "gpt-6.2-astra"
+        },
+        {
+          "contextWindow": null,
+          "label": "gpt-6.1-sol",
+          "maxOutput": null,
+          "value": "gpt-6.1-sol"
+        },
+        {
+          "contextWindow": null,
+          "label": "gpt-6.1-terra",
+          "maxOutput": null,
+          "value": "gpt-6.1-terra"
+        },
         {
           "contextWindow": null,
           "label": "gpt-6-sol",
@@ -335,27 +371,33 @@
       "models": [
         {
           "contextWindow": null,
-          "label": "qwen3-max",
-          "maxOutput": null,
-          "value": "qwen3-max"
-        },
-        {
-          "contextWindow": null,
           "label": "qwen-plus",
           "maxOutput": null,
           "value": "qwen-plus"
         },
         {
           "contextWindow": null,
-          "label": "qwen-max",
+          "label": "qwen3.8-flash",
           "maxOutput": null,
-          "value": "qwen-max"
+          "value": "qwen3.8-flash"
         },
         {
           "contextWindow": null,
-          "label": "qwen-turbo",
+          "label": "qwen3.7-plus",
           "maxOutput": null,
-          "value": "qwen-turbo"
+          "value": "qwen3.7-plus"
+        },
+        {
+          "contextWindow": null,
+          "label": "qwen4-max",
+          "maxOutput": null,
+          "value": "qwen4-max"
+        },
+        {
+          "contextWindow": null,
+          "label": "qwen-max",
+          "maxOutput": null,
+          "value": "qwen-max"
         }
       ],
       "protocol": "openai_compatible",
@@ -393,15 +435,15 @@
         },
         {
           "contextWindow": null,
-          "label": "kimi-k2-0711-preview",
+          "label": "kimi-k3.1-pro",
           "maxOutput": null,
-          "value": "kimi-k2-0711-preview"
+          "value": "kimi-k3.1-pro"
         }
       ],
       "protocol": "openai_compatible",
       "thinkingOff": null,
       "vendorId": "moonshot",
-      "verifiedAt": null
+      "verifiedAt": "2026-11-27"
     },
     {
       "applyUrl": "https://cloud.siliconflow.cn/account/ak",
@@ -420,19 +462,19 @@
       "matchHosts": [
         "api.siliconflow.cn"
       ],
-      "model": "deepseek-ai/DeepSeek-V3",
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash",
       "models": [
         {
           "contextWindow": null,
-          "label": "deepseek-ai/DeepSeek-V3",
+          "label": "deepseek-ai/DeepSeek-V4.1-Flash",
           "maxOutput": null,
-          "value": "deepseek-ai/DeepSeek-V3"
+          "value": "deepseek-ai/DeepSeek-V4.1-Flash"
         },
         {
           "contextWindow": null,
-          "label": "Qwen/Qwen2.5-72B-Instruct",
+          "label": "deepseek-ai/DeepSeek-V4-Pro",
           "maxOutput": null,
-          "value": "Qwen/Qwen2.5-72B-Instruct"
+          "value": "deepseek-ai/DeepSeek-V4-Pro"
         }
       ],
       "protocol": "openai_compatible",
@@ -440,7 +482,7 @@
         "enable_thinking": false
       },
       "vendorId": "siliconflow",
-      "verifiedAt": null
+      "verifiedAt": "2026-11-27"
     },
     {
       "applyUrl": "https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey",
@@ -459,19 +501,31 @@
       "matchHosts": [
         "ark.cn-beijing.volces.com"
       ],
-      "model": "doubao-seed-1-6-251015",
+      "model": "doubao-seed-2-0-lite-260428",
       "models": [
+        {
+          "contextWindow": null,
+          "label": "doubao-seed-2-0-lite-260428",
+          "maxOutput": null,
+          "value": "doubao-seed-2-0-lite-260428"
+        },
+        {
+          "contextWindow": null,
+          "label": "doubao-seed-2-1-lite-260915",
+          "maxOutput": null,
+          "value": "doubao-seed-2-1-lite-260915"
+        },
+        {
+          "contextWindow": null,
+          "label": "doubao-seed-2-1-pro-260915",
+          "maxOutput": null,
+          "value": "doubao-seed-2-1-pro-260915"
+        },
         {
           "contextWindow": null,
           "label": "doubao-seed-2-1-pro-260628",
           "maxOutput": null,
           "value": "doubao-seed-2-1-pro-260628"
-        },
-        {
-          "contextWindow": null,
-          "label": "doubao-seed-1-6-251015",
-          "maxOutput": null,
-          "value": "doubao-seed-1-6-251015"
         }
       ],
       "protocol": "openai_compatible",
@@ -500,19 +554,25 @@
       "matchHosts": [
         "tokenhub.tencentmaas.com"
       ],
-      "model": "hy3-preview",
+      "model": "hy3",
       "models": [
         {
           "contextWindow": null,
-          "label": "hy3-preview",
+          "label": "hy3",
           "maxOutput": null,
-          "value": "hy3-preview"
+          "value": "hy3"
         },
         {
           "contextWindow": null,
-          "label": "deepseek-v4-flash",
+          "label": "hy4-flash",
           "maxOutput": null,
-          "value": "deepseek-v4-flash"
+          "value": "hy4-flash"
+        },
+        {
+          "contextWindow": null,
+          "label": "deepseek-v4.1-flash",
+          "maxOutput": null,
+          "value": "deepseek-v4.1-flash"
         },
         {
           "contextWindow": null,
@@ -522,21 +582,27 @@
         },
         {
           "contextWindow": null,
-          "label": "glm-5.1",
+          "label": "glm-5.3-flash",
           "maxOutput": null,
-          "value": "glm-5.1"
+          "value": "glm-5.3-flash"
         },
         {
           "contextWindow": null,
-          "label": "kimi-k2.6",
+          "label": "kimi-k3.1-pro",
           "maxOutput": null,
-          "value": "kimi-k2.6"
+          "value": "kimi-k3.1-pro"
         },
         {
           "contextWindow": null,
-          "label": "minimax-m2.7",
+          "label": "minimax-m3.1-flash",
           "maxOutput": null,
-          "value": "minimax-m2.7"
+          "value": "minimax-m3.1-flash"
+        },
+        {
+          "contextWindow": null,
+          "label": "mimo-v2.6-flash",
+          "maxOutput": null,
+          "value": "mimo-v2.6-flash"
         }
       ],
       "protocol": "openai_compatible",
@@ -546,7 +612,7 @@
     },
     {
       "applyUrl": null,
-      "baseUrl": "https://api.minimax.chat/v1",
+      "baseUrl": "https://api.minimax.cn/v1",
       "defaultExtra": [],
       "extraFields": [],
       "groupKey": "providerGroup.china",
@@ -559,21 +625,22 @@
       "label": "MiniMax（稀宇科技）",
       "labelKey": "providerTemplate.minimax.label",
       "matchHosts": [
+        "api.minimax.cn",
         "api.minimax.chat"
       ],
-      "model": "MiniMax-M1",
+      "model": "MiniMax-M3.1-Flash",
       "models": [
         {
-          "contextWindow": null,
-          "label": "MiniMax-M1",
+          "contextWindow": 1000000,
+          "label": "MiniMax-M3.1-Flash",
           "maxOutput": null,
-          "value": "MiniMax-M1"
+          "value": "MiniMax-M3.1-Flash"
         },
         {
-          "contextWindow": null,
-          "label": "abab6.5s-chat",
+          "contextWindow": 1000000,
+          "label": "MiniMax-M3",
           "maxOutput": null,
-          "value": "abab6.5s-chat"
+          "value": "MiniMax-M3"
         }
       ],
       "protocol": "openai_compatible",
@@ -598,13 +665,25 @@
       "matchHosts": [
         "qianfan.baidubce.com"
       ],
-      "model": "ernie-4.5-turbo-128k",
+      "model": "deepseek-v4.1-flash",
       "models": [
         {
           "contextWindow": null,
-          "label": "ernie-4.5-turbo-128k",
+          "label": "deepseek-v4.1-flash",
           "maxOutput": null,
-          "value": "ernie-4.5-turbo-128k"
+          "value": "deepseek-v4.1-flash"
+        },
+        {
+          "contextWindow": null,
+          "label": "ernie-5.1",
+          "maxOutput": null,
+          "value": "ernie-5.1"
+        },
+        {
+          "contextWindow": null,
+          "label": "deepseek-v4-pro",
+          "maxOutput": null,
+          "value": "deepseek-v4-pro"
         }
       ],
       "protocol": "openai_compatible",
@@ -619,7 +698,7 @@
       "extraFields": [],
       "groupKey": "providerGroup.china",
       "groupLabel": "国内",
-      "hint": "Step 系列；flash 档便宜快，长文本选 16k 档",
+      "hint": "Step 系列；flash 档便宜快",
       "hintKey": "providerTemplate.stepfun.hint",
       "isLocal": false,
       "key": "stepfun",
@@ -629,19 +708,19 @@
       "matchHosts": [
         "api.stepfun.com"
       ],
-      "model": "step-1-flash",
+      "model": "step-3.5-flash",
       "models": [
         {
           "contextWindow": null,
-          "label": "step-1-flash",
+          "label": "step-3.5-flash",
           "maxOutput": null,
-          "value": "step-1-flash"
+          "value": "step-3.5-flash"
         },
         {
-          "contextWindow": null,
-          "label": "step-2-16k",
+          "contextWindow": 256000,
+          "label": "step-3.7-flash",
           "maxOutput": null,
-          "value": "step-2-16k"
+          "value": "step-3.7-flash"
         }
       ],
       "protocol": "openai_compatible",
@@ -703,19 +782,19 @@
       "matchHosts": [
         "api.xiaomimimo.com"
       ],
-      "model": "mimo-v2-flash",
+      "model": "mimo-v2.6-flash",
       "models": [
         {
-          "contextWindow": null,
-          "label": "mimo-v2-flash",
-          "maxOutput": null,
-          "value": "mimo-v2-flash"
+          "contextWindow": 1000000,
+          "label": "mimo-v2.6-flash",
+          "maxOutput": 128000,
+          "value": "mimo-v2.6-flash"
         },
         {
-          "contextWindow": null,
-          "label": "mimo-v2-pro",
-          "maxOutput": null,
-          "value": "mimo-v2-pro"
+          "contextWindow": 1000000,
+          "label": "mimo-v2.6-pro",
+          "maxOutput": 128000,
+          "value": "mimo-v2.6-pro"
         }
       ],
       "protocol": "openai_compatible",
@@ -742,6 +821,30 @@
       ],
       "model": "gpt-5.6-terra",
       "models": [
+        {
+          "contextWindow": null,
+          "label": "gpt-6.2-sol",
+          "maxOutput": null,
+          "value": "gpt-6.2-sol"
+        },
+        {
+          "contextWindow": null,
+          "label": "gpt-6.2-astra",
+          "maxOutput": null,
+          "value": "gpt-6.2-astra"
+        },
+        {
+          "contextWindow": null,
+          "label": "gpt-6.1-sol",
+          "maxOutput": null,
+          "value": "gpt-6.1-sol"
+        },
+        {
+          "contextWindow": null,
+          "label": "gpt-6.1-terra",
+          "maxOutput": null,
+          "value": "gpt-6.1-terra"
+        },
         {
           "contextWindow": null,
           "label": "gpt-6-astra",
@@ -823,6 +926,36 @@
         },
         {
           "contextWindow": null,
+          "label": "anthropic/claude-fable-5.2",
+          "maxOutput": null,
+          "value": "anthropic/claude-fable-5.2"
+        },
+        {
+          "contextWindow": null,
+          "label": "anthropic/claude-haiku-5.5",
+          "maxOutput": null,
+          "value": "anthropic/claude-haiku-5.5"
+        },
+        {
+          "contextWindow": null,
+          "label": "openai/gpt-6.2-sol",
+          "maxOutput": null,
+          "value": "openai/gpt-6.2-sol"
+        },
+        {
+          "contextWindow": null,
+          "label": "openai/gpt-6.1-sol",
+          "maxOutput": null,
+          "value": "openai/gpt-6.1-sol"
+        },
+        {
+          "contextWindow": null,
+          "label": "openai/gpt-6.1-terra",
+          "maxOutput": null,
+          "value": "openai/gpt-6.1-terra"
+        },
+        {
+          "contextWindow": null,
           "label": "openai/gpt-6-astra",
           "maxOutput": null,
           "value": "openai/gpt-6-astra"
@@ -844,6 +977,12 @@
           "label": "moonshotai/kimi-k3",
           "maxOutput": null,
           "value": "moonshotai/kimi-k3"
+        },
+        {
+          "contextWindow": null,
+          "label": "moonshotai/kimi-k3.1-pro",
+          "maxOutput": null,
+          "value": "moonshotai/kimi-k3.1-pro"
         }
       ],
       "protocol": "openai_compatible",
@@ -887,6 +1026,12 @@
           "label": "gemini-3.5-flash-lite",
           "maxOutput": null,
           "value": "gemini-3.5-flash-lite"
+        },
+        {
+          "contextWindow": null,
+          "label": "gemini-4-hydrogen",
+          "maxOutput": null,
+          "value": "gemini-4-hydrogen"
         }
       ],
       "protocol": "openai_compatible",
@@ -911,25 +1056,19 @@
       "matchHosts": [
         "api.groq.com"
       ],
-      "model": "llama-3.3-70b-versatile",
+      "model": "openai/gpt-oss-120b",
       "models": [
         {
-          "contextWindow": null,
-          "label": "llama-3.3-70b-versatile",
-          "maxOutput": null,
-          "value": "llama-3.3-70b-versatile"
-        },
-        {
-          "contextWindow": null,
-          "label": "llama-3.1-8b-instant",
-          "maxOutput": null,
-          "value": "llama-3.1-8b-instant"
-        },
-        {
-          "contextWindow": null,
+          "contextWindow": 131072,
           "label": "openai/gpt-oss-120b",
-          "maxOutput": null,
+          "maxOutput": 65536,
           "value": "openai/gpt-oss-120b"
+        },
+        {
+          "contextWindow": null,
+          "label": "openai/gpt-oss-20b",
+          "maxOutput": null,
+          "value": "openai/gpt-oss-20b"
         }
       ],
       "protocol": "openai_compatible",
@@ -973,6 +1112,12 @@
           "label": "grok-4.5",
           "maxOutput": null,
           "value": "grok-4.5"
+        },
+        {
+          "contextWindow": null,
+          "label": "grok-4.3",
+          "maxOutput": null,
+          "value": "grok-4.3"
         }
       ],
       "protocol": "openai_compatible",
@@ -997,13 +1142,13 @@
       "matchHosts": [
         "api.together.xyz"
       ],
-      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "model": "zai-org/GLM-5.3-Flash",
       "models": [
         {
           "contextWindow": null,
-          "label": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+          "label": "zai-org/GLM-5.3-Flash",
           "maxOutput": null,
-          "value": "meta-llama/Llama-3.3-70B-Instruct-Turbo"
+          "value": "zai-org/GLM-5.3-Flash"
         }
       ],
       "protocol": "openai_compatible",
@@ -1134,7 +1279,7 @@
       "extraFields": [],
       "groupKey": "providerGroup.china",
       "groupLabel": "国内",
-      "hint": "中文 / 人像质量最好；模型 ID 须与控制台「开通」后给的完全一致（带日期后缀）。报「does not support this api」就换 *-t2i-* 模型",
+      "hint": "中文 / 人像质量最好；模型 ID 须与控制台「开通」后给的完全一致（带日期后缀）。报「does not support this api」多半是账号没开通该模型",
       "hintKey": "providerTemplate.seedreamImage.hint",
       "isLocal": false,
       "key": "seedream_image",
@@ -1144,19 +1289,31 @@
       "matchHosts": [
         "ark.cn-beijing.volces.com"
       ],
-      "model": "doubao-seedream-4-0-250828",
+      "model": "doubao-seedream-5-0-flash-260915",
       "models": [
         {
           "contextWindow": null,
-          "label": "doubao-seedream-4-0-250828",
+          "label": "doubao-seedream-5-0-flash-260915",
           "maxOutput": null,
-          "value": "doubao-seedream-4-0-250828"
+          "value": "doubao-seedream-5-0-flash-260915"
         },
         {
           "contextWindow": null,
-          "label": "doubao-seedream-3-0-t2i-250415",
+          "label": "doubao-seedream-5-5-261028",
           "maxOutput": null,
-          "value": "doubao-seedream-3-0-t2i-250415"
+          "value": "doubao-seedream-5-5-261028"
+        },
+        {
+          "contextWindow": null,
+          "label": "doubao-seedream-5-0-pro-260628",
+          "maxOutput": null,
+          "value": "doubao-seedream-5-0-pro-260628"
+        },
+        {
+          "contextWindow": null,
+          "label": "doubao-seedream-4-0-260415",
+          "maxOutput": null,
+          "value": "doubao-seedream-4-0-260415"
         }
       ],
       "protocol": "openai_compatible",
@@ -1206,6 +1363,12 @@
           "label": "wanx2.1-t2i-plus",
           "maxOutput": null,
           "value": "wanx2.1-t2i-plus"
+        },
+        {
+          "contextWindow": null,
+          "label": "wan2.5-t2i-preview",
+          "maxOutput": null,
+          "value": "wan2.5-t2i-preview"
         }
       ],
       "protocol": "openai_compatible",
@@ -1220,7 +1383,7 @@
       "extraFields": [],
       "groupKey": "providerGroup.china",
       "groupLabel": "国内",
-      "hint": "Kolors 国风 / 人像，FLUX 质感；结果图链接 1 小时失效，调用方应立即下载",
+      "hint": "Kolors 国风 / 人像（免费）；结果图链接 1 小时失效，调用方应立即下载",
       "hintKey": "providerTemplate.siliconflowImage.hint",
       "isLocal": false,
       "key": "siliconflow_image",
@@ -1240,21 +1403,21 @@
         },
         {
           "contextWindow": null,
-          "label": "black-forest-labs/FLUX.1-dev",
+          "label": "Tongyi-MAI/Z-Image-Turbo",
           "maxOutput": null,
-          "value": "black-forest-labs/FLUX.1-dev"
+          "value": "Tongyi-MAI/Z-Image-Turbo"
         },
         {
           "contextWindow": null,
-          "label": "black-forest-labs/FLUX.1-schnell",
+          "label": "Qwen/Qwen-Image",
           "maxOutput": null,
-          "value": "black-forest-labs/FLUX.1-schnell"
+          "value": "Qwen/Qwen-Image"
         }
       ],
       "protocol": "openai_compatible",
       "thinkingOff": null,
       "vendorId": "siliconflow",
-      "verifiedAt": null
+      "verifiedAt": "2026-11-27"
     },
     {
       "applyUrl": "https://platform.openai.com/api-keys",
@@ -1273,19 +1436,19 @@
       "matchHosts": [
         "api.openai.com"
       ],
-      "model": "gpt-image-1",
+      "model": "gpt-image-2.6-flare",
       "models": [
         {
           "contextWindow": null,
-          "label": "gpt-image-1",
+          "label": "gpt-image-2.6-flare",
           "maxOutput": null,
-          "value": "gpt-image-1"
+          "value": "gpt-image-2.6-flare"
         },
         {
           "contextWindow": null,
-          "label": "dall-e-3",
+          "label": "gpt-image-2.6-sunburst",
           "maxOutput": null,
-          "value": "dall-e-3"
+          "value": "gpt-image-2.6-sunburst"
         }
       ],
       "protocol": "openai_compatible",
@@ -1322,7 +1485,7 @@
       "extraFields": [],
       "groupKey": "providerGroup.china",
       "groupLabel": "国内",
-      "hint": "图生视频，支持首尾帧；模型是 Seedance 不是 Seedream，ID 须与控制台「开通」一致。2.0 需先开通，1.0-pro 最稳",
+      "hint": "图生视频，支持首尾帧；模型是 Seedance 不是 Seedream，ID 须与控制台「开通」一致",
       "hintKey": "providerTemplate.seedance.hint",
       "isLocal": false,
       "key": "seedance",
@@ -1332,19 +1495,19 @@
       "matchHosts": [
         "ark.cn-beijing.volces.com"
       ],
-      "model": "doubao-seedance-1-0-pro-250528",
+      "model": "doubao-seedance-2-0-mini-260615",
       "models": [
         {
           "contextWindow": null,
-          "label": "doubao-seedance-1-0-pro-250528",
+          "label": "doubao-seedance-2-0-mini-260615",
           "maxOutput": null,
-          "value": "doubao-seedance-1-0-pro-250528"
+          "value": "doubao-seedance-2-0-mini-260615"
         },
         {
           "contextWindow": null,
-          "label": "doubao-seedance-1-0-pro-fast-251015",
+          "label": "doubao-seedance-2-0-fast-260128",
           "maxOutput": null,
-          "value": "doubao-seedance-1-0-pro-fast-251015"
+          "value": "doubao-seedance-2-0-fast-260128"
         },
         {
           "contextWindow": null,
@@ -1354,9 +1517,15 @@
         },
         {
           "contextWindow": null,
-          "label": "doubao-seedance-2-0-fast-260128",
+          "label": "doubao-seedance-2-5-flash-261115",
           "maxOutput": null,
-          "value": "doubao-seedance-2-0-fast-260128"
+          "value": "doubao-seedance-2-5-flash-261115"
+        },
+        {
+          "contextWindow": null,
+          "label": "doubao-seedance-2-5-260628",
+          "maxOutput": null,
+          "value": "doubao-seedance-2-5-260628"
         }
       ],
       "protocol": "openai_compatible",
@@ -1388,6 +1557,18 @@
           "label": "MiniMax-Hailuo-02",
           "maxOutput": null,
           "value": "MiniMax-Hailuo-02"
+        },
+        {
+          "contextWindow": null,
+          "label": "MiniMax-Hailuo-2.3",
+          "maxOutput": null,
+          "value": "MiniMax-Hailuo-2.3"
+        },
+        {
+          "contextWindow": null,
+          "label": "MiniMax-Hailuo-2.3-Fast",
+          "maxOutput": null,
+          "value": "MiniMax-Hailuo-2.3-Fast"
         },
         {
           "contextWindow": null,
@@ -1455,6 +1636,18 @@
           "label": "vidu/viduq2-turbo_img2video",
           "maxOutput": null,
           "value": "vidu/viduq2-turbo_img2video"
+        },
+        {
+          "contextWindow": null,
+          "label": "vidu/viduq3-pro-fast_img2video",
+          "maxOutput": null,
+          "value": "vidu/viduq3-pro-fast_img2video"
+        },
+        {
+          "contextWindow": null,
+          "label": "vidu/viduq2-pro-fast_img2video",
+          "maxOutput": null,
+          "value": "vidu/viduq2-pro-fast_img2video"
         }
       ],
       "protocol": "openai_compatible",
@@ -1474,30 +1667,24 @@
       "isLocal": false,
       "key": "siliconflow_video",
       "kind": "video",
-      "label": "硅基流动 视频 Wan",
+      "label": "硅基流动 视频",
       "labelKey": "providerTemplate.siliconflowVideo.label",
       "matchHosts": [
         "api.siliconflow.cn"
       ],
-      "model": "Wan-AI/Wan2.2-I2V-A14B",
+      "model": "MiniMaxAI/MiniMax-H3",
       "models": [
         {
           "contextWindow": null,
-          "label": "Wan-AI/Wan2.2-I2V-A14B",
+          "label": "MiniMaxAI/MiniMax-H3",
           "maxOutput": null,
-          "value": "Wan-AI/Wan2.2-I2V-A14B"
-        },
-        {
-          "contextWindow": null,
-          "label": "Wan-AI/Wan2.1-I2V-14B-720P",
-          "maxOutput": null,
-          "value": "Wan-AI/Wan2.1-I2V-14B-720P"
+          "value": "MiniMaxAI/MiniMax-H3"
         }
       ],
       "protocol": "openai_compatible",
       "thinkingOff": null,
       "vendorId": "siliconflow",
-      "verifiedAt": null
+      "verifiedAt": "2026-11-27"
     },
     {
       "applyUrl": "https://open.bigmodel.cn/usercenter/apikeys",
@@ -1703,7 +1890,7 @@
       "extraFields": [],
       "groupKey": "providerGroup.china",
       "groupLabel": "国内",
-      "hint": "CosyVoice2 系统音色，支持情绪指令；fish-speech 可克隆",
+      "hint": "CosyVoice2 系统音色，支持情绪指令",
       "hintKey": "providerTemplate.siliconflowTts.hint",
       "isLocal": false,
       "key": "siliconflow_tts",
@@ -1720,18 +1907,12 @@
           "label": "FunAudioLLM/CosyVoice2-0.5B",
           "maxOutput": null,
           "value": "FunAudioLLM/CosyVoice2-0.5B"
-        },
-        {
-          "contextWindow": null,
-          "label": "fishaudio/fish-speech-1.5",
-          "maxOutput": null,
-          "value": "fishaudio/fish-speech-1.5"
         }
       ],
       "protocol": "openai_compatible",
       "thinkingOff": null,
       "vendorId": "siliconflow",
-      "verifiedAt": null
+      "verifiedAt": "2026-11-27"
     },
     {
       "applyUrl": "https://platform.openai.com/api-keys",
@@ -1763,6 +1944,12 @@
           "label": "tts-1-hd",
           "maxOutput": null,
           "value": "tts-1-hd"
+        },
+        {
+          "contextWindow": null,
+          "label": "gpt-4o-mini-tts",
+          "maxOutput": null,
+          "value": "gpt-4o-mini-tts"
         }
       ],
       "protocol": "openai_compatible",
@@ -1966,7 +2153,7 @@
       "applyUrl": null,
       "groupKey": "providerGroup.china",
       "groupLabel": "国内",
-      "host": "api.minimax.chat",
+      "host": "api.minimax.cn",
       "id": "minimax",
       "isLocal": false,
       "kinds": [

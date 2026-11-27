@@ -39,6 +39,7 @@ lastUpdated: 2026-11-04
 | 限额 | `merge_limits`（= 从左往右折叠 Rust 的 `TokenLimits::or`） | `limits.json` | 显示上下文窗口 / 输出上限 |
 | 超长识别 | `is_context_overflow` | `history.json` | 对话报错后决定要不要裁历史重试 |
 | 流式解码 | `decode` / `is_stream_options_rejected` / `looks_like_html` / `stop_reason_from_openai` | `stream.json` | 自己解对话的 SSE 流；规则见[流式解码](/api/stream) |
+| 采样参数约束 | `fixed_sampling` / `temperature_for` / `is_sampling_rejected` | `sampling.json` | 发对话请求前纠正锁死的 temperature、被拒后去掉采样参数重发；规则见[采样参数约束](/api/sampling) |
 | 历史裁剪、生图 / 视频 / 配音调用 | `trim_history` / `media` 模块 | **暂无** | 见[未覆盖的部分](#未覆盖的部分) |
 
 函数名、参数名在你的语言里按惯例改（`join_api_path` → `joinApiPath`），行为一致即可。
@@ -138,7 +139,7 @@ for p in chat:                       # 保持原数组顺序 = 分组顺序
 ```json
 {
   "specVersion": 1,
-  "crateVersion": "0.1.8",
+  "crateVersion": "0.1.9",
   "title": "端点拼接",
   "description": "规则摘要",
   "generatedBy": "cargo xtask gen-spec …",
@@ -234,7 +235,7 @@ test.each(spec.cases)('$fn $input', (c) => {
 
 规范与用例：
 - 实现说明：https://ai-profile.ruoyi.plus/reference/spec.md
-- 用例文件已放在本仓库 spec/ 目录（来自 https://ai-profile.ruoyi.plus/spec/v0.1.8/）
+- 用例文件已放在本仓库 spec/ 目录（来自 https://ai-profile.ruoyi.plus/spec/v0.1.9/）
 
 要求：
 1. 先读实现说明的「实现范围」与「测试连接的网络层」两节，再动手
